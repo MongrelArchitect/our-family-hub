@@ -1,0 +1,29 @@
+services:
+  app-dev:
+    image: seanzie/our-family-hub-dev:latest
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./app:/our-family-hub/app
+    ports: 
+      - 3000:3000
+    environment:
+      - DEV=true
+      - POSTGRES_USER=${POSTGRES_USER_DEV}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_DEV}
+      - POSTGRES_DB=${POSTGRES_DB_DEV}
+    depends_on:
+      - database-dev
+
+  database-dev:
+    image: postgres
+    environment: 
+      - POSTGRES_USER=${POSTGRES_USER_DEV}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_DEV}
+      - POSTGRES_DB=${POSTGRES_DB_DEV}
+    volumes: 
+      - db_data_dev:/var/lib/postgresql/data
+
+volumes:
+  db_data_dev:
