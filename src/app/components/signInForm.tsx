@@ -23,14 +23,18 @@ export default function SignInForm() {
           type="password"
         />
       </div>
-      <button className="rounded bg-violet-300 p-2" type="submit">
+      <button
+        className="rounded bg-violet-300 p-2 hover:bg-violet-400 focus:bg-violet-400"
+        type="submit"
+      >
         Submit
       </button>
-      <div className="flex gap-1 flex-wrap">
-        <span>
-          Need an account?
-        </span>
-        <Link className="text-violet-700 font-bold hover:underline" href="/signup">
+      <div className="flex flex-wrap gap-1">
+        <span>Need an account?</span>
+        <Link
+          className="font-bold text-violet-700 hover:underline"
+          href="/signup"
+        >
           Sign up
         </Link>
       </div>
