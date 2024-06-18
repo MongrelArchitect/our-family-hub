@@ -5,7 +5,8 @@ services:
       context: .
       dockerfile: dev.Dockerfile
     volumes:
-      - ./app:/our-family-hub/app
+      - ./src:/our-family-hub/src
+      - ./public:/our-family-hub/public
     ports: 
       - 3000:3000
     environment:
