@@ -1,4 +1,4 @@
-import Hero from "@/components/hero";
+import Hero from "./components/hero";
 import SignInForm from "./components/signInForm";
 
 export default async function Home() {

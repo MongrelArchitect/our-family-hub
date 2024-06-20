@@ -1,6 +1,7 @@
 import { signIn } from "@/auth";
 
 import Image from "next/image";
+import googleIcon from "@/app/assets/icons/google-logo.png";
 
 export default function SignInForm() {
   return (
@@ -23,8 +24,8 @@ export default function SignInForm() {
         <Image
           alt=""
           className="rounded-full bg-white p-1"
-          src="/icons/google-logo.png"
           height="40"
+          src={googleIcon}
           width="40"
         />
         Sign in with Google
