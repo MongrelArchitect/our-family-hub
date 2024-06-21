@@ -1,24 +1,34 @@
 import pg from "pg";
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import { UserInterface } from "@/types/user";
+
+const {
+  DATABASE_USER,
+  DATABASE_PASSWORD,
+  DATABASE_HOST,
+  DATABASE_NAME,
+  DATABASE_PORT,
+} = process.env;
+
+const { Client } = pg;
+
+const client = new Client({
+  user: DATABASE_USER,
+  password: DATABASE_PASSWORD,
+  host: DATABASE_HOST,
+  database: DATABASE_NAME,
+  port: DATABASE_PORT ? +DATABASE_PORT : undefined,
+});
+
+client.connect().catch(err => console.error('Connection error', err.stack));
+
+process.on('exit', () => {
+  client.end().catch(err => console.error('Disconnection error', err.stack));
+});
 
 const checkPg = async () => {
-  const { Client } = pg;
-  const client = new Client({
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    host: "our-family-hub-database-dev-1",
-    database: process.env.POSTGRES_DB,
-    port: 5432,
-  });
-  await client.connect();
   const res = await client.query(`SELECT * FROM users`);
-  await client.end();
-  return res.rows as User[];
+  return res.rows as UserInterface[];
 };
 
 export default async function DbTest() {
