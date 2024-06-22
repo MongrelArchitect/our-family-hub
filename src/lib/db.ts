@@ -37,10 +37,14 @@ export async function checkIfUserInDatabase(email: string) {
   }
 }
 
-export async function addUserToDatabase(user: { name: string; email: string }) {
+export async function addUserToDatabase(user: {
+  name: string;
+  email: string;
+  image: string;
+}) {
   try {
     const result = await client.query(
-      `INSERT INTO users (name, email) VALUES ('${user.name}', '${user.email}')`,
+      `INSERT INTO users (name, email, image) VALUES ('${user.name}', '${user.email}', '${user.image}')`,
     );
     return result;
   } catch (err) {

@@ -8,6 +8,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // XXX FIXME XXX
       // all this nexted control flow / waterfall is ugly
       // gotta be a way to improve this
+      if (!user.email || !user.name || !user.image) {
+        // XXX TODO XXX
+        // log this
+        console.error("User is missing data: ", user);
+        // missing data in user object, can't proceed
+        return false;
+      }
       try {
         // check for existing user in the database
         const existsResponse = await fetch(
@@ -35,7 +42,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             "http://localhost:3000/api/users/",
             {
               method: "POST",
-              body: JSON.stringify({ name: user.name, email: user.email }),
+              body: JSON.stringify({
+                name: user.name,
+                email: user.email,
+                image: user.image,
+              }),
             },
           );
           // some error adding user to database - deny auth

@@ -4,7 +4,11 @@ import { addUserToDatabase } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
-    const userInfo = (await req.json()) as { name: string; email: string };
+    const userInfo = (await req.json()) as {
+      name: string;
+      email: string;
+      image: string;
+    };
     const result = await addUserToDatabase(userInfo);
     if (result.rowCount) {
       // XXX TODO XXX
