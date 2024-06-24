@@ -15,7 +15,7 @@ const client = new Client({
   password: DATABASE_PASSWORD,
   host: DATABASE_HOST,
   database: DATABASE_NAME,
-  port: DATABASE_PORT ? +DATABASE_PORT : undefined,
+  port: DATABASE_PORT ? +DATABASE_PORT : 5432,
 });
 
 client.connect().catch((err) => console.error("Connection error", err.stack));
