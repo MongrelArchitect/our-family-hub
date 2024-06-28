@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { getImageProps } from "next/image";
 
-import heroWide from "@/app/assets/images/hero.jpg";
-import heroSquare from "@/app/assets/images/hero-square.jpg";
-import logoIcon from "@/app/assets/icons/logo-white.png";
+import heroWide from "@/assets/images/hero.jpg";
+import heroSquare from "@/assets/images/hero-square.jpg";
+import logoIcon from "@/assets/icons/logo-white.png";
 
 export default function Hero() {
   const common = {

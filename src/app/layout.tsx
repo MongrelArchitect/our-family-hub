@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap", });
 
 export const metadata: Metadata = {
   title: "Our Family Hub",
@@ -17,9 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html className={inter.className} lang="en">
       <body
-        className={`${inter.className} flex min-h-screen flex-col items-center bg-neutral-200`}
+        className="bg-neutral-200"
       >
         {children}
       </body>

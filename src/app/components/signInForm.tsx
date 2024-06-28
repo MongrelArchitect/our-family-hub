@@ -1,7 +1,7 @@
 import { signIn } from "@/auth";
 
 import Image from "next/image";
-import googleIcon from "@/app/assets/icons/google-logo.png";
+import googleIcon from "@/assets/icons/google-logo.png";
 
 export default function SignInForm() {
   return (

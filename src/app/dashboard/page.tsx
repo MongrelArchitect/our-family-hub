@@ -5,10 +5,8 @@ import UserName from "./components/username";
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col gap-2">
-      <h1>
+    <main className="flex flex-col gap-2">
         Welcome <UserName />!
-      </h1>
       <UserImage />
       <form
         action={async () => {
@@ -20,6 +18,6 @@ export default function Dashboard() {
           Sign out
         </button>
       </form>
-    </div>
+    </main>
   );
 }
