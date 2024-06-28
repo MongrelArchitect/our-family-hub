@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
 
-import openMenuIcon from "@/assets/icons/menu-open.svg";
 import closeMenuIcon from "@/assets/icons/menu-close.svg";
+import homeIcon from "@/assets/icons/home.svg";
+import logoutIcon from "@/assets/icons/logout.svg";
+import newFamilyIcon from "@/assets/icons/new-family.svg";
+import openMenuIcon from "@/assets/icons/menu-open.svg";
+
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
@@ -16,7 +22,7 @@ export default function Sidebar() {
   return (
     <>
       {/* COLLAPSED SIDEBAR */}
-      <div className="flex w-[max-content] flex-col items-center bg-violet-200 p-2 lg:hidden">
+      <div className="z-10 flex w-[max-content] flex-shrink-0 flex-col items-center bg-violet-200 p-2 shadow-md shadow-slate-600 lg:hidden">
         <button
           aria-hidden="true"
           onClick={toggleExpanded}
@@ -24,7 +30,7 @@ export default function Sidebar() {
           title="Expand sidebar"
           type="button"
         >
-          <Image alt="" src={openMenuIcon} width="40" />
+          <Image alt="" src={openMenuIcon} width="48" />
         </button>
       </div>
 
@@ -39,7 +45,7 @@ export default function Sidebar() {
 
       {/* EXPANDED SIDEBAR */}
       <div
-        className={`${expanded ? "" : "-translate-x-full"} z-20 max-lg:h-full w-[80%] max-w-64 bg-violet-200 p-2 transition-transform max-lg:absolute lg:translate-x-0`}
+        className={`${expanded ? "" : "-translate-x-full"} z-20 flex w-[80%] max-w-64 flex-col items-start gap-4 bg-violet-200 p-2 shadow-md shadow-slate-600 transition-transform max-lg:absolute max-lg:h-full lg:translate-x-0`}
       >
         <button
           aria-hidden="true"
@@ -49,15 +55,43 @@ export default function Sidebar() {
           title="Collapse sidebar"
           type="button"
         >
-          <Image alt="" src={closeMenuIcon} width="40" />
+          <Image alt="" src={closeMenuIcon} width="48" />
         </button>
-        <nav>
-          <ul>
-            <li tabIndex={expanded ? 0 : -1}>list item</li>
-            <li tabIndex={expanded ? 0 : -1}>list item</li>
-            <li tabIndex={expanded ? 0 : -1}>list item</li>
-            <li tabIndex={expanded ? 0 : -1}>list item</li>
-            <li tabIndex={expanded ? 0 : -1}>list item</li>
+        <nav className="text-xl">
+          <ul className="flex flex-col gap-4">
+            <li>
+              <Link
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                href="/dashboard/"
+                onClick={toggleExpanded}
+                tabIndex={expanded ? 0 : -1}
+              >
+                <Image alt="" src={homeIcon} width="32" />
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                href="/dashboard/newfamily"
+                onClick={toggleExpanded}
+                tabIndex={expanded ? 0 : -1}
+              >
+                <Image alt="" src={newFamilyIcon} width="32" />
+                New Family
+              </Link>
+            </li>
+            <li>
+              <button
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                onClick={() => {signOut()}}
+                tabIndex={expanded ? 0 : -1}
+                type="submit"
+              >
+                <Image alt="" src={logoutIcon} width="32" />
+                Log Out
+              </button>
+            </li>
           </ul>
         </nav>
       </div>

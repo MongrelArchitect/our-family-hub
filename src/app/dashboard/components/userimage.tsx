@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { auth } from "@/auth";
 
-export default async function UserImage() {
+export default async function UserImage({ className, width }: { className?: string; width?: number }) {
   const session = await auth();
   if (!session || !session.user) {
     return null;
@@ -12,8 +12,11 @@ export default async function UserImage() {
   return (
     <Image 
       alt="User profile image"
+      className={className || ""}
+      // XXX TODO XXX
+      // need placeholder image
       src={user.image || ""}
-      width="32"
+      width={`${width || 32}`}
       height="32"
     />
   );
