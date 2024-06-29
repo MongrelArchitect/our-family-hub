@@ -24,32 +24,36 @@ process.on("exit", () => {
   client.end().catch((err) => console.error("Disconnection error", err.stack));
 });
 
-export async function checkIfUserInDatabase(email: string) {
-  try {
-    const result = await client.query(
-      `SELECT EXISTS(SELECT 1 FROM users WHERE email = '${email}')`,
-    );
-    const { exists } = result.rows[0] as { exists: boolean };
-    return exists;
-  } catch (err) {
-    console.error("Error checking for existing user: ", err);
-    throw new Error("Error checking for exsiting user");
-  }
-}
-
 export async function addUserToDatabase(user: {
+  // return the id of the newly created user
   name: string;
   email: string;
   image: string;
-}) {
+}): Promise<number> {
   try {
     const result = await client.query(
-      `INSERT INTO users (name, email, image) VALUES ('${user.name}', '${user.email}', '${user.image}')`,
+      `INSERT INTO users (name, email, image) VALUES ('${user.name}', '${user.email}', '${user.image}') RETURNING id`,
     );
-    return result;
+    return result.rows[0].id;
   } catch (err) {
     console.error("Error adding new user: ", err);
     throw new Error("Error adding new user");
+  }
+}
+
+export async function getUserIdFromEmail(email: string): Promise<number> {
+  // will return user id if they exist, or 0 if not
+  try {
+    const result = await client.query(
+      `SELECT id FROM users WHERE email = '${email}'`
+    );
+    if (result.rows.length) {
+      return result.rows[0].id;
+    }
+    return 0;
+  } catch (err) {
+    console.error("Error checking for existing user: ", err);
+    throw new Error("Error checking for existing user");
   }
 }
 

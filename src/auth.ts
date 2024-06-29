@@ -20,11 +20,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const existsResponse = await fetch(
           `http://localhost:3000/api/users/email/${user.email}`,
           {
-            method: "HEAD",
+            method: "GET",
           },
         );
-        if (existsResponse.status === 204) {
-          // user exists, update their "last_login_at" field
+        if (existsResponse.status === 200) {
+          // user exists, save their id for local auth purposes and
+          // update their "last_login_at" field in the db
+          user.id = await existsResponse.json();
           const updateResponse = await fetch(
             `http://localhost:3000/api/users/email/${user.email}`,
             {
@@ -49,6 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               }),
             },
           );
+          user.id = await insertResponse.json();
           // some error adding user to database - deny auth
           if (insertResponse.status === 500) {
             return false;

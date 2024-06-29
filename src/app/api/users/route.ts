@@ -10,10 +10,11 @@ export async function POST(req: NextRequest) {
       image: string;
     };
     const result = await addUserToDatabase(userInfo);
-    if (result.rowCount) {
+    // result will be the id of the newly created user
+    if (result) {
       // XXX TODO XXX
       // log this
-      return new Response("User added to database", { status: 201 });
+      return new Response(result.toString(), { status: 201 });
     } else {
       // XXX TODO XXX
       // log this

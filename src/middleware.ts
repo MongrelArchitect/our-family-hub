@@ -23,5 +23,5 @@ export default auth((req) => {
 
 // need to add each new route we want protected in this way
 export const config = {
-  matcher: ["/", "/dashboard"],
+  matcher: ["/", "/dashboard/:path*"],
 };
