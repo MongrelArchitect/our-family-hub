@@ -17,7 +17,7 @@ export default async function UserImage({ className, width }: { className?: stri
       // need placeholder image
       src={user.image || ""}
       width={`${width || 32}`}
-      height="32"
+      height={`${width || 32}`}
     />
   );
 }

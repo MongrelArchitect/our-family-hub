@@ -69,5 +69,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return false;
       }
     },
+    // XXX
+    jwt({ token, user }) {
+      if (user && user.id) { // User is available during sign-in
+        token.id = user.id
+      }
+      return token
+    },
+    session({ session, token }) {
+      if (token.id) {
+        session.user.id = token.id as string;
+      }
+      return session
+    },
+    // XXX
   },
 });

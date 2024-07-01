@@ -59,9 +59,25 @@ export default function NewFamily() {
     }
   };
 
-  const submit = (event: React.SyntheticEvent) => {
+  const submit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-    console.log("submit!");
+    // XXX TODO XXX
+    // input validation
+    try {
+      const result = await fetch("/api/families", {
+        method: "POST",
+        body: JSON.stringify({
+          surname: formInfo.surname.value,
+        }),
+      });
+      console.log(await result.json());
+      // XXX TODO XXX
+      // add loading & redirect
+    } catch (err) {
+      // XXX TODO XXX
+      // show to user
+      console.error("Error submitting new family: ", err);
+    }
   };
 
   return (

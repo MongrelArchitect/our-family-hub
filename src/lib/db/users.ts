@@ -1,28 +1,4 @@
-import pg from "pg";
-
-const {
-  DATABASE_USER,
-  DATABASE_PASSWORD,
-  DATABASE_HOST,
-  DATABASE_NAME,
-  DATABASE_PORT,
-} = process.env;
-
-const { Client } = pg;
-
-const client = new Client({
-  user: DATABASE_USER,
-  password: DATABASE_PASSWORD,
-  host: DATABASE_HOST,
-  database: DATABASE_NAME,
-  port: DATABASE_PORT ? +DATABASE_PORT : 5432,
-});
-
-client.connect().catch((err) => console.error("Connection error", err.stack));
-
-process.on("exit", () => {
-  client.end().catch((err) => console.error("Disconnection error", err.stack));
-});
+import pool from "./pool";
 
 export async function addUserToDatabase(user: {
   // return the id of the newly created user
@@ -31,7 +7,7 @@ export async function addUserToDatabase(user: {
   image: string;
 }): Promise<number> {
   try {
-    const result = await client.query(
+    const result = await pool.query(
       `INSERT INTO users (name, email, image) VALUES ('${user.name}', '${user.email}', '${user.image}') RETURNING id`,
     );
     return result.rows[0].id;
@@ -44,8 +20,8 @@ export async function addUserToDatabase(user: {
 export async function getUserIdFromEmail(email: string): Promise<number> {
   // will return user id if they exist, or 0 if not
   try {
-    const result = await client.query(
-      `SELECT id FROM users WHERE email = '${email}'`
+    const result = await pool.query(
+      `SELECT id FROM users WHERE email = '${email}'`,
     );
     if (result.rows.length) {
       return result.rows[0].id;
@@ -59,7 +35,7 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
 
 export async function updateUserLoginTimestamp(email: string) {
   try {
-    const result = await client.query(
+    const result = await pool.query(
       `UPDATE users SET last_login_at = NOW() WHERE email = '${email}'`,
     );
     return result;

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { addUserToDatabase } from "@/lib/db";
+import { addUserToDatabase } from "@/lib/db/users";
 
 export async function POST(req: NextRequest) {
   try {

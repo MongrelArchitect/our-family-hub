@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { getUserIdFromEmail, updateUserLoginTimestamp } from "@/lib/db";
+import { getUserIdFromEmail, updateUserLoginTimestamp } from "@/lib/db/users";
 
 export async function GET(
   req: NextRequest,
