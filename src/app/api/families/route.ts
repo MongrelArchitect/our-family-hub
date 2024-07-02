@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
       throw new Error("Missing user id");
     }
     const familyId = await createNewFamily(surname, +user.id);
+    // respond with the id of the newly created famiy, for redirecting to its page
     return new Response(familyId.toString(), { status: 201 });
   } catch (err) {
     // XXX TODO XXX

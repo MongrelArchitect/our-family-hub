@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.alert-red {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(79%) saturate(3516%) hue-rotate(352deg) brightness(75%) contrast(90%);
+}
