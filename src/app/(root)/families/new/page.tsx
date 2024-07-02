@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import alertIcon from "@/assets/icons/alert.svg";
 
-import Loading from "@/components/loading";
+import Loading from "@/app/components/loading";
 
 interface FormInfo {
   [key: string]: {
@@ -104,7 +104,7 @@ export default function NewFamily() {
           }),
         });
         // redirect to the new family's landing page
-        router.push(`/dashboard/families/${await result.json()}`);
+        router.push(`/families/${await result.json()}`);
       } catch (err) {
         setLoading(false);
         setError("Error submitting new family");

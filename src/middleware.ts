@@ -5,23 +5,22 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const urlClone = req.nextUrl.clone();
 
-  if (pathname === "/") {
+  if (pathname === "/landing") {
     // we want our authenticated users to land on the dashboard
     if (req.auth) {
-      urlClone.pathname = "/dashboard";
+      urlClone.pathname = "/";
       return NextResponse.redirect(urlClone);
     }
   } else {
     // redirect unauthenticated users to sign in landing page
     if (!req.auth) {
-      urlClone.pathname = "/";
+      urlClone.pathname = "/landing";
       return NextResponse.redirect(urlClone);
     }
   }
   return NextResponse.next();
 });
 
-// need to add each new route we want protected in this way
 export const config = {
-  matcher: ["/", "/dashboard/:path*"],
+  matcher: ["/", "/landing"],
 };

@@ -62,7 +62,7 @@ export default function Sidebar() {
             <li>
               <Link
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
-                href="/dashboard/"
+                href="/"
                 onClick={toggleExpanded}
                 tabIndex={expanded ? 0 : -1}
               >
@@ -73,7 +73,7 @@ export default function Sidebar() {
             <li>
               <Link
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
-                href="/dashboard/newfamily"
+                href="/families/new"
                 onClick={toggleExpanded}
                 tabIndex={expanded ? 0 : -1}
               >
