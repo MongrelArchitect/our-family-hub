@@ -27,6 +27,18 @@ export async function createNewFamily(
   }
 }
 
+export async function checkIfFamilyExists(familyId: number):Promise<boolean> {
+  try {
+    const res = await pool.query(
+      `SELECT EXISTS(SELECT 1 FROM families WHERE id = ${familyId})`
+    );
+    const exists: boolean = res.rows[0].exists;
+    return exists;
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function getMemberCount(familyId: number): Promise<number> {
   try {
     const res = await pool.query(
