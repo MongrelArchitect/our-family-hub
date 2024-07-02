@@ -26,3 +26,27 @@ export async function createNewFamily(
     client.release();
   }
 }
+
+export async function getMemberCount(familyId: number): Promise<number> {
+  try {
+    const res = await pool.query(
+      `SELECT COUNT(*) FROM family_members WHERE family_id = ${familyId}`,
+    );
+    const count: number = +res.rows[0].count;
+    return count;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function getSurname(familyId: number): Promise<string> {
+  try {
+    const res = await pool.query(
+      `SELECT surname FROM families WHERE id = ${familyId}`,
+    );
+    const surname: string = res.rows[0].surname;
+    return surname;
+  } catch (err) {
+    throw err;
+  }
+}
