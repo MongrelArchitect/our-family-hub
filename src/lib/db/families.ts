@@ -29,11 +29,27 @@ export async function createNewFamily(
   }
 }
 
-export async function checkIfFamilyExists(familyId: number):Promise<boolean> {
+export async function checkIfFamilyExists(familyId: number): Promise<boolean> {
   try {
     const res = await pool.query(
       "SELECT EXISTS(SELECT 1 FROM families WHERE id = $1)",
       [familyId],
+    );
+    const exists: boolean = res.rows[0].exists;
+    return exists;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function checkIfUserIsFamilyMember(
+  familyId: number,
+  userId: number,
+): Promise<boolean> {
+  try {
+    const res = await pool.query(
+      "SELECT EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2)",
+      [familyId, userId],
     );
     const exists: boolean = res.rows[0].exists;
     return exists;
@@ -57,10 +73,9 @@ export async function getMemberCount(familyId: number): Promise<number> {
 
 export async function getSurname(familyId: number): Promise<string> {
   try {
-    const res = await pool.query(
-      "SELECT surname FROM families WHERE id = $1",
-      [familyId],
-    );
+    const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
+      familyId,
+    ]);
     const surname: string = res.rows[0].surname;
     return surname;
   } catch (err) {

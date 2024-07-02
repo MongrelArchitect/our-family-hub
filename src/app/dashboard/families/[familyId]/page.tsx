@@ -1,4 +1,7 @@
-import { checkIfFamilyExists, getMemberCount, getSurname } from "@/lib/db/families";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
+import { checkIfUserIsFamilyMember, getMemberCount, getSurname } from "@/lib/db/families";
 
 export default async function FamilyPage({
   params,
@@ -7,19 +10,32 @@ export default async function FamilyPage({
 }) {
   const familyId  = +params.familyId;
 
-  const familyExists = await checkIfFamilyExists(familyId);
+  const session = await auth();
+  if (!session || !session.user) {
+    redirect("/");
+  }
 
-  if (!familyExists) {
+  const { user } = session;
+  if (!user.id) {
+    // XXX weird edge case, wat do here?
+    return null;
+  }
+
+  const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId, +user.id)
+
+  if (!userIsFamilyMember) {
   return (
     <main className="p-2">
-      <h2 className="text-2xl">Family Does Not Exist</h2>
-      <p>There is no family with id {familyId}</p>
+      <h2 className="text-2xl">Not Family Member</h2>
+      <p>Only family members can veiw this page</p>
     </main>
   );
   }
 
-  const memberCount = await getMemberCount(familyId);
-  const surname = await getSurname(familyId);
+  const [memberCount, surname] = await Promise.all([
+    getMemberCount(familyId),
+    getSurname(familyId),
+  ]);
 
   return (
     <main className="p-2">
