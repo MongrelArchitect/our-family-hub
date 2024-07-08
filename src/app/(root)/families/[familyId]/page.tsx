@@ -9,6 +9,9 @@ export default async function FamilyPage({
   params: { familyId: string };
 }) {
   const familyId  = +params.familyId;
+  if (isNaN(familyId)) {
+    return null;
+  }
 
   const session = await auth();
   if (!session || !session.user) {

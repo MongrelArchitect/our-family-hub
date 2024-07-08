@@ -7,6 +7,8 @@ import alertIcon from "@/assets/icons/alert.svg";
 
 import Loading from "@/app/components/loading";
 
+import { createNewFamily } from "@/lib/db/families";
+
 interface FormInfo {
   [key: string]: {
     typing: boolean;
@@ -97,14 +99,8 @@ export default function NewFamily() {
       try {
         // add the new family to the db, getting its id in return
         setLoading(true);
-        const result = await fetch("/api/families", {
-          method: "POST",
-          body: JSON.stringify({
-            surname: formInfo.surname.value,
-          }),
-        });
-        // redirect to the new family's landing page
-        router.push(`/families/${await result.json()}`);
+        const familyId = await createNewFamily(formInfo.surname.value);
+        router.push(`/families/${familyId}`);
       } catch (err) {
         setLoading(false);
         setError("Error submitting new family");

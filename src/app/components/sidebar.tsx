@@ -6,11 +6,11 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 
 import closeMenuIcon from "@/assets/icons/menu-close.svg";
+import familyIcon from "@/assets/icons/family.svg";
 import homeIcon from "@/assets/icons/home.svg";
 import logoutIcon from "@/assets/icons/logout.svg";
 import newFamilyIcon from "@/assets/icons/new-family.svg";
 import openMenuIcon from "@/assets/icons/menu-open.svg";
-
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
@@ -70,6 +70,19 @@ export default function Sidebar() {
                 Home
               </Link>
             </li>
+
+            <li>
+              <Link
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                href="/families/all"
+                onClick={toggleExpanded}
+                tabIndex={expanded ? 0 : -1}
+              >
+                <Image alt="" src={familyIcon} width="32" />
+                My Families
+              </Link>
+            </li>
+
             <li>
               <Link
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
@@ -81,10 +94,13 @@ export default function Sidebar() {
                 New Family
               </Link>
             </li>
+
             <li>
               <button
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
-                onClick={() => {signOut()}}
+                onClick={() => {
+                  signOut();
+                }}
                 tabIndex={expanded ? 0 : -1}
                 type="submit"
               >
