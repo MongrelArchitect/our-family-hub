@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
@@ -14,6 +14,30 @@ import openMenuIcon from "@/assets/icons/menu-open.svg";
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // need to be sure we're on the client so we can use `window`
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    // links rely on "expanded" for tab-indexing
+    if (isClient) {
+      if (window.innerWidth >= 1024) {
+        // on first client render
+        setExpanded(true);
+      }
+      window.addEventListener("resize", () => {
+        // if the user changes their window size
+        if (window.innerWidth < 1024) {
+          setExpanded(false);
+        } else {
+          setExpanded(true);
+        }
+      });
+    }
+  }, [isClient]);
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
@@ -22,7 +46,7 @@ export default function Sidebar() {
   return (
     <>
       {/* COLLAPSED SIDEBAR */}
-      <div className="z-10 flex w-[max-content] flex-shrink-0 flex-col items-center bg-violet-200 p-2 shadow-md shadow-slate-600 lg:hidden">
+      <div className="bg-violet-300 lg:hidden">
         <button
           aria-hidden="true"
           onClick={toggleExpanded}
@@ -37,7 +61,7 @@ export default function Sidebar() {
       {/* GRAYOUT */}
       <button
         aria-hidden="true"
-        className={`${expanded ? "absolute" : "hidden"} left-0 top-0 z-10 h-full w-full bg-neutral-600/20 backdrop-blur-sm lg:hidden`}
+        className={`${expanded ? "absolute" : "hidden"} left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm lg:hidden`}
         type="button"
         onClick={toggleExpanded}
         tabIndex={-1}
@@ -45,7 +69,7 @@ export default function Sidebar() {
 
       {/* EXPANDED SIDEBAR */}
       <div
-        className={`${expanded ? "" : "-translate-x-full"} z-20 flex w-[80%] max-w-64 flex-col items-start gap-4 bg-violet-200 p-2 shadow-md shadow-slate-600 transition-transform max-lg:absolute max-lg:h-full lg:translate-x-0`}
+        className={`${expanded ? "" : "-translate-x-full"} left-0 top-0 z-20 flex h-screen max-w-[max-content] flex-col items-start gap-4 bg-violet-200 p-2 transition-transform max-lg:absolute max-lg:border-r-2 max-lg:border-violet-400 lg:translate-x-0`}
       >
         <button
           aria-hidden="true"

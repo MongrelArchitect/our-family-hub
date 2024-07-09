@@ -22,28 +22,37 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html className={inter.className} lang="en">
       <body className="bg-neutral-200">
-      <div className="flex min-h-screen bg-neutral-50">
-        <Sidebar />
-        <div className="w-full">
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-violet-300 p-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Image alt="" src={logoIcon} width="40" />
-              <h1 className="text-3xl">
-                <b>Our Family Hub</b>
-              </h1>
-            </div>
+        {/* HEADER */}
+        <div className="relative flex items-center bg-violet-200 lg:justify-between">
+          <div className="lg:hidden flex-shrink-0">
+            <Sidebar />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 p-2">
+            <Image alt="" src={logoIcon} width="40" />
+            <h1 className="text-2xl">
+              <b>Our Family Hub</b>
+            </h1>
+          </div>
+          <div className="p-2 max-lg:hidden">
             <UserImage
-              className="rounded-full border-2 border-black bg-white max-lg:hidden"
+              className="rounded-full border-2 border-black bg-white"
               width={40}
             />
           </div>
-          {children}
         </div>
-      </div>
+
+        <div className="max-lg:flex max-lg:flex-col lg:grid lg:grid-cols-[auto_1fr]">
+          <div className="max-lg:hidden">
+            <Sidebar />
+            {/* MAIN CONTENT*/}
+          </div>
+          <div className="border-t-2 border-violet-400 lg:border-l-2">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );
