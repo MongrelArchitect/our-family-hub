@@ -97,26 +97,26 @@ export async function getAllUsersFamilies(userId: number) {
   }
 }
 
-export async function getMemberCount(familyId: number): Promise<number> {
+export async function getFamilyInfo(familyId: number) {
   try {
     const res = await pool.query(
-      "SELECT COUNT(*) FROM family_members WHERE family_id = $1",
+      "SELECT f.surname, COUNT(fm.member_id) AS member_count, f.admin_id, u.name AS admin_name FROM families f LEFT JOIN family_members fm ON f.id = fm.family_id LEFT JOIN users u on f.admin_id = u.id WHERE f.id = $1 GROUP BY f.id, u.name;",
       [familyId],
     );
-    const count: number = +res.rows[0].count;
-    return count;
-  } catch (err) {
-    throw err;
-  }
-}
 
-export async function getSurname(familyId: number): Promise<string> {
-  try {
-    const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
-      familyId,
-    ]);
-    const surname: string = res.rows[0].surname;
-    return surname;
+    const response: {
+      adminId: number,
+      adminName: string,
+      memberCount: number,
+      surname: string,
+    } = {
+      adminId: +res.rows[0].admin_id,
+      adminName: res.rows[0].admin_name,
+      memberCount: +res.rows[0].member_count,
+      surname: res.rows[0].surname,
+    };
+
+    return response;
   } catch (err) {
     throw err;
   }

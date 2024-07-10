@@ -1,14 +1,18 @@
-import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
-import { checkIfUserIsFamilyMember, getMemberCount, getSurname } from "@/lib/db/families";
+import { auth } from "@/auth";
+
+import Controls from "./components/controls";
+import FamilyInfo from "./components/familyInfo";
+
+import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
 
 export default async function FamilyPage({
   params,
 }: {
   params: { familyId: string };
 }) {
-  const familyId  = +params.familyId;
+  const familyId = +params.familyId;
   if (isNaN(familyId)) {
     return null;
   }
@@ -24,26 +28,26 @@ export default async function FamilyPage({
     return null;
   }
 
-  const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId, +user.id)
+  const userIsFamilyMember = await checkIfUserIsFamilyMember(
+    familyId,
+    +user.id,
+  );
 
   if (!userIsFamilyMember) {
-  return (
-    <main className="p-2">
-      <h2 className="text-2xl">Not Family Member</h2>
-      <p>Only family members can veiw this page</p>
-    </main>
-  );
+    return (
+      <main className="p-2">
+        <h2 className="text-2xl">Not Family Member</h2>
+        <p>Only family members can veiw this page</p>
+      </main>
+    );
   }
 
-  const [memberCount, surname] = await Promise.all([
-    getMemberCount(familyId),
-    getSurname(familyId),
-  ]);
+  const family = await getFamilyInfo(familyId);
 
   return (
-    <main className="p-2">
-      <h2 className="text-2xl">{surname} Family</h2>
-      <div>{memberCount} member{memberCount === 1 ? "" : "s"}</div>
+    <main className="flex flex-col p-2 text-lg">
+      <FamilyInfo family={family} />
+      <Controls userIsAdmin = {+user.id === family.adminId} />
     </main>
   );
 }

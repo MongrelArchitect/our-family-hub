@@ -24,12 +24,14 @@ export default function RootLayout({
 }>) {
   return (
     <html className={inter.className} lang="en">
-      <body className="bg-neutral-200">
+      <body className="grid h-screen grid-rows-[auto_1fr] bg-neutral-200">
         {/* HEADER */}
         <div className="relative flex items-center bg-violet-200 lg:justify-between">
-          <div className="lg:hidden flex-shrink-0">
+          {/* sidebar for smaller screens */}
+          <div className="flex-shrink-0 lg:hidden">
             <Sidebar />
           </div>
+
           <div className="flex flex-wrap items-center gap-2 p-2">
             <Image alt="" src={logoIcon} width="40" />
             <h1 className="text-2xl">
@@ -44,11 +46,13 @@ export default function RootLayout({
           </div>
         </div>
 
-        <div className="max-lg:flex max-lg:flex-col lg:grid lg:grid-cols-[auto_1fr]">
+        <div className="lg:grid lg:grid-cols-[auto_1fr]">
+          {/* sidebar for larger screens */}
           <div className="max-lg:hidden">
             <Sidebar />
-            {/* MAIN CONTENT*/}
           </div>
+
+          {/* MAIN CONTENT*/}
           <div className="border-t-2 border-violet-400 lg:border-l-2">
             {children}
           </div>

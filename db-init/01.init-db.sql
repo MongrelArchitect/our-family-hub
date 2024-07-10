@@ -23,3 +23,11 @@ CREATE TABLE IF NOT EXISTS family_members (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (family_id, member_id)
 );
+
+/* invites table for admin to invite users to join a family */
+CREATE TABLE IF NOT EXISTS invites (
+  user_id INT NOT NULL REFERENCES users(id),
+  family_id INT NOT NULL REFERENCES families(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, family_id)
+);
