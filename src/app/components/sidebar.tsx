@@ -69,7 +69,7 @@ export default function Sidebar() {
 
       {/* EXPANDED SIDEBAR */}
       <div
-        className={`${expanded ? "" : "-translate-x-full"} left-0 top-0 z-20 flex h-full max-w-[max-content] flex-col items-start gap-4 bg-violet-200 p-2 transition-transform max-lg:absolute max-lg:h-screen max-lg:border-r-2 max-lg:border-violet-400 lg:translate-x-0`}
+        className={`${expanded ? "" : "-translate-x-full"} left-0 top-0 z-20 flex h-full max-w-[max-content] select-none flex-col items-start gap-4 bg-violet-200 p-2 transition-transform max-lg:absolute max-lg:h-screen max-lg:border-r-2 max-lg:border-violet-400 lg:translate-x-0`}
       >
         <button
           aria-hidden="true"

@@ -32,7 +32,7 @@ export default function RootLayout({
             <Sidebar />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 p-2">
+          <div className="flex select-none flex-wrap items-center gap-2 p-2">
             <Image alt="" src={logoIcon} width="40" />
             <h1 className="text-2xl">
               <b>Our Family Hub</b>
