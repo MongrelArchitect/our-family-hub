@@ -14,9 +14,11 @@ export default function Controls({ userIsAdmin }: { userIsAdmin: boolean }) {
 
   const toggleActions = () => {
     setActionsVisible(!actionsVisible);
+    setAdminActionsVisible(false);
   };
 
   const toggleAdminActions = () => {
+    setActionsVisible(false);
     setAdminActionsVisible(!adminActionsVisible);
   };
 

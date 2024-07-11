@@ -7,9 +7,7 @@ import pool from "./pool";
 
 import FamilyInterface from "@/types/families";
 
-export async function createNewFamily(
-  surname: string,
-): Promise<number> {
+export async function createNewFamily(surname: string): Promise<number> {
   const client = await pool.connect();
   try {
     const session = await auth();
@@ -97,6 +95,17 @@ export async function getAllUsersFamilies(userId: number) {
   }
 }
 
+export async function getFamilySurname(familyId: number) {
+  try {
+    const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
+      familyId,
+    ]);
+    return res.rows[0].surname as string;
+  } catch (err) {
+    throw err;
+  }
+}
+
 export async function getFamilyInfo(familyId: number) {
   try {
     const res = await pool.query(
@@ -105,10 +114,10 @@ export async function getFamilyInfo(familyId: number) {
     );
 
     const response: {
-      adminId: number,
-      adminName: string,
-      memberCount: number,
-      surname: string,
+      adminId: number;
+      adminName: string;
+      memberCount: number;
+      surname: string;
     } = {
       adminId: +res.rows[0].admin_id,
       adminName: res.rows[0].admin_name,

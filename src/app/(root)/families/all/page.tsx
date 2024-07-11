@@ -1,7 +1,12 @@
+import { Metadata } from "next";
 import Link from "next/link";
 
 import { auth } from "@/auth";
 import { getAllUsersFamilies } from "@/lib/db/families";
+
+export const metadata: Metadata = {
+  title: "Our Family Hub | My Families",
+};
 
 export default async function Families() {
   const session = await auth();
@@ -24,9 +29,12 @@ export default async function Families() {
         <ul className="flex flex-col gap-4">
           {families.map((family) => {
             return (
-              <li className="flex flex-col bg-slate-100 shadow-md shadow-slate-400" key={family.id}>
+              <li
+                className="flex flex-col bg-slate-100 shadow-md shadow-slate-400"
+                key={family.id}
+              >
                 <Link
-                  className="p-1 focus:bg-slate-200 hover:bg-slate-200"
+                  className="p-1 hover:bg-slate-200 focus:bg-slate-200"
                   href={`/families/${family.id}`}
                   title={`${family.surname} family`}
                 >
@@ -46,7 +54,7 @@ export default async function Families() {
   };
 
   return (
-    <main className="p-2 flex flex-col gap-4">
+    <main className="flex flex-col gap-4 p-2">
       <h2 className="text-2xl">My Families</h2>
       {displayFamilies()}
     </main>
