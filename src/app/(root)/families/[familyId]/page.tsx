@@ -70,7 +70,7 @@ export default async function FamilyPage({
   return (
     <main className="flex flex-col p-2 text-lg">
       <FamilyInfo family={family} />
-      <Controls userIsAdmin={+user.id === family.adminId} />
+      <Controls familyId={familyId} userIsAdmin={+user.id === family.adminId} />
     </main>
   );
 }

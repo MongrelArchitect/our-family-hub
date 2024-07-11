@@ -8,7 +8,13 @@ import { useEffect, useState } from "react";
 import plusIcon from "@/assets/icons/plus.svg";
 import starIcon from "@/assets/icons/star.svg";
 
-export default function Controls({ userIsAdmin }: { userIsAdmin: boolean }) {
+export default function Controls({
+  familyId,
+  userIsAdmin,
+}: {
+  familyId: number;
+  userIsAdmin: boolean;
+}) {
   const [actionsVisible, setActionsVisible] = useState(false);
   const [adminActionsVisible, setAdminActionsVisible] = useState(false);
 
@@ -42,12 +48,6 @@ export default function Controls({ userIsAdmin }: { userIsAdmin: boolean }) {
 
   return (
     <>
-      {/*
-      <button 
-        aria-hidden="true"
-        className="absolute -z-10 w-screen h-screen top-0 left-0 bg-red-100"
-      />
-      */}
       {userIsAdmin ? (
         <>
           {/* SHOW / HIDE ADMIN ACTIONS */}
@@ -88,7 +88,10 @@ export default function Controls({ userIsAdmin }: { userIsAdmin: boolean }) {
                 id="admin-actions"
               >
                 <li>
-                  <Link className="hover:underline focus:underline" href="#">
+                  <Link
+                    className="hover:underline focus:underline"
+                    href={`/families/${familyId}/invite`}
+                  >
                     Send invite
                   </Link>
                 </li>

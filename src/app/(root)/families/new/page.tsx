@@ -116,14 +116,14 @@ export default function NewFamily() {
       {loading ? <Loading /> : null}
       <form
         action={""}
-        className={`${loading ? "hidden" : ""} flex flex-col gap-4 text-lg`}
+        className={`${loading ? "hidden" : ""} flex flex-col gap-4 bg-slate-100 text-lg shadow-md shadow-slate-500`}
         onSubmit={submit}
         noValidate
       >
-        <h2 className="text-2xl">Create New Family</h2>
-        <div className="relative flex flex-col">
+        <h2 className="bg-emerald-100 p-2 text-2xl">Create New Family</h2>
+        <div className="relative flex flex-col p-2">
           <label
-            className={`${formInfo.surname.typing || formInfo.surname.value ? "-translate-x-1.5 -translate-y-3 scale-75 text-neutral-400" : ""} absolute left-2 top-3 text-neutral-600 transition-all`}
+            className={`${formInfo.surname.typing || formInfo.surname.value ? "-translate-x-1.5 -translate-y-3.5 scale-75 text-neutral-400" : null} absolute left-4 top-5 text-neutral-600 transition-all`}
             htmlFor="surname"
           >
             Surname
@@ -131,7 +131,7 @@ export default function NewFamily() {
           {attempted && !formInfo.surname.valid ? (
             <Image
               alt=""
-              className="alert-red absolute right-2 top-3.5"
+              className="alert-red absolute right-4 top-5"
               src={alertIcon}
             />
           ) : null}
@@ -148,16 +148,16 @@ export default function NewFamily() {
             value={formInfo.surname.value || ""}
           />
           {attempted && !formInfo.surname.valid ? (
-            <div className="absolute right-10 top-4 text-sm text-red-700">
+            <div className="absolute right-11 top-6 text-sm text-red-700">
               Required
             </div>
           ) : null}
         </div>
         {attempted && !formInfo.surname.valid ? (
-          <div className="text-red-700">{error}</div>
+          <div className="p-2 text-red-700">{error}</div>
         ) : null}
         <button
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+          className="m-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
           type="submit"
         >
           Submit
