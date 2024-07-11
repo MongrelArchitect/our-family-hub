@@ -62,7 +62,7 @@ export const checkIfUserIsFamilyMember = cache(
 export const getAllUsersFamilies = cache(async(userId: number) => {
   try {
     const res = await pool.query(
-      "SELECT f.id AS family_id, f.surname, fm.member_count AS member_count FROM families f LEFT JOIN (SELECT family_id, COUNT(member_id) AS member_count FROM family_members GROUP BY family_id) fm ON f.id = fm.family_id WHERE EXISTS (SELECT 1 FROM family_members WHERE family_id = f.id AND member_id = $1) ORDER BY f.surname",
+      "SELECT f.id AS family_id, f.surname, fm.member_count AS member_count, f.admin_id, u.name AS admin_name FROM families f LEFT JOIN (SELECT family_id, COUNT(member_id) AS member_count FROM family_members GROUP BY family_id) fm ON f.id =       fm.family_id LEFT JOIN users u ON f.admin_id = u.id WHERE EXISTS (SELECT 1 FROM family_members WHERE family_id = f.id AND member_id = $1) ORDER BY f.surname",
       [userId],
     );
 
@@ -70,9 +70,11 @@ export const getAllUsersFamilies = cache(async(userId: number) => {
 
     res.rows.forEach((row) => {
       const family: FamilyInterface = {
+        adminId: row.admin_id,
+        adminName: row.admin_name,
         id: row.family_id,
-        surname: row.surname,
         memberCount: +row.member_count,
+        surname: row.surname,
       };
       response.push(family);
     });
@@ -104,11 +106,13 @@ export const getFamilyInfo = cache(async(familyId: number) => {
     const response: {
       adminId: number;
       adminName: string;
+      id: number;
       memberCount: number;
       surname: string;
     } = {
       adminId: +res.rows[0].admin_id,
       adminName: res.rows[0].admin_name,
+      id: familyId,
       memberCount: +res.rows[0].member_count,
       surname: res.rows[0].surname,
     };

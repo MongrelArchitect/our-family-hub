@@ -1,5 +1,7 @@
 export default interface FamilyInterface {
+  adminId: number;
+  adminName: string;
   id: number;
-  surname: string;
   memberCount: number;
+  surname: string;
 }

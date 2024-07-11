@@ -1,12 +1,9 @@
+import FamilyInterface from "@/types/families";
+
 export default async function FamilyInfo({
   family,
 }: {
-  family: {
-    adminId: number;
-    adminName: string;
-    memberCount: number;
-    surname: string;
-  };
+  family: FamilyInterface;
 }) {
   return (
     <div className="flex flex-col bg-slate-100 shadow-md shadow-slate-500">
