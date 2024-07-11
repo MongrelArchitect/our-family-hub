@@ -1,5 +1,7 @@
 "use server";
 
+import { cache } from "react";
+
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
@@ -42,36 +44,22 @@ export async function createNewFamily(surname: string): Promise<number> {
   }
 }
 
-export async function checkIfFamilyExists(familyId: number): Promise<boolean> {
-  try {
-    const res = await pool.query(
-      "SELECT EXISTS(SELECT 1 FROM families WHERE id = $1)",
-      [familyId],
-    );
-    const exists: boolean = res.rows[0].exists;
-    return exists;
-  } catch (err) {
-    throw err;
-  }
-}
+export const checkIfUserIsFamilyMember = cache(
+  async (familyId: number, userId: number): Promise<boolean> => {
+    try {
+      const res = await pool.query(
+        "SELECT EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2)",
+        [familyId, userId],
+      );
+      const exists: boolean = res.rows[0].exists;
+      return exists;
+    } catch (err) {
+      throw err;
+    }
+  },
+);
 
-export async function checkIfUserIsFamilyMember(
-  familyId: number,
-  userId: number,
-): Promise<boolean> {
-  try {
-    const res = await pool.query(
-      "SELECT EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2)",
-      [familyId, userId],
-    );
-    const exists: boolean = res.rows[0].exists;
-    return exists;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function getAllUsersFamilies(userId: number) {
+export const getAllUsersFamilies = cache(async(userId: number) => {
   try {
     const res = await pool.query(
       "SELECT f.id AS family_id, f.surname, fm.member_count AS member_count FROM families f LEFT JOIN (SELECT family_id, COUNT(member_id) AS member_count FROM family_members GROUP BY family_id) fm ON f.id = fm.family_id WHERE EXISTS (SELECT 1 FROM family_members WHERE family_id = f.id AND member_id = $1) ORDER BY f.surname",
@@ -93,9 +81,9 @@ export async function getAllUsersFamilies(userId: number) {
   } catch (err) {
     throw err;
   }
-}
+});
 
-export async function getFamilySurname(familyId: number) {
+export const getFamilySurname = cache(async(familyId: number) => {
   try {
     const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
       familyId,
@@ -104,9 +92,9 @@ export async function getFamilySurname(familyId: number) {
   } catch (err) {
     throw err;
   }
-}
+});
 
-export async function getFamilyInfo(familyId: number) {
+export const getFamilyInfo = cache(async(familyId: number) => {
   try {
     const res = await pool.query(
       "SELECT f.surname, COUNT(fm.member_id) AS member_count, f.admin_id, u.name AS admin_name FROM families f LEFT JOIN family_members fm ON f.id = fm.family_id LEFT JOIN users u on f.admin_id = u.id WHERE f.id = $1 GROUP BY f.id, u.name;",
@@ -129,4 +117,4 @@ export async function getFamilyInfo(familyId: number) {
   } catch (err) {
     throw err;
   }
-}
+});
