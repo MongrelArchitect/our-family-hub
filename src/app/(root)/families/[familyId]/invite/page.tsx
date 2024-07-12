@@ -1,31 +1,37 @@
-import { getFamilyInfo } from "@/lib/db/families";
+import { Metadata } from "next";
 
-import FamilyInfo from "../components/familyInfo";
+import { getFamilySurname } from "@/lib/db/families";
 
-import FamilyInterface from "@/types/families";
+export async function generateMetadata({
+  params,
+}: {
+  params: { familyId: string };
+}): Promise<Metadata> {
+  const familyId = +params.familyId;
+  let suffix = "My Family";
+  try {
+    const surname = await getFamilySurname(familyId);
+    suffix = `The ${surname} Family`;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error getting family surname for page title: ", err);
+  }
+
+  return {
+    title: `Our Family Hub | Invite New Member to ${suffix}`,
+  };
+}
 
 export default async function Invite({ params }: {params: {familyId: string}}) {
   const familyId = +params.familyId;
 
-  let family: FamilyInterface | undefined = undefined;
-
-  try {
-    family = await getFamilyInfo(familyId);
-  } catch (err) {
-    // XXX TODO XXX
-    // log this
-    console.error("Error gettin family surname for invite form: ", err);
-  }
-
-  if (!family) {
-    return null;
-  }
-
   return (
-    <main className="p-2">
-      <FamilyInfo family={family} />
-      <form>
-        <h2>Invite</h2>
+    <main className="p-2 flex flex-col gap-4">
+      <form
+        className="flex flex-col gap-4 bg-slate-100 text-lg shadow-md shadow-slate-500"
+      >
+        <h2 className="bg-amber-200 p-2 text-2xl">Invite New Member</h2>
       </form>
     </main>
   );

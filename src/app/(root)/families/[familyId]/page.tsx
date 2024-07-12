@@ -1,13 +1,9 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { getFamilySurname } from "@/lib/db/families";
 
-import Controls from "./components/controls";
-import FamilyInfo from "./components/familyInfo";
-
-import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
+import { getFamilyInfo } from "@/lib/db/families";
 
 export async function generateMetadata({
   params,
@@ -36,41 +32,17 @@ export default async function FamilyPage({
   params: { familyId: string };
 }) {
   const familyId = +params.familyId;
-  if (isNaN(familyId)) {
-    return null;
-  }
-
-  const session = await auth();
-  if (!session || !session.user) {
-    redirect("/");
-  }
-
-  const { user } = session;
-  if (!user.id) {
-    // XXX weird edge case, wat do here?
-    return null;
-  }
-
-  const userIsFamilyMember = await checkIfUserIsFamilyMember(
-    familyId,
-    +user.id,
-  );
-
-  if (!userIsFamilyMember) {
-    return (
-      <main className="p-2">
-        <h2 className="text-2xl">Not Family Member</h2>
-        <p>Only family members can veiw this page</p>
-      </main>
-    );
-  }
-
   const family = await getFamilyInfo(familyId);
 
   return (
     <main className="flex flex-col p-2 text-lg">
-      <FamilyInfo family={family} />
-      <Controls familyId={familyId} userIsAdmin={+user.id === family.adminId} />
+      <div className="flex flex-col bg-slate-100 shadow-md shadow-slate-500">
+        <h2 className="bg-emerald-100 p-2 text-2xl">{family.surname} Family</h2>
+        <div className="p-2">
+          <div>Members: {family.memberCount}</div>
+          <div>Admin: {family.adminName}</div>
+        </div>
+      </div>
     </main>
   );
 }
