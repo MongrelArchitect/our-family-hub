@@ -12,7 +12,10 @@ import "@/app/globals.css";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Our Family Hub",
+  title: {
+    template: "Our Family Hub | %s",
+    default: "Our Family Hub",
+  },
   description: "A place for families to discuss, plan, organize and more!",
   manifest: "site.webmanifest",
 };

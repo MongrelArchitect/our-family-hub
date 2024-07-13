@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Our Family Hub | New Family",
+  title: "New Family",
 };
 
 export default function RootLayout({

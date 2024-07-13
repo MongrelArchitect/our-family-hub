@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { getAllUsersFamilies } from "@/lib/db/families";
 
 export const metadata: Metadata = {
-  title: "Our Family Hub | My Families",
+  title: "My Families",
 };
 
 export default async function Families() {

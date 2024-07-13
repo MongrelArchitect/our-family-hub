@@ -8,10 +8,10 @@ export async function generateMetadata({
   params: { familyId: string };
 }): Promise<Metadata> {
   const familyId = +params.familyId;
-  let suffix = "My Family";
+  let familyName = "My Family";
   try {
     const surname = await getFamilySurname(familyId);
-    suffix = `The ${surname} Family`;
+    familyName = `The ${surname} Family`;
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -19,7 +19,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Our Family Hub | Invite New Member to ${suffix}`,
+    title: `${familyName} | Invite New Member`,
   };
 }
 
