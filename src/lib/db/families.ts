@@ -21,7 +21,7 @@ export async function createNewFamily(surname: string): Promise<number> {
     }
     const { user } = session;
     if (!user || !user.id) {
-      throw new Error("Cannot create family - no user or invalid id");
+      throw new Error("Cannot create family - no user or missing id");
     }
     await client.query("BEGIN");
     // create the family with user as admin
@@ -42,6 +42,8 @@ export async function createNewFamily(surname: string): Promise<number> {
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
+    // XXX TODO XXX
+    // log this
   } finally {
     client.release();
   }
@@ -57,6 +59,8 @@ export const checkIfUserIsFamilyMember = cache(
       const exists: boolean = res.rows[0].exists;
       return exists;
     } catch (err) {
+      // XXX TODO XXX
+      // log this
       throw err;
     }
   },
@@ -84,6 +88,8 @@ export const getAllUsersFamilies = cache(async (userId: number) => {
 
     return response;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     throw err;
   }
 });
@@ -95,6 +101,8 @@ export const getFamilySurname = cache(async (familyId: number) => {
     ]);
     return res.rows[0].surname as string;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     throw err;
   }
 });
@@ -106,13 +114,7 @@ export const getFamilyInfo = cache(async (familyId: number) => {
       [familyId],
     );
 
-    const response: {
-      adminId: number;
-      adminName: string;
-      id: number;
-      memberCount: number;
-      surname: string;
-    } = {
+    const response: FamilyInterface = {
       adminId: +res.rows[0].admin_id,
       adminName: res.rows[0].admin_name,
       id: familyId,
@@ -122,6 +124,8 @@ export const getFamilyInfo = cache(async (familyId: number) => {
 
     return response;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     throw err;
   }
 });
@@ -137,25 +141,99 @@ export const inviteNewMember = cache(
         // first check for the existence of a user with the provided email
         userId = await getUserIdFromEmail(email);
       }
-      // next see if they've already been invited to this family
+      // next check their status in the family & for a pending invite
+      const userIsFamilyMember = await checkIfUserIsFamilyMember(
+        familyId,
+        userId,
+      );
       const invitedQuery = await pool.query(
         "SELECT EXISTS(SELECT 1 FROM invites WHERE user_id = $1 AND family_id = $2)",
         [userId, familyId],
       );
       const alreadyInvited = invitedQuery.rows[0].exists;
-      if (userId && !alreadyInvited) {
-        // invite the user if they exist & have not already been invited
+      if (userId && !userIsFamilyMember && !alreadyInvited) {
+        // invite the user if they exist, are not in the family and have not
+        // already been invited
 
-        // note: for security reasons, we aren't informing the inviting admin 
+        // note: for security reasons, we aren't informing the inviting admin
         // if the email provided is legit or not.
         await pool.query(
           "INSERT INTO invites (user_id, family_id, created_at) VALUES ($1, $2, NOW())",
           [userId, familyId],
         );
       }
+      revalidatePath("/");
       return;
     } catch (err) {
+      // XXX TODO XXX
+      // log this
       throw err;
     }
   },
 );
+
+export const joinFamily = cache(async (familyId: number) => {
+  const client = await pool.connect();
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Cannot join family - no session");
+    }
+    const { user } = session;
+    if (!user || !user.id) {
+      throw new Error("Cannot join family - no user or missing id");
+    }
+    const userId = +user.id;
+    const invitedQuery = await pool.query(
+      "SELECT EXISTS(SELECT 1 FROM invites WHERE user_id = $1 AND family_id = $2)",
+      [userId, familyId],
+    );
+    const invited = invitedQuery.rows[0].exists;
+    if (invited) {
+      // first check if the user was invited to join the family
+      await client.query("BEGIN");
+      await client.query(
+        "INSERT INTO family_members (family_id, member_id) VALUES ($1, $2)",
+        [familyId, userId],
+      );
+      await client.query(
+        "DELETE FROM invites WHERE user_id = $1 AND family_id = $2",
+        [userId, familyId],
+      );
+      await client.query("COMMIT");
+      revalidatePath("/");
+      revalidatePath("/families/all");
+      revalidatePath(`/families/${familyId}`);
+    }
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+    // XXX TODO XXX
+    // log this
+  } finally {
+    client.release();
+  }
+});
+
+export const removeInvite = async (familyId: number) => {
+  try {
+    const session = await auth();
+    if (!session) {
+      throw new Error("Cannot decline invite - no session");
+    }
+    const { user } = session;
+    if (!user || !user.id) {
+      throw new Error("Cannot decline invite - no user or missing id");
+    }
+    const userId = +user.id;
+    await pool.query(
+      "DELETE FROM invites WHERE user_id = $1 AND family_id = $2",
+      [userId, familyId],
+    );
+    revalidatePath("/");
+  } catch (err) {
+    throw err;
+    // XXX TODO XXX
+    // log this
+  }
+};

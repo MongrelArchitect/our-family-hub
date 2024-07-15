@@ -1,6 +1,8 @@
 import { cache } from "react";
 import pool from "./pool";
 
+import InviteInterface from "@/types/invites";
+
 export async function addUserToDatabase(user: {
   // return the id of the newly created user
   name: string;
@@ -14,6 +16,8 @@ export async function addUserToDatabase(user: {
     );
     return result.rows[0].id;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     console.error("Error adding new user: ", err);
     throw new Error("Error adding new user");
   }
@@ -31,20 +35,17 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
     }
     return 0;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     console.error("Error checking for existing user: ", err);
     throw new Error("Error checking for existing user");
   }
 }
 
-interface Invite {
-  familyId: number;
-  createdAt: Date;
-}
-
 export const getUsersInvites = cache(async (userId: number) => {
   try {
-    const result = await pool.query("SELECT family_id, created_at FROM invites WHERE user_id = $1", [userId]);
-    const invites: Invite[] = [];
+    const result = await pool.query("SELECT family_id, created_at FROM invites WHERE user_id = $1 ORDER BY created_at DESC", [userId]);
+    const invites: InviteInterface[] = [];
     result.rows.forEach((row) => {
       invites.push({
         familyId: row.family_id,
@@ -53,6 +54,8 @@ export const getUsersInvites = cache(async (userId: number) => {
     });
     return invites;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     console.error("Error getting user's invites: ", err);
     throw new Error("Error getting user's invites");
   }
@@ -66,6 +69,8 @@ export async function updateUserLoginTimestamp(email: string) {
     );
     return result;
   } catch (err) {
+    // XXX TODO XXX
+    // log this
     console.error("Error updating user's login timestamp: ", err);
     throw new Error("Error updating user's login timestamp");
   }

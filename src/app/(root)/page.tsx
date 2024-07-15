@@ -2,6 +2,8 @@ import { auth } from "@/auth";
 import { getUsersInvites } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
 
+import Invite from "../components/Invite";
+
 export default async function Home() {
   // ===================================
   // middleware handles redirect for non-auth users
@@ -15,55 +17,39 @@ export default async function Home() {
     return null;
   }
   // ===================================
-
-  const invites = await getUsersInvites(+user.id);
+  const userId = +user.id;
+  const invites = await getUsersInvites(userId);
 
   const showInvites = () => {
     if (invites.length) {
       return (
-        <ul className="p-2 flex flex-col gap-2">
+        <ul className="flex flex-col gap-2 p-2">
           {invites.map(async (invite) => {
             const familyInfo = await getFamilyInfo(invite.familyId);
             return (
-              <li
-                className="border-2 border-slate-500 p-2"
+              <Invite
+                familyInfo={familyInfo}
+                invite={invite}
                 key={invite.familyId}
-              >
-                <div className="font-bold">
-                  {`The ${familyInfo.surname} Family`}
-                </div>
-                <div className="text-base">
-                  <div>
-                    Members:{" "}
-                    <span className="font-mono">{familyInfo.memberCount}</span>
-                  </div>
-                  <div>
-                    Invited by:{" "}
-                    <span className="font-mono">{familyInfo.adminName}</span>
-                  </div>
-                </div>
-                <div className="flex gap-2 text-lg flex-wrap">
-                  <button className="flex-grow bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300">
-                    Accept
-                  </button>
-                  <button className="flex-grow bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300">
-                    Decline
-                  </button>
-                </div>
-              </li>
+              />
             );
           })}
         </ul>
       );
     }
-    return <p>None</p>;
+    return <p className="p-2 text-lg">No invites available. Check back later!</p>;
   };
 
   return (
     <main className="flex flex-col gap-2 p-2 text-xl">
       <h2 className="text-2xl">Welcome {user.name || ""}!</h2>
       <div className="bg-neutral-100 shadow-md shadow-slate-500">
-        <h2 className="bg-emerald-200 p-2 text-2xl">Pending Invites</h2>
+        <h2 className="bg-emerald-200 p-2 text-2xl flex justify-between">
+        Pending Invites
+          <span className="font-mono">
+            {invites.length}
+          </span>
+        </h2>
         {showInvites()}
       </div>
     </main>

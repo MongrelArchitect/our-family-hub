@@ -41,7 +41,7 @@ export default function RootLayout({
               <b>Our Family Hub</b>
             </h1>
           </div>
-          <div className="p-2 max-lg:hidden">
+          <div className="flex-grow-0 p-2 max-lg:hidden">
             <UserImage
               className="rounded-full border-2 border-black bg-white"
               width={40}
