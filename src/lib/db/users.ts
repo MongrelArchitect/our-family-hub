@@ -1,3 +1,4 @@
+import { cache } from "react";
 import pool from "./pool";
 
 export async function addUserToDatabase(user: {
@@ -34,6 +35,28 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
     throw new Error("Error checking for existing user");
   }
 }
+
+interface Invite {
+  familyId: number;
+  createdAt: Date;
+}
+
+export const getUsersInvites = cache(async (userId: number) => {
+  try {
+    const result = await pool.query("SELECT family_id, created_at FROM invites WHERE user_id = $1", [userId]);
+    const invites: Invite[] = [];
+    result.rows.forEach((row) => {
+      invites.push({
+        familyId: row.family_id,
+        createdAt: row.created_at,
+      });
+    });
+    return invites;
+  } catch (err) {
+    console.error("Error getting user's invites: ", err);
+    throw new Error("Error getting user's invites");
+  }
+});
 
 export async function updateUserLoginTimestamp(email: string) {
   try {
