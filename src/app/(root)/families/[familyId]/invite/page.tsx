@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import Input from "@/app/components/Input";
-import Loading from "@/app/components/loading";
+import Input from "@/components/Input";
+import Loading from "@/components/Loading";
 
 import { getFamilySurname, inviteNewMember } from "@/lib/db/families";
 

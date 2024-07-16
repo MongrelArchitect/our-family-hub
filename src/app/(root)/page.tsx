@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { getUsersInvites } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
 
-import Invite from "../components/Invite";
+import Invite from "@/components/Invite";
 
 export default async function Home() {
   // ===================================

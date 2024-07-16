@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import alertIcon from "@/assets/icons/alert.svg";
 
-import Loading from "@/app/components/loading";
+import Loading from "@/components/Loading";
 
 import { createNewFamily } from "@/lib/db/families";
 

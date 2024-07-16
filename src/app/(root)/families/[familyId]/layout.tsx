@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
 
-import Controls from "./components/controls";
+import Controls from "./Controls";
 
 export default async function RootLayout({
   children,

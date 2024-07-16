@@ -4,8 +4,8 @@ import Image from "next/image";
 
 import logoIcon from "@/assets/icons/logo-white.png";
 
-import Sidebar from "../components/sidebar";
-import UserImage from "../components/userimage";
+import Sidebar from "./Sidebar";
+import UserImage from "./UserImage";
 
 import "@/app/globals.css";
 

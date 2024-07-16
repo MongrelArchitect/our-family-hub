@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import Loading from "./loading";
+import Loading from "./Loading";
 
 import { joinFamily, removeInvite } from "@/lib/db/families";
 
