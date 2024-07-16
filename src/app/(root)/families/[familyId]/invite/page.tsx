@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 
@@ -34,29 +35,29 @@ export default function Invite({ params }: { params: { familyId: string } }) {
   const displayForm = () => {
     if (inviteSent) {
       return (
-        <div className="flex flex-col items-start gap-8 p-2 text-xl">
+        <>
           <p>Invite sent!</p>
           <p>
             If a user exists with the email provided, they will receive an
             invite in their dashboard to join {familyName}.
           </p>
           <button
-            className="font-bold text-violet-900 hover:underline focus:underline"
+            className="self-start font-bold text-violet-900 hover:underline focus:underline"
             type="button"
             onClick={resetForm}
           >
             Send another invite
           </button>
-        </div>
+        </>
       );
     }
     return (
       <>
-        <p className="p-2">
+        <p>
           Enter the email address of a user you&apos;d like to invite to join{" "}
           {familyName}.
         </p>
-        <p className="p-2">
+        <p>
           If a user exists with the email provided, they will receive an invite
           in their dashboard to join.
         </p>
@@ -69,9 +70,9 @@ export default function Invite({ params }: { params: { familyId: string } }) {
           required
           type="email"
         />
-        {error ? <div className="p-2 text-red-700">{error}</div> : null}
+        {error ? <div className="text-red-700">{error}</div> : null}
         <button
-          className="m-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
           type="submit"
         >
           Submit
@@ -103,23 +104,24 @@ export default function Invite({ params }: { params: { familyId: string } }) {
             setLoading(false);
           }
         }}
-        className="flex flex-col gap-4 bg-slate-100 text-lg shadow-md shadow-slate-500"
+        className="text-lg"
         noValidate
       >
-        <h2 className="bg-amber-200 p-2 text-2xl">Invite New Member</h2>
-        {loading ? (
-          <div className="p-2 pb-4">
-            <Loading />
-          </div>
-        ) : (
-          displayForm()
-        )}
-        <div className="p-2 text-xl">
-          <Link
-            className="font-bold text-violet-900 hover:underline focus:underline"
-            href={`/families/${familyId}`}
-          >{`Back to ${familyName}`}</Link>
-        </div>
+        <Card heading="Invite New Member" headingColor="bg-amber-200">
+          {loading ? (
+            <div className="p-2 pb-4">
+              <Loading />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {displayForm()}
+              <Link
+                className="font-bold text-violet-900 hover:underline focus:underline"
+                href={`/families/${familyId}`}
+              >{`Back to ${familyName}`}</Link>
+            </div>
+          )}
+        </Card>
       </form>
     </main>
   );

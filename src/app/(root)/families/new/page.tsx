@@ -1,10 +1,12 @@
 "use client";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import alertIcon from "@/assets/icons/alert.svg";
 
+import Card from "@/components/Card";
 import Loading from "@/components/Loading";
 
 import { createNewFamily } from "@/lib/db/families";
@@ -106,62 +108,61 @@ export default function NewFamily() {
         setError("Error submitting new family");
         console.error("Error submitting new family: ", err);
       }
-    } else {
-      setError("Invalid input - check each field");
     }
   };
 
   return (
     <main className="p-2">
-      {loading ? <Loading /> : null}
-      <form
-        action={""}
-        className={`${loading ? "hidden" : ""} flex flex-col gap-4 bg-slate-100 text-lg shadow-md shadow-slate-500`}
-        onSubmit={submit}
-        noValidate
-      >
-        <h2 className="bg-emerald-100 p-2 text-2xl">Create New Family</h2>
-        <div className="relative flex flex-col p-2">
-          <label
-            className={`${formInfo.surname.typing || formInfo.surname.value ? "-translate-x-1.5 -translate-y-3.5 scale-75 text-neutral-400" : null} absolute left-4 top-5 text-neutral-600 transition-all`}
-            htmlFor="surname"
-          >
-            Surname
-          </label>
-          {attempted && !formInfo.surname.valid ? (
-            <Image
-              alt=""
-              className="alert-red absolute right-4 top-5"
-              src={alertIcon}
-            />
-          ) : null}
-          <input
-            className={`${attempted && !formInfo.surname.valid ? "border-red-700" : "hover:border-black focus:border-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
-            id="surname"
-            maxLength={255}
-            name="surname"
-            onBlur={handleFocus}
-            onChange={handleChange}
-            onFocus={handleFocus}
-            required
-            type="text"
-            value={formInfo.surname.value || ""}
-          />
-          {attempted && !formInfo.surname.valid ? (
-            <div className="absolute right-11 top-6 text-sm text-red-700">
-              Required
+      <form action={""} onSubmit={submit} noValidate>
+        <Card heading="Create New Family" headingColor="bg-emerald-200">
+          {loading ? (
+            <Loading />
+          ) : (
+            <div className="flex flex-col gap-2">
+              <div className="relative flex flex-col p-2">
+                <label
+                  className={`${formInfo.surname.typing || formInfo.surname.value ? "-translate-x-1.5 -translate-y-3.5 scale-75 text-neutral-400" : null} absolute left-4 top-5 text-neutral-600 transition-all`}
+                  htmlFor="surname"
+                >
+                  Surname
+                </label>
+                {attempted && !formInfo.surname.valid ? (
+                  <Image
+                    alt=""
+                    className="alert-red absolute right-4 top-5"
+                    src={alertIcon}
+                  />
+                ) : null}
+                <input
+                  className={`${attempted && !formInfo.surname.valid ? "border-red-700" : "hover:border-black focus:border-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
+                  id="surname"
+                  maxLength={255}
+                  name="surname"
+                  onBlur={handleFocus}
+                  onChange={handleChange}
+                  onFocus={handleFocus}
+                  required
+                  type="text"
+                  value={formInfo.surname.value || ""}
+                />
+                {attempted && !formInfo.surname.valid ? (
+                  <div className="absolute right-11 top-6 text-sm text-red-700">
+                    Required
+                  </div>
+                ) : null}
+              </div>
+              {attempted && error ? (
+                <div className="p-2 text-red-700">{error}</div>
+              ) : null}
+              <button
+                className="m-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                type="submit"
+              >
+                Submit
+              </button>
             </div>
-          ) : null}
-        </div>
-        {attempted && !formInfo.surname.valid ? (
-          <div className="p-2 text-red-700">{error}</div>
-        ) : null}
-        <button
-          className="m-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-          type="submit"
-        >
-          Submit
-        </button>
+          )}
+        </Card>
       </form>
     </main>
   );

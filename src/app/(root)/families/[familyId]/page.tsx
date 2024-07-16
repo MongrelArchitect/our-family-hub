@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 
-import { getFamilySurname } from "@/lib/db/families";
-
-import { getFamilyInfo } from "@/lib/db/families";
+import Card from "@/components/Card";
+import { getFamilyInfo, getFamilySurname } from "@/lib/db/families";
 
 export async function generateMetadata({
   params,
@@ -35,13 +34,13 @@ export default async function FamilyPage({
 
   return (
     <main className="flex flex-col p-2 text-lg">
-      <div className="flex flex-col bg-slate-100 shadow-md shadow-slate-500">
-        <h2 className="bg-emerald-100 p-2 text-2xl">{family.surname} Family</h2>
-        <div className="p-2">
-          <div>Members: {family.memberCount}</div>
-          <div>Admin: {family.adminName}</div>
-        </div>
-      </div>
+      <Card
+        heading={`The ${family.surname} Family`}
+        headingColor="bg-emerald-200"
+      >
+        <div>Members: {family.memberCount}</div>
+        <div>Admin: {family.adminName}</div>
+      </Card>
     </main>
   );
 }

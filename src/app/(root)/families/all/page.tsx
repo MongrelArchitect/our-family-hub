@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import Card from "@/components/Card";
 import { getAllUsersFamilies } from "@/lib/db/families";
 
 export const metadata: Metadata = {
@@ -29,20 +30,21 @@ export default async function Families() {
         <ul className="flex flex-col gap-4">
           {families.map((family) => {
             return (
-              <li
-                className="flex flex-col bg-slate-100 shadow-md shadow-slate-400"
-                key={family.id}
-              >
+              <li key={family.id}>
                 <Link
-                  className="p-1 hover:bg-slate-200 focus:bg-slate-200"
+                  className="outline-emerald-700 hover:outline focus:outline"
                   href={`/families/${family.id}`}
                   title={`${family.surname} family`}
                 >
-                  <h3 className="text-xl font-bold">{family.surname}</h3>
-                  <p>
-                    <span>Members: </span>
-                    <span className="font-mono">{family.memberCount}</span>
-                  </p>
+                  <Card
+                    heading={`The ${family.surname} Family`}
+                    headingColor="bg-emerald-200"
+                  >
+                    <p>
+                      <span>Members: </span>
+                      <span className="font-mono">{family.memberCount}</span>
+                    </p>
+                  </Card>
                 </Link>
               </li>
             );
@@ -55,7 +57,7 @@ export default async function Families() {
 
   return (
     <main className="flex flex-col gap-4 p-2">
-      <h2 className="text-2xl">My Families</h2>
+      <h2 className="text-center text-2xl">My Families</h2>
       {displayFamilies()}
     </main>
   );
