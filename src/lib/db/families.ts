@@ -10,7 +10,7 @@ import { getUserIdFromEmail } from "./users";
 
 import FamilyInterface from "@/types/families";
 
-export async function createNewFamily(surname: string): Promise<number> {
+export async function createNewFamily(formData: FormData): Promise<number> {
   // XXX TODO XXX
   // rate limiting & input validation (surname)
   const client = await pool.connect();
@@ -22,6 +22,10 @@ export async function createNewFamily(surname: string): Promise<number> {
     const { user } = session;
     if (!user || !user.id) {
       throw new Error("Cannot create family - no user or missing id");
+    }
+    const surname = formData.get("surname");
+    if (!surname) {
+      throw new Error("Cannot create family - missing surname");
     }
     await client.query("BEGIN");
     // create the family with user as admin

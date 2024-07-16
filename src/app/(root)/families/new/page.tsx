@@ -1,107 +1,36 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-import alertIcon from "@/assets/icons/alert.svg";
+import { useRef, useState } from "react";
 
 import Card from "@/components/Card";
+import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 
 import { createNewFamily } from "@/lib/db/families";
 
-interface FormInfo {
-  [key: string]: {
-    typing: boolean;
-    value: string;
-    valid: boolean;
-  };
-}
-
 export default function NewFamily() {
-  const defaultFormInfo: FormInfo = {
-    // we just have one field for now, might want more in the future
-    surname: {
-      typing: false, // for the input's "moving label" effect
-      value: "",
-      valid: false,
-    },
-  };
-
   const [attempted, setAttempted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formInfo, setFormInfo] = useState(defaultFormInfo);
   const [loading, setLoading] = useState(false);
+
+  const surnameRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter();
 
   const checkFormValidity = (): boolean => {
-    // check if all form fields are valid - relies on html5 form validation
-    let valid = false;
-    const fields = Object.keys(formInfo);
-    fields.forEach((field) => {
-      valid = formInfo[field].valid;
-    });
-    return valid;
+    const surnameInput = surnameRef.current;
+    return surnameInput?.checkValidity() || false;
   };
 
-  const handleChange = (event: React.SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
-    setError(null);
-    const { id } = target;
-    switch (id) {
-      // makes it easier to add more fields in the future if needed
-      case "surname":
-        setFormInfo((prevState) => {
-          return {
-            ...prevState,
-            surname: {
-              typing: true,
-              value: target.value,
-              valid: target.validity.valid,
-            },
-          };
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleFocus = (event: React.SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
-    const { id } = target;
-    switch (id) {
-      // makes it easier to add more fields in the future if needed
-      case "surname":
-        setFormInfo((prevState) => {
-          return {
-            ...prevState,
-            surname: {
-              ...formInfo.surname,
-              typing:
-                document.activeElement && document.activeElement.id === id
-                  ? true
-                  : false,
-            },
-          };
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const submit = async (event: React.SyntheticEvent) => {
-    event.preventDefault();
+  const submit = async (formData: FormData) => {
     setAttempted(true);
     setError(null);
     if (checkFormValidity()) {
       try {
         // add the new family to the db, getting its id in return
         setLoading(true);
-        const familyId = await createNewFamily(formInfo.surname.value);
+        const familyId = await createNewFamily(formData);
         router.push(`/families/${familyId}`);
       } catch (err) {
         setLoading(false);
@@ -113,49 +42,27 @@ export default function NewFamily() {
 
   return (
     <main className="p-2">
-      <form action={""} onSubmit={submit} noValidate>
+      <form className="text-lg" action={submit} noValidate>
         <Card heading="Create New Family" headingColor="bg-emerald-200">
           {loading ? (
             <Loading />
           ) : (
             <div className="flex flex-col gap-2">
-              <div className="relative flex flex-col p-2">
-                <label
-                  className={`${formInfo.surname.typing || formInfo.surname.value ? "-translate-x-1.5 -translate-y-3.5 scale-75 text-neutral-400" : null} absolute left-4 top-5 text-neutral-600 transition-all`}
-                  htmlFor="surname"
-                >
-                  Surname
-                </label>
-                {attempted && !formInfo.surname.valid ? (
-                  <Image
-                    alt=""
-                    className="alert-red absolute right-4 top-5"
-                    src={alertIcon}
-                  />
-                ) : null}
-                <input
-                  className={`${attempted && !formInfo.surname.valid ? "border-red-700" : "hover:border-black focus:border-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
-                  id="surname"
-                  maxLength={255}
-                  name="surname"
-                  onBlur={handleFocus}
-                  onChange={handleChange}
-                  onFocus={handleFocus}
-                  required
-                  type="text"
-                  value={formInfo.surname.value || ""}
-                />
-                {attempted && !formInfo.surname.valid ? (
-                  <div className="absolute right-11 top-6 text-sm text-red-700">
-                    Required
-                  </div>
-                ) : null}
-              </div>
+              <Input
+                attempted={attempted}
+                errorText="Surname required"
+                id="surname"
+                labelText="Surname"
+                maxLength={255}
+                ref={surnameRef}
+                required
+                type="text"
+              />
               {attempted && error ? (
                 <div className="p-2 text-red-700">{error}</div>
               ) : null}
               <button
-                className="m-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
                 type="submit"
               >
                 Submit

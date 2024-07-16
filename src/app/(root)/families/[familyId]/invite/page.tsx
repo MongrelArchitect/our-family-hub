@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import Card from "@/components/Card";
@@ -10,6 +10,8 @@ import { getFamilySurname, inviteNewMember } from "@/lib/db/families";
 
 export default function Invite({ params }: { params: { familyId: string } }) {
   const familyId = +params.familyId;
+
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const [attempted, setAttempted] = useState(false);
   const [error, setError] = useState<null | string>(null);
@@ -67,6 +69,7 @@ export default function Invite({ params }: { params: { familyId: string } }) {
           id="email"
           labelText="Email"
           maxLength={255}
+          ref={emailRef}
           required
           type="email"
         />
@@ -81,32 +84,29 @@ export default function Invite({ params }: { params: { familyId: string } }) {
     );
   };
 
+  const submitForm = async (formData: FormData) => {
+    setAttempted(true);
+    setError(null);
+    const emailInput = emailRef.current;
+    const valid = emailInput?.checkValidity() || false;
+
+    if (valid) {
+      setLoading(true);
+      setError(null);
+      try {
+        await inviteNewMember(familyId, formData);
+        setInviteSent(true);
+      } catch (err) {
+        console.error(err);
+        setError("Error sending invite");
+      }
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="flex flex-col p-2">
-      <form
-        action={async (formData: FormData) => {
-          // XXX FIXME XXX
-          // wonky - validity is internal to the Input component, but we need
-          // it here too...better option than this?
-          const element = document.querySelector("#email") as HTMLInputElement;
-          const { valid } = element.validity;
-          setAttempted(true);
-          if (valid) {
-            setLoading(true);
-            setError(null);
-            try {
-              await inviteNewMember(familyId, formData);
-              setInviteSent(true);
-            } catch (err) {
-              console.error(err);
-              setError("Error sending invite");
-            }
-            setLoading(false);
-          }
-        }}
-        className="text-lg"
-        noValidate
-      >
+      <form action={submitForm} className="text-lg" noValidate>
         <Card heading="Invite New Member" headingColor="bg-amber-200">
           {loading ? (
             <div className="p-2 pb-4">

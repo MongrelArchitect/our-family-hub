@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { forwardRef, MutableRefObject, useState } from "react";
 
 import alertIcon from "@/assets/icons/alert.svg";
 
@@ -15,7 +15,7 @@ interface Props {
   type: "email" | "text";
 }
 
-export default function Input({
+const Input = forwardRef<HTMLInputElement, Props>(({
   attempted,
   errorText,
   id,
@@ -23,7 +23,7 @@ export default function Input({
   maxLength,
   required,
   type,
-}: Props) {
+}: Props, ref) => {
   const [focused, setFocused] = useState(false);
   const [valid, setValid] = useState(false);
   const [value, setValue] = useState("");
@@ -63,6 +63,7 @@ export default function Input({
         onBlur={handleFocus}
         onChange={handleChange}
         onFocus={handleFocus}
+        ref={ref}
         required={required}
         type={type}
         value={value || ""}
@@ -74,4 +75,6 @@ export default function Input({
       ) : null}
     </div>
   );
-}
+});
+
+export default Input;
