@@ -1,5 +1,5 @@
-import Hero from "./components/hero";
-import SignInForm from "./components/signInForm";
+import Hero from "./Hero";
+import SignInForm from "./SignInForm";
 
 export default async function Landing() {
   return (

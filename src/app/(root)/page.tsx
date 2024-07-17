@@ -3,7 +3,7 @@ import { getUsersInvites } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
 
 import Card from "@/components/Card";
-import Invite from "@/components/Invite";
+import Invite from "./Invite";
 
 export default async function Home() {
   // ===================================
