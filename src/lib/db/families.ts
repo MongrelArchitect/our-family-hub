@@ -9,6 +9,7 @@ import pool from "./pool";
 import { getUserIdFromEmail } from "./users";
 
 import FamilyInterface from "@/types/families";
+import { UserInterface } from "@/types/user";
 
 export async function createNewFamily(formData: FormData): Promise<number> {
   // XXX TODO XXX
@@ -91,6 +92,43 @@ export const getAllUsersFamilies = cache(async (userId: number) => {
     });
 
     return response;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
+export const getFamilyMembers = cache(async (familyId: number) => {
+  try {
+    const session = await auth();
+    if (!session || !session.user) {
+      throw new Error("Error getting family members - missing session");
+    }
+    const { user } = session;
+    if (!user.id) {
+      throw new Error("Error getting family members - missing user id");
+    }
+    const userId = +user.id;
+
+    const result = await pool.query(
+      // query is restricted to family members only - hence the AND EXISTS...
+      "SELECT u.id, u.name, u.email, u.image, u.created_at, u.last_login_at FROM users u JOIN family_members fm ON u.id = fm.member_id WHERE fm.family_id = $1 AND EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2) ORDER BY u.name",
+      [familyId, userId],
+    );
+    const members: UserInterface[] = [];
+    result.rows.forEach((row) => {
+      const member: UserInterface = {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        image: row.image,
+        createdAt: row.created_at,
+        lastLoginAt: row.last_login_at,
+      };
+      members.push(member);
+    });
+    return members;
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -208,6 +246,7 @@ export const joinFamily = cache(async (familyId: number) => {
       revalidatePath("/");
       revalidatePath("/families/all");
       revalidatePath(`/families/${familyId}`);
+      revalidatePath(`/families/${familyId}/remove`);
     }
   } catch (err) {
     await client.query("ROLLBACK");

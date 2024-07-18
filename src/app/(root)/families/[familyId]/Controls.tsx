@@ -96,8 +96,11 @@ export default function Controls({
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline focus:underline" href="#">
-                    Ban member
+                  <Link
+                    className="hover:underline focus:underline"
+                    href={`/families/${familyId}/remove`}
+                  >
+                    Remove member
                   </Link>
                 </li>
                 <li>
