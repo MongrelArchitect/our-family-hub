@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { auth } from "@/auth";
 
 export default async function UserImage({
@@ -16,7 +14,7 @@ export default async function UserImage({
   const { user } = session;
 
   return (
-    <Image
+    <img
       alt="User profile image"
       className={className || ""}
       // XXX TODO XXX
