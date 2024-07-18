@@ -30,16 +30,19 @@ export async function createNewFamily(formData: FormData): Promise<number> {
     }
     await client.query("BEGIN");
     // create the family with user as admin
-    const familyResult = await client.query(
-      "INSERT INTO families (admin_id, surname) VALUES ($1, $2) RETURNING id",
-      [+user.id, surname],
-    );
+    const familyQuery = `
+      INSERT INTO families (admin_id, surname) 
+      VALUES ($1, $2) 
+      RETURNING id
+    `;
+    const familyResult = await client.query(familyQuery, [+user.id, surname]);
     const familyId: number = familyResult.rows[0].id;
     // also add them to the junction table tracking family members
-    await client.query(
-      "INSERT INTO family_members (family_id, member_id) VALUES ($1, $2)",
-      [familyId, +user.id],
-    );
+    const memberQuery = `
+      INSERT INTO family_members (family_id, member_id) 
+      VALUES ($1, $2)
+    `;
+    await client.query(memberQuery, [familyId, +user.id]);
     await client.query("COMMIT");
     revalidatePath("/families/all");
     // return the id of the newly created family, for redirecting to its page
@@ -57,10 +60,14 @@ export async function createNewFamily(formData: FormData): Promise<number> {
 export const checkIfUserIsFamilyMember = cache(
   async (familyId: number, userId: number): Promise<boolean> => {
     try {
-      const res = await pool.query(
-        "SELECT EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2)",
-        [familyId, userId],
-      );
+      const query = `
+        SELECT EXISTS(
+          SELECT 1 FROM family_members 
+          WHERE family_id = $1 
+          AND member_id = $2
+        )
+      `;
+      const res = await pool.query(query, [familyId, userId]);
       const exists: boolean = res.rows[0].exists;
       return exists;
     } catch (err) {
@@ -73,10 +80,35 @@ export const checkIfUserIsFamilyMember = cache(
 
 export const getAllUsersFamilies = cache(async (userId: number) => {
   try {
-    const res = await pool.query(
-      "SELECT f.id AS family_id, f.surname, fm.member_count AS member_count, f.admin_id, u.name AS admin_name FROM families f LEFT JOIN (SELECT family_id, COUNT(member_id) AS member_count FROM family_members GROUP BY family_id) fm ON f.id =       fm.family_id LEFT JOIN users u ON f.admin_id = u.id WHERE EXISTS (SELECT 1 FROM family_members WHERE family_id = f.id AND member_id = $1) ORDER BY f.surname",
-      [userId],
-    );
+    const query = `
+      SELECT 
+        f.id AS family_id, 
+        f.surname, 
+        fm.member_count AS member_count, 
+        f.admin_id, 
+        u.name AS admin_name 
+      FROM families 
+      AS f 
+      LEFT JOIN (
+        SELECT family_id, 
+        COUNT(member_id) AS member_count 
+        FROM family_members 
+        GROUP BY family_id
+      ) 
+      AS fm 
+      ON f.id = fm.family_id 
+      LEFT JOIN users 
+      AS u 
+      ON f.admin_id = u.id 
+      WHERE EXISTS (
+        SELECT 1 
+        FROM family_members 
+        WHERE family_id = f.id 
+        AND member_id = $1
+      ) 
+      ORDER BY f.surname
+  `;
+    const res = await pool.query(query, [userId]);
 
     const response: FamilyInterface[] = [];
 
@@ -111,11 +143,28 @@ export const getFamilyMembers = cache(async (familyId: number) => {
     }
     const userId = +user.id;
 
-    const result = await pool.query(
-      // query is restricted to family members only - hence the AND EXISTS...
-      "SELECT u.id, u.name, u.email, u.image, u.created_at, u.last_login_at FROM users u JOIN family_members fm ON u.id = fm.member_id WHERE fm.family_id = $1 AND EXISTS(SELECT 1 FROM family_members WHERE family_id = $1 AND member_id = $2) ORDER BY u.name",
-      [familyId, userId],
-    );
+    // query is restricted to family members only - hence the AND EXISTS...
+    const query = `
+      SELECT 
+        u.id, 
+        u.name, 
+        u.email, 
+        u.image, 
+        u.created_at, 
+        u.last_login_at 
+      FROM users AS u 
+      JOIN family_members AS fm 
+      ON u.id = fm.member_id 
+      WHERE fm.family_id = $1 
+      AND EXISTS(
+        SELECT 1 
+        FROM family_members 
+        WHERE family_id = $1 
+        AND member_id = $2
+      ) 
+      ORDER BY u.name
+    `;
+    const result = await pool.query(query, [familyId, userId]);
     const members: UserInterface[] = [];
     result.rows.forEach((row) => {
       const member: UserInterface = {
@@ -151,10 +200,21 @@ export const getFamilySurname = cache(async (familyId: number) => {
 
 export const getFamilyInfo = cache(async (familyId: number) => {
   try {
-    const res = await pool.query(
-      "SELECT f.surname, COUNT(fm.member_id) AS member_count, f.admin_id, u.name AS admin_name FROM families f LEFT JOIN family_members fm ON f.id = fm.family_id LEFT JOIN users u on f.admin_id = u.id WHERE f.id = $1 GROUP BY f.id, u.name;",
-      [familyId],
-    );
+    const query = `
+      SELECT 
+        f.surname, 
+        COUNT(fm.member_id) AS member_count, 
+        f.admin_id, 
+        u.name AS admin_name 
+      FROM families AS f 
+      LEFT JOIN family_members AS fm 
+      ON f.id = fm.family_id 
+      LEFT JOIN users AS u 
+      ON f.admin_id = u.id 
+      WHERE f.id = $1 
+      GROUP BY f.id, u.name
+    `;
+    const res = await pool.query(query, [familyId]);
 
     const response: FamilyInterface = {
       adminId: +res.rows[0].admin_id,
@@ -307,10 +367,7 @@ export async function removeMember(familyId: number, memberId: number) {
       )
     `;
 
-    await pool.query(
-      query,
-      [familyId, memberId, userId],
-    );
+    await pool.query(query, [familyId, memberId, userId]);
     revalidatePath("/families/all");
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/remove`);
