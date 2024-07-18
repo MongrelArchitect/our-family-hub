@@ -143,7 +143,7 @@ export default function Controls({
       >
         <div className="relative z-10 rounded-lg" data-menu>
           <div
-            className="absolute -bottom-2 left-1/2 -z-10 h-10 w-10 rotate-45 bg-slate-100 shadow-sm shadow-slate-500"
+            className="absolute -bottom-2 right-5 -z-10 h-10 w-10 rotate-45 bg-slate-100 shadow-sm shadow-slate-500"
             data-menu
           />
           <h3 className="bg-violet-200 p-2" data-menu>
@@ -155,8 +155,11 @@ export default function Controls({
             id="actions"
           >
             <li>
-              <Link className="hover:underline focus:underline" href="#">
-                Something
+              <Link
+                className="hover:underline focus:underline"
+                href={`/families/${familyId}/todos/new`}
+              >
+                New todo list
               </Link>
             </li>
             <li>

@@ -31,7 +31,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
-    const [valid, setValid] = useState(false);
+    const [valid, setValid] = useState(required ? false : true);
     const [value, setValue] = useState(defaultValue || "");
 
     const handleChange = (event: React.SyntheticEvent) => {
@@ -49,7 +49,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
     return (
       <div className="relative flex flex-col">
         <label
-          className={`${focused || value ? "-translate-y-2.5 translate-x-0.5 text-sm text-neutral-400" : null} absolute left-2 top-3 text-neutral-600 transition-all`}
+          className={`${focused || value ? "-translate-y-2.5 translate-x-0.5 text-sm text-neutral-400" : null} pointer-events-none absolute left-2 top-3 select-none text-neutral-600 transition-all`}
           htmlFor="surname"
         >
           {labelText}
@@ -62,7 +62,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           />
         ) : null}
         <input
-          className={`${attempted && !valid ? "border-red-700" : "hover:border-black focus:border-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
+          className={`${attempted && !valid ? "border-red-700 hover:outline hover:outline-red-700 focus:outline focus:outline-red-700" : "hover:outline hover:outline-black focus:outline focus:outline-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
           id={id}
           maxLength={maxLength}
           name={id}
