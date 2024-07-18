@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 
 import pool from "./pool";
-import { getUserIdFromEmail } from "./users";
 
 import FamilyInterface from "@/types/families";
 import { UserInterface } from "@/types/user";
@@ -77,6 +76,53 @@ export const checkIfUserIsFamilyMember = cache(
     }
   },
 );
+
+export async function editFamilySurname(familyId: number, formData: FormData) {
+  try {
+    const session = await auth();
+    if (!session || !session.user) {
+      throw new Error("Error editing family - missing session");
+    }
+    const { user } = session;
+    if (!user.id) {
+      throw new Error("Error editing family - missing user id");
+    }
+    const surname = formData.get("surname");
+    if (!surname) {
+      throw new Error("Error editing family - missing surname");
+    }
+    const userId = +user.id;
+
+    const query = `
+      WITH admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $1
+        AND admin_id = $2
+      ) 
+      UPDATE families
+      SET surname = $3
+      WHERE id = $1
+      AND EXISTS (SELECT 1 FROM admin_check)
+    `;
+
+    const result = await pool.query(query, [familyId, userId, surname]);
+    if (result.rowCount) {
+      revalidatePath("/");
+      revalidatePath("/families/all");
+      revalidatePath(`/families/${familyId}`);
+      revalidatePath(`/families/${familyId}/edit`);
+      revalidatePath(`/families/${familyId}/invite`);
+      revalidatePath(`/families/${familyId}/remove`);
+    } else {
+      throw new Error("Error editing family - enure admin status");
+    }
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}
 
 export const getAllUsersFamilies = cache(async (userId: number) => {
   try {

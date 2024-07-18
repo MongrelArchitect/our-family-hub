@@ -104,7 +104,10 @@ export default function Controls({
                   </Link>
                 </li>
                 <li>
-                  <Link className="hover:underline focus:underline" href="#">
+                  <Link
+                    className="hover:underline focus:underline"
+                    href={`/families/${familyId}/edit`}
+                  >
                     Edit family
                   </Link>
                 </li>
