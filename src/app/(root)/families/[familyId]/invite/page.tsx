@@ -41,7 +41,7 @@ export default function Invite({ params }: { params: { familyId: string } }) {
           <p>Invite sent!</p>
           <p>
             If a user exists with the email provided, they will receive an
-            invite in their dashboard to join {familyName}.
+            invite in their dashboard to join <b>{familyName}</b>.
           </p>
           <button
             className="self-start font-bold text-violet-900 hover:underline focus:underline"
@@ -57,7 +57,7 @@ export default function Invite({ params }: { params: { familyId: string } }) {
       <>
         <p>
           Enter the email address of a user you&apos;d like to invite to join{" "}
-          {familyName}.
+          <b>{familyName}</b>.
         </p>
         <p>
           If a user exists with the email provided, they will receive an invite
@@ -91,16 +91,17 @@ export default function Invite({ params }: { params: { familyId: string } }) {
     const valid = emailInput?.checkValidity() || false;
 
     if (valid) {
-      setLoading(true);
-      setError(null);
       try {
+        setLoading(true);
+        setError(null);
         await inviteNewMember(familyId, formData);
         setInviteSent(true);
       } catch (err) {
         console.error(err);
         setError("Error sending invite");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
   };
 

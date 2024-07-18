@@ -237,34 +237,57 @@ export const inviteNewMember = cache(
     // XXX TODO XXX
     // rate limiting & input validation
     try {
+      const session = await auth();
+      if (!session) {
+        throw new Error("Cannot invite user - no session");
+      }
+      const { user } = session;
+      if (!user || !user.id) {
+        throw new Error("Cannot invite user - no auth user or missing id");
+      }
+      const authUserId = +user.id;
       const email = formData.get("email") as string;
-      let userId = 0;
-      if (email) {
-        // first check for the existence of a user with the provided email
-        userId = await getUserIdFromEmail(email);
-      }
-      // next check their status in the family & for a pending invite
-      const userIsFamilyMember = await checkIfUserIsFamilyMember(
-        familyId,
-        userId,
-      );
-      const invitedQuery = await pool.query(
-        "SELECT EXISTS(SELECT 1 FROM invites WHERE user_id = $1 AND family_id = $2)",
-        [userId, familyId],
-      );
-      const alreadyInvited = invitedQuery.rows[0].exists;
-      if (userId && !userIsFamilyMember && !alreadyInvited) {
-        // invite the user if they exist, are not in the family and have not
-        // already been invited
+      // invite the user if they exist, are not in the family, have not already
+      // been invited and if the user making the invite is the family admin
 
-        // note: for security reasons, we aren't informing the inviting admin
-        // if the email provided is legit or not.
-        await pool.query(
-          "INSERT INTO invites (user_id, family_id, created_at) VALUES ($1, $2, NOW())",
-          [userId, familyId],
-        );
+      // note: for security reasons, we aren't informing the inviting admin
+      // if the email provided is legit or not.
+      const query = `
+        WITH user_id AS (
+          SELECT id
+          FROM users
+          WHERE email = $1
+        ),
+        member_check AS (
+          SELECT 1
+          FROM family_members
+          WHERE member_id = (SELECT id FROM user_id)
+          AND family_id = $2
+        ),
+        invite_check AS (
+          SELECT 1
+          FROM invites
+          WHERE user_id = (SELECT id FROM user_id)
+          AND family_id = $2
+        ),
+        admin_check AS (
+          SELECT 1
+          FROM families
+          WHERE id = $2
+          AND admin_id = $3
+        )
+        INSERT INTO invites (user_id, family_id)
+        SELECT (SELECT id FROM user_id), $2
+        WHERE EXISTS (SELECT id FROM user_id)
+        AND NOT EXISTS (SELECT 1 FROM member_check)
+        AND NOT EXISTS (SELECT 1 FROM invite_check)
+        AND EXISTS (SELECT 1 FROM admin_check)
+      `;
+      const result = await pool.query(query, [email, familyId, authUserId]);
+      if (result.rowCount) {
+        // this will be 1 if the insert is successful, 0 if not
+        revalidatePath("/");
       }
-      revalidatePath("/");
       return;
     } catch (err) {
       // XXX TODO XXX
@@ -294,7 +317,7 @@ export const joinFamily = cache(async (familyId: number) => {
     if (invited) {
       // first check if the user was invited to join the family
       await client.query("BEGIN");
-      await client.query(
+      const insert = await client.query(
         "INSERT INTO family_members (family_id, member_id) VALUES ($1, $2)",
         [familyId, userId],
       );
