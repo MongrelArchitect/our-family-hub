@@ -4,7 +4,11 @@ import Link from "next/link";
 
 import Card from "@/components/Card";
 import Loading from "@/components/Loading";
-import { getFamilyInfo, getFamilyMembers } from "@/lib/db/families";
+import {
+  getFamilyInfo,
+  getFamilyMembers,
+  removeMember,
+} from "@/lib/db/families";
 import FamilyInterface from "@/types/families";
 import { UserInterface } from "@/types/user";
 
@@ -12,15 +16,25 @@ export default function Invite({ params }: { params: { familyId: string } }) {
   const familyId = +params.familyId;
 
   const [error, setError] = useState<null | string>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [deletedSuccess, setDeletedSuccess] = useState(false);
   const [familyInfo, setFamilyInfo] = useState<FamilyInterface | null>(null);
   const [familyMembers, setFamilyMembers] = useState<UserInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [memberInfo, setMemberInfo] = useState<UserInterface | null>(null);
   const [memberLoading, setMemberLoading] = useState(false);
 
+  const reset = () => {
+    setError(null);
+    setConfirming(false);
+    setDeletedSuccess(false);
+    setMemberInfo(null);
+  };
+
   useEffect(() => {
     const loadInfo = async () => {
       try {
+        setLoading(true);
         setFamilyInfo(await getFamilyInfo(familyId));
         setFamilyMembers(await getFamilyMembers(familyId));
         setLoading(false);
@@ -30,7 +44,7 @@ export default function Invite({ params }: { params: { familyId: string } }) {
       }
     };
     loadInfo();
-  }, []);
+  }, [deletedSuccess]);
 
   const showMemberInfo = () => {
     if (memberLoading) {
@@ -57,7 +71,6 @@ export default function Invite({ params }: { params: { familyId: string } }) {
   };
 
   const getMemberInfo = async (event: React.SyntheticEvent) => {
-    console.log(familyMembers);
     const target = event.target as HTMLSelectElement;
     const targetId = +target.value;
     setMemberLoading(true);
@@ -70,7 +83,148 @@ export default function Invite({ params }: { params: { familyId: string } }) {
     setMemberLoading(false);
   };
 
-  const submitForm = () => {};
+  const submitForm = async () => {
+    if (memberInfo?.id) {
+      try {
+        setError(null);
+        setLoading(true);
+        await removeMember(familyId, memberInfo.id);
+        setDeletedSuccess(true);
+      } catch (err) {
+        setConfirming(false);
+        console.error("Error removing member from family: ", err);
+        setError("Error removing member from family");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setError("Missing member id");
+    }
+  };
+
+  const toggleConfirm = () => {
+    setConfirming(!confirming);
+  };
+
+  const showForm = () => {
+    if (familyMembers.length === 1) {
+      // in this case the admin is the only user, and they can't remove themselves
+      return (
+        <>
+          <p>
+            You are the only member of{" "}
+            <b>The {familyInfo?.surname || null} Family</b> and as its admin,
+            cannot be removed from it.
+          </p>
+          <p>
+            <Link
+              className="font-bold text-violet-900 hover:underline focus:underline"
+              href={`/families/${familyId}/invite`}
+            >
+              Send some invites
+            </Link>{" "}
+            to grow your family!
+          </p>
+        </>
+      );
+    }
+    if (deletedSuccess) {
+      return (
+        <>
+          <p>
+            <b>{memberInfo?.name || "Member"}</b> has been successfully removed
+            from <b>The {familyInfo?.surname || null} Family</b>.
+          </p>
+          <p>
+            If this was a mistake, you can
+            <Link
+              className="font-bold text-violet-900 hover:underline focus:underline"
+              href={`/families/${familyId}/invite`}
+            >
+              {" "}
+              send a new invite{" "}
+            </Link>
+            to their email address <b>{memberInfo?.email || null}</b>.
+          </p>
+          <button
+            className="self-start font-bold text-violet-900 hover:underline focus:underline"
+            onClick={reset}
+            type="button"
+          >
+            Remove another member
+          </button>
+        </>
+      );
+    }
+    return (
+      <>
+        {memberInfo || memberLoading ? null : (
+          <p>
+            Choose a family member you&apos;d like to remove from{" "}
+            {`The ${familyInfo?.surname || ""} Family`} to view their
+            information and confirm their removal from the family.
+          </p>
+        )}
+        {showMemberInfo()}
+
+        <label htmlFor="members">Member to remove:</label>
+        <select
+          className="bg-indigo-200 p-2"
+          defaultValue={0}
+          name="members"
+          onChange={getMemberInfo}
+          id="members"
+        >
+          <option value={0} disabled>
+            Choose a member
+          </option>
+          {familyMembers.map((member) => {
+            if (member.id !== familyInfo?.adminId) {
+              return (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              );
+            }
+            return null;
+          })}
+        </select>
+
+        {error ? <div className="text-red-700">{error}</div> : null}
+
+        {confirming ? (
+          <div className="flex flex-col gap-2">
+            <p className="text-red-700">
+              Are you sure you want to remove{" "}
+              <b>{memberInfo?.name || "them"}</b> from{" "}
+              <b>The {familyInfo?.surname || null} Family</b>?
+            </p>
+            <button
+              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+              onClick={toggleConfirm}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+              type="submit"
+            >
+              Remove {memberInfo?.name || "Them"}
+            </button>
+          </div>
+        ) : (
+          <button
+            className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+            onClick={toggleConfirm}
+            type="button"
+          >
+            Submit
+          </button>
+        )}
+      </>
+    );
+  };
 
   return (
     <main className="flex flex-col p-2">
@@ -82,45 +236,7 @@ export default function Invite({ params }: { params: { familyId: string } }) {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {memberInfo || memberLoading ? null : (
-                <p>
-                  Choose a family member you&apos;d like to remove from{" "}
-                  {`The ${familyInfo?.surname || ""} Family`} to view their
-                  information and confirm their removal from the family.
-                </p>
-              )}
-              {showMemberInfo()}
-
-              <label htmlFor="members">Member to remove:</label>
-              <select
-                className="bg-indigo-200 p-2"
-                defaultValue={0}
-                name="members"
-                onChange={getMemberInfo}
-                id="members"
-              >
-                <option value={0} disabled>
-                  Choose a member
-                </option>
-                {familyMembers.map((member) => {
-                  if (member.id !== familyInfo?.adminId) {
-                    return (
-                      <option key={member.id} value={member.id}>
-                        {member.name}
-                      </option>
-                    );
-                  }
-                  return null;
-                })}
-              </select>
-
-              {error ? <div className="text-red-700">{error}</div> : null}
-              <button
-                className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-                type="submit"
-              >
-                Submit
-              </button>
+              {showForm()}
               <Link
                 className="font-bold text-violet-900 hover:underline focus:underline"
                 href={`/families/${familyId}`}
