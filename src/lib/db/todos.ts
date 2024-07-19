@@ -1,9 +1,12 @@
 "use server";
-import {revalidatePath} from "next/cache";
+import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
 import { auth } from "@/auth";
 
 import pool from "./pool";
+
+import TodoListInterface from "@/types/TodoList";
 
 async function getUserId() {
   const session = await auth();
@@ -17,7 +20,59 @@ async function getUserId() {
   return +user.id;
 }
 
+export async function createNewTask(
+  familyId: number,
+  todoId: number,
+  formData: FormData,
+) {
+  // XXX TODO XXX
+  // input validation & rate limiting
+  try {
+    const userId = await getUserId();
+
+    // task info
+    const title = formData.get("title");
+    const details = formData.get("details");
+    const dueDate = formData.get("due");
+    const assigned = formData.get("assigned");
+
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      INSERT INTO tasks
+      (todo_list_id, created_by, assigned_to, title, details, due_by)
+      SELECT $3, $1, $4, $5, $6, $7
+      WHERE EXISTS(SELECT 1 FROM member_check)
+    `;
+
+    const result = await pool.query(query, [
+      userId,
+      familyId,
+      todoId,
+      assigned || null,
+      title,
+      details || null,
+      dueDate || null,
+    ]);
+
+    if (!result.rowCount) {
+      throw new Error("Error creating new task");
+    }
+      // revalidate
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}
+
 export async function createNewTodoList(familyId: number, formData: FormData) {
+  // XXX TODO XXX
+  // input validation & rate limiting
   try {
     const userId = await getUserId();
     // title required
@@ -61,3 +116,61 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
     throw err;
   }
 }
+
+export const getTasks = cache(async (familyId: number, todoId: number) => {
+  try {
+    const userId = await getUserId();
+
+    // XXX TODO XXX
+    const query = `
+    `;
+
+    const result = await pool.query(query, []);
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
+export const getTodoListInfo = cache(
+  async (familyId: number, todoId: number) => {
+    try {
+      const userId = await getUserId();
+
+      const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      SELECT created_at, created_by, title, description 
+      FROM todo_lists 
+      WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+    `;
+
+      const result = await pool.query(query, [userId, familyId, todoId]);
+      if (result.rowCount) {
+        const row = result.rows[0];
+        const todoList: TodoListInterface = {
+          id: todoId,
+          createdAt: row.created_at as Date,
+          createdBy: row.created_by as number,
+          familyId: familyId,
+          title: row.title as string,
+        };
+        if (row.description) {
+          todoList.description = row.description as string;
+        }
+        return todoList;
+      }
+      throw new Error("Error getting todo list info");
+    } catch (err) {
+      // XXX TODO XXX
+      // log this
+      throw err;
+    }
+  },
+);

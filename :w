@@ -1,0 +1,55 @@
+import { forwardRef, useState } from "react";
+
+import Image from "next/image";
+
+import alertIcon from "@/assets/icons/alert.svg";
+
+interface Props {
+  attempted: boolean;
+  id: string;
+  labelText: string;
+  required?: boolean;
+  tabIndex?: number;
+}
+
+const DatePicker = forwardRef<HTMLInputElement, Props>(
+  ({ attempted, id, labelText, required, tabIndex }: Props, ref) => {
+    const [valid, setValid] = useState(false);
+
+    const checkValidDate = (event: React.SyntheticEvent) => {
+      const target = event.target as HTMLInputElement;
+      console.log(target.value);
+      setValid(target.validity.valid);
+    };
+
+    return (
+      <div className="relative flex flex-col gap-2">
+        <label htmlFor={id}>{labelText}</label>
+        {valid ? null : (
+          <Image
+            alt=""
+            className="alert-red absolute right-9 top-12"
+            src={alertIcon}
+          />
+        )}
+        {valid ? null : (
+          <div className="absolute right-16 top-12 text-sm text-red-700">
+            Invalid date
+          </div>
+        )}
+        <input
+          className="border-2 border-neutral-600 p-2 font-mono"
+          id={id}
+          name={id}
+          onKeyUp={checkValidDate}
+          ref={ref}
+          required={required}
+          tabIndex={tabIndex || 0}
+          type="date"
+        />
+      </div>
+    );
+  },
+);
+
+export default DatePicker;

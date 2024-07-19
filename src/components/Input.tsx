@@ -1,18 +1,20 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
 import alertIcon from "@/assets/icons/alert.svg";
 
 interface Props {
   attempted: boolean;
+  clearTrigger?: boolean; // will trigger the form value to reset
   defaultValue?: string;
   errorText?: string;
   id: string;
   labelText: string;
   maxLength: number;
   required?: boolean;
+  tabIndex?: number;
   type: "email" | "text";
 }
 
@@ -20,19 +22,27 @@ const Input = forwardRef<HTMLInputElement, Props>(
   (
     {
       attempted,
+      clearTrigger,
       defaultValue,
       errorText,
       id,
       labelText,
       maxLength,
       required,
+      tabIndex,
       type,
     }: Props,
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
-    const [valid, setValid] = useState(required ? false : true);
+    const [valid, setValid] = useState(!required);
     const [value, setValue] = useState(defaultValue || "");
+
+    useEffect(() => {
+      setFocused(false);
+      setValue(defaultValue || "");
+      setValid(!required);
+    }, [clearTrigger]);
 
     const handleChange = (event: React.SyntheticEvent) => {
       const target = event.target as HTMLInputElement;
@@ -62,7 +72,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           />
         ) : null}
         <input
-          className={`${attempted && !valid ? "border-red-700 hover:outline hover:outline-red-700 focus:outline focus:outline-red-700" : "hover:outline hover:outline-black focus:outline focus:outline-black"} border-2 border-neutral-600 p-2 pt-4 outline-none`}
+          className={`${attempted && !valid ? "border-red-700 text-red-700 hover:outline-red-700 focus:outline-red-700" : "hover:outline-slate-600 focus:outline-slate-600"} border-2 border-neutral-600 p-2 pt-4 hover:outline focus:outline`}
           id={id}
           maxLength={maxLength}
           name={id}
@@ -71,6 +81,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           onFocus={handleFocus}
           ref={ref}
           required={required}
+          tabIndex={tabIndex || 0}
           type={type}
           value={value || ""}
         />
