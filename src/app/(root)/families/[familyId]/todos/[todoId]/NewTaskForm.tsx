@@ -110,10 +110,15 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
   const submit = async (formData: FormData) => {
     setAttempted(true);
     if (checkFormValidity()) {
-      console.log(formData);
       try {
         setLoading(true);
-        await createNewTask(familyId, todoId, formData);
+        // need to get the user's timezone offset to convert to UTC in the db
+        const due = dueRef.current?.value;
+        let offset: number | null = null;
+        if (due) {
+          offset = new Date(due).getTimezoneOffset();
+        }
+        await createNewTask(familyId, todoId, offset, formData);
       } catch (err) {
         setError("Error submitting new task");
         console.error("Error submitting new task: ", err);

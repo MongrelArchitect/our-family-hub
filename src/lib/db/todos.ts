@@ -23,6 +23,7 @@ async function getUserId() {
 export async function createNewTask(
   familyId: number,
   todoId: number,
+  offset: number | null,
   formData: FormData,
 ) {
   // XXX TODO XXX
@@ -34,6 +35,18 @@ export async function createNewTask(
     const title = formData.get("title");
     const details = formData.get("details");
     const dueDate = formData.get("due");
+
+    // we need to standarize any timestamps coming from the user by first 
+    // converting them into UTC, so that any conversions back to user's time zone 
+    // in client components is accurate.
+    let dueDateUTC = "";
+    if (dueDate && offset && typeof dueDate === 'string') {
+      const date = new Date(dueDate);
+      // adding offset ensures that all db timestamps are correct relative to user
+      date.setMinutes(date.getMinutes() + offset)
+      dueDateUTC = date.toISOString();
+    }
+
     const assigned = formData.get("assigned");
 
     const query = `
@@ -56,7 +69,7 @@ export async function createNewTask(
       assigned || null,
       title,
       details || null,
-      dueDate || null,
+      dueDateUTC || null,
     ]);
 
     if (!result.rowCount) {
