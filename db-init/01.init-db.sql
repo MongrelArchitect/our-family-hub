@@ -51,5 +51,6 @@ CREATE TABLE IF NOT EXISTS tasks (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   title TEXT NOT NULL,
   details TEXT,
-  due_by TIMESTAMPTZ
+  due_by TIMESTAMPTZ,
+  done BOOLEAN NOT NULL DEFAULT false
 );

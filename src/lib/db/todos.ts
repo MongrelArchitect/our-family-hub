@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 
 import pool from "./pool";
 
-import TodoListInterface from "@/types/TodoList";
+import TodoListInterface, { TaskInterface } from "@/types/TodoList";
 
 async function getUserId() {
   const session = await auth();
@@ -76,6 +76,8 @@ export async function createNewTask(
       throw new Error("Error creating new task");
     }
       // revalidate
+      // XXX - more
+      revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -134,11 +136,49 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
   try {
     const userId = await getUserId();
 
-    // XXX TODO XXX
     const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      SELECT id, created_by, assigned_to, created_at, title, details, due_by, done
+      FROM tasks
+      WHERE todo_list_id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      ORDER BY due_by
     `;
 
-    const result = await pool.query(query, []);
+    const result = await pool.query(query, [
+      userId, familyId, todoId
+    ]);
+
+    const tasks: TaskInterface[] = [];
+
+    result.rows.forEach((row) => {
+      const task: TaskInterface = {
+        id: row.id as number,
+        todoListId: row.todo_list_id as number,
+        createdBy: row.created_by as number,
+        createdAt: new Date(row.created_at as string),
+        title: row.title as string,
+        done: row.done as boolean,
+      };
+      // optional fields
+      if (row.assigned_to) {
+        task.assignedTo = row.assigned_to as number;
+      }
+      if (row.details) {
+        task.details = row.details as string;
+      }
+      if (row.due_by) {
+        task.dueBy = new Date(row.due_by as string);
+      }
+      tasks.push(task);
+    });
+    return tasks;
+    
   } catch (err) {
     // XXX TODO XXX
     // log this

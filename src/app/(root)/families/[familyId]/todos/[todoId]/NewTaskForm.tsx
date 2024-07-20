@@ -119,6 +119,8 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
           offset = new Date(due).getTimezoneOffset();
         }
         await createNewTask(familyId, todoId, offset, formData);
+        clearForm();
+        toggleVisible();
       } catch (err) {
         setError("Error submitting new task");
         console.error("Error submitting new task: ", err);
@@ -195,7 +197,6 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
                   {showMemberInfo()}
                   <select
                     className="border-2 border-neutral-600 bg-neutral-50 p-2 hover:outline hover:outline-slate-600 focus:outline focus:outline-slate-600"
-                    defaultValue={0}
                     name="assigned"
                     onChange={chooseMember}
                     id="assigned"
