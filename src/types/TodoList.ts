@@ -7,6 +7,12 @@ export default interface TodoListInterface {
   title: string;
 }
 
+export interface TodoListSummary {
+  id: number;
+  taskCount: number;
+  title: string;
+}
+
 export interface TaskInterface {
   id: number;
   todoListId: number;

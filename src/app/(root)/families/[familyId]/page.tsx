@@ -1,10 +1,12 @@
 import { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 
 import starIcon from "@/assets/icons/star.svg";
 import { auth } from "@/auth";
 import Card from "@/components/Card";
 import { getFamilyInfo, getFamilySurname } from "@/lib/db/families";
+import { getTodoListSummaries } from "@/lib/db/todos";
 
 export async function generateMetadata({
   params,
@@ -49,9 +51,34 @@ export default async function FamilyPage({
   const familyId = +params.familyId;
   const family = await getFamilyInfo(familyId);
   const userIsAdmin = userId === family.adminId;
+  const todoLists = await getTodoListSummaries(familyId);
+
+  const showTodoListSummaries = () => {
+    if (todoLists.length) {
+      return (
+        <ul>
+          {todoLists.map((todoList) => {
+            return (
+              <li key={`todo-${todoList.id}`}>
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/families/${familyId}/todos/${todoList.id}`}
+                  title={`View "${todoList.title}" todo list`}
+                >
+                  {todoList.title}
+                </Link>{" "}
+                ({todoList.taskCount} task{todoList.taskCount === 1 ? "" : "s"})
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+    return <p>No todo lists.</p>;
+  };
 
   return (
-    <main className="flex flex-col p-2 text-lg">
+    <main className="flex flex-col gap-4 p-2 text-lg">
       <Card
         flair={
           userIsAdmin ? (
@@ -66,6 +93,9 @@ export default async function FamilyPage({
           <span className="font-mono">{family.memberCount}</span>
         </p>
         <p>Admin: {userIsAdmin ? "You" : family.adminName}</p>
+      </Card>
+      <Card heading="Todo Lists" headingColor="bg-emerald-200">
+        {showTodoListSummaries()}
       </Card>
     </main>
   );

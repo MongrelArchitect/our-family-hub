@@ -6,7 +6,10 @@ import pool from "./pool";
 
 import getUserId from "../auth/user";
 
-import TodoListInterface, { TaskInterface } from "@/types/TodoList";
+import TodoListInterface, {
+  TaskInterface,
+  TodoListSummary,
+} from "@/types/TodoList";
 
 export async function createNewTask(
   familyId: number,
@@ -24,14 +27,14 @@ export async function createNewTask(
     const details = formData.get("details");
     const dueDate = formData.get("due");
 
-    // we need to standarize any timestamps coming from the user by first 
-    // converting them into UTC, so that any conversions back to user's time zone 
+    // we need to standarize any timestamps coming from the user by first
+    // converting them into UTC, so that any conversions back to user's time zone
     // in client components is accurate.
     let dueDateUTC = "";
-    if (dueDate && offset && typeof dueDate === 'string') {
+    if (dueDate && offset && typeof dueDate === "string") {
       const date = new Date(dueDate);
       // adding offset ensures that all db timestamps are correct relative to user
-      date.setMinutes(date.getMinutes() + offset)
+      date.setMinutes(date.getMinutes() + offset);
       dueDateUTC = date.toISOString();
     }
 
@@ -63,9 +66,9 @@ export async function createNewTask(
     if (!result.rowCount) {
       throw new Error("Error creating new task");
     }
-      // revalidate
-      // XXX - more
-      revalidatePath(`/families/${familyId}/todos/${todoId}`);
+    // revalidate
+    // XXX - more
+    revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -111,7 +114,7 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
       throw new Error("Error creating todo list");
     }
     // XXX which paths?
-    revalidatePath("");
+    revalidatePath(`/families/${familyId}/`);
     return +result.rows[0].id;
   } catch (err) {
     // XXX TODO XXX
@@ -138,9 +141,7 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
       ORDER BY due_by
     `;
 
-    const result = await pool.query(query, [
-      userId, familyId, todoId
-    ]);
+    const result = await pool.query(query, [userId, familyId, todoId]);
 
     const tasks: TaskInterface[] = [];
 
@@ -166,7 +167,6 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
       tasks.push(task);
     });
     return tasks;
-    
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -215,3 +215,46 @@ export const getTodoListInfo = cache(
     }
   },
 );
+
+export const getTodoListSummaries = cache(async (familyId: number) => {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      SELECT todo_lists.id, todo_lists.title,
+      COUNT(tasks.id)
+      AS task_count
+      FROM todo_lists
+      JOIN tasks
+      ON tasks.todo_list_id = todo_lists.id
+      WHERE todo_lists.family_id = $2
+      AND EXISTS(SELECT 1 FROM member_check)
+      GROUP BY todo_lists.id
+    `;
+
+    const result = await pool.query(query, [userId, familyId]);
+
+    const todoListSummaries: TodoListSummary[] = [];
+
+    result.rows.forEach((row) => {
+      const summary: TodoListSummary = {
+        id: row.id as number,
+        taskCount: row.task_count as number,
+        title: row.title as string,
+      };
+      todoListSummaries.push(summary);
+    });
+
+    return todoListSummaries;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
