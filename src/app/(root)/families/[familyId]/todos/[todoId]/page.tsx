@@ -24,7 +24,7 @@ export default async function TodoList({ params }: Params) {
       return (
         <table className="flex flex-col text-base lg:text-lg">
           <thead>
-            <tr className="border-b-2 border-neutral-400 flex justify-between">
+            <tr className="flex justify-between border-b-2 border-neutral-400">
               <th>Title</th>
               <th>Due</th>
               <th>Assigned to</th>
@@ -33,7 +33,14 @@ export default async function TodoList({ params }: Params) {
           </thead>
           <tbody className="flex flex-col">
             {tasks.map((task, index) => {
-              return <Task index={index} key={task.id} task={task} />;
+              return (
+                <Task
+                  familyId={familyId}
+                  index={index}
+                  key={task.id}
+                  task={task}
+                />
+              );
             })}
           </tbody>
         </table>

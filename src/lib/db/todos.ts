@@ -2,23 +2,11 @@
 import { revalidatePath } from "next/cache";
 import { cache } from "react";
 
-import { auth } from "@/auth";
-
 import pool from "./pool";
 
-import TodoListInterface, { TaskInterface } from "@/types/TodoList";
+import getUserId from "../auth/user";
 
-async function getUserId() {
-  const session = await auth();
-  if (!session) {
-    throw new Error("No session");
-  }
-  const { user } = session;
-  if (!user || !user.id) {
-    throw new Error("No user or missing id");
-  }
-  return +user.id;
-}
+import TodoListInterface, { TaskInterface } from "@/types/TodoList";
 
 export async function createNewTask(
   familyId: number,

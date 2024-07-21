@@ -1,7 +1,12 @@
+"use server";
+
 import { cache } from "react";
 import pool from "./pool";
 
+import getUserId from "../auth/user";
+
 import InviteInterface from "@/types/invites";
+import { UserInterface } from "@/types/user";
 
 export async function addUserToDatabase(user: {
   // return the id of the newly created user
@@ -58,6 +63,59 @@ export const getUsersInvites = cache(async (userId: number) => {
     // log this
     console.error("Error getting user's invites: ", err);
     throw new Error("Error getting user's invites");
+  }
+});
+
+export const getUserInfo = cache(async (userId: number, familyId: number) => {
+  try {
+    const authUserId = await getUserId();
+
+    // only get user info if one making request is member of same family
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      family_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $3
+        AND family_id = $2
+      )
+      SELECT id, email, name, image, created_at, last_login_at
+      FROM users
+      WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND EXISTS (SELECT 1 FROM family_check)
+    `;
+
+    const result = await pool.query(query, [
+      authUserId,
+      familyId,
+      userId
+    ]);
+
+    if (!result.rowCount) {
+      throw new Error("No user found");
+    }
+
+    const user: UserInterface = {
+      id: result.rows[0].id as number,
+      name: result.rows[0].name as string,
+      email: result.rows[0].email as string,
+      image: result.rows[0].image as string,
+      createdAt: new Date(result.rows[0].created_at as string),
+      lastLoginAt: new Date(result.rows[0].last_login_at as string),
+    };
+
+    return user;
+
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
   }
 });
 
