@@ -1,5 +1,8 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
+import userIcon from "@/assets/icons/user.svg";
 
 import Loading from "@/components/Loading";
 
@@ -78,7 +81,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
   return (
     <>
       <tr
-        className={`${index % 2 === 0 ? "bg-neutral-200" : ""} ${task.done ? "text-neutral-400 line-through" : ""} flex justify-between p-2`}
+        className={`${index % 2 === 0 ? "bg-neutral-200" : ""} ${task.done && !loading ? "text-neutral-400 line-through" : ""} flex justify-between p-2`}
       >
         {loading ? (
           <td>
@@ -102,18 +105,28 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
               </button>
             </td>
             <td>{task.dueBy?.toLocaleDateString() || "Whenever"}</td>
-            <td>
-              {memberInfo && memberInfo.assignedTo
-                ? memberInfo.assignedTo.name
-                : "Anyone"}
+            <td className="flex-shrink-0">
+              {memberInfo && memberInfo.assignedTo ? (
+                <img
+                  alt={memberInfo.assignedTo.name}
+                  className="h-10 w-10 rounded-full"
+                  src={memberInfo.assignedTo.image}
+                  title={memberInfo.assignedTo.name}
+                />
+              ) : (
+                <Image
+                  className="h-10 w-10 rounded-full"
+                  alt="Anyone"
+                  src={userIcon}
+                  title="Anyone"
+                />
+              )}
             </td>
             <td>
               <input
                 checked={taskDone}
                 className="scale-150"
-                disabled={
-                  task.assignedTo ? task.assignedTo !== userId : false
-                }
+                disabled={task.assignedTo ? task.assignedTo !== userId : false}
                 onChange={toggleDone}
                 title={setDoneTitle()}
                 type="checkbox"
@@ -125,8 +138,10 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
       <tr
         className={`${detailsVisible ? "" : "hidden"} ${index % 2 === 0 ? "bg-neutral-200" : ""}`}
       >
-        <td className="col-span-3">
-          <table>
+        <td
+          className={`${task.done ? "text-neutral-400 line-through" : ""} col-span-3`}
+        >
+          <table className={loading ? "invisible" : ""}>
             <tbody>
               {task.details ? (
                 <tr>
@@ -142,6 +157,14 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
               <tr>
                 <th>Created on:</th>
                 <td>{task.createdAt.toLocaleDateString()}</td>
+              </tr>
+              <tr>
+                <th>Assigned to:</th>
+                <td>
+                  {memberInfo && memberInfo.assignedTo
+                    ? memberInfo?.assignedTo.name
+                    : "Anyone"}
+                </td>
               </tr>
             </tbody>
           </table>
