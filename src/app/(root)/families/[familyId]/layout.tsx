@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -5,6 +6,30 @@ import { auth } from "@/auth";
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
 
 import Controls from "./Controls";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { familyId: string };
+}): Promise<Metadata> {
+  const familyId = +params.familyId;
+  let familyName = "My Family";
+  try {
+    const { surname } = await getFamilyInfo(familyId);
+    familyName = `The ${surname} Family`;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error getting family surname for page title: ", err);
+  }
+
+  return {
+    title: {
+      template: `Our Family Hub | ${familyName} | %s`,
+      default: familyName,
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

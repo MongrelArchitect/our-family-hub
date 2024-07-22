@@ -1,33 +1,11 @@
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 import starIcon from "@/assets/icons/star.svg";
 import { auth } from "@/auth";
 import Card from "@/components/Card";
-import { getFamilyInfo, getFamilySurname } from "@/lib/db/families";
+import { getFamilyInfo } from "@/lib/db/families";
 import { getTodoListSummaries } from "@/lib/db/todos";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { familyId: string };
-}): Promise<Metadata> {
-  const familyId = +params.familyId;
-  let familyName = "My Family";
-  try {
-    const surname = await getFamilySurname(familyId);
-    familyName = `The ${surname} Family`;
-  } catch (err) {
-    // XXX TODO XXX
-    // log this
-    console.error("Error getting family surname for page title: ", err);
-  }
-
-  return {
-    title: familyName,
-  };
-}
 
 export default async function FamilyPage({
   params,

@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+
 import Card from "@/components/Card";
 
 import { getTasks, getTodoListInfo } from "@/lib/db/todos";
@@ -9,6 +11,25 @@ interface Params {
   params: {
     familyId: string;
     todoId: string;
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: Params): Promise<Metadata> {
+  const familyId = +params.familyId;
+  const todoId = +params.todoId;
+  const todoListInfo = await getTodoListInfo(familyId, todoId);
+  const title = todoListInfo.title;
+  try {
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error getting tody list info for page title: ", err);
+  }
+
+  return {
+    title,
   };
 }
 
