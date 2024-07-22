@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 
+import { auth } from "@/auth";
+
 import Card from "@/components/Card";
 
 import { getTasks, getTodoListInfo } from "@/lib/db/todos";
@@ -34,6 +36,20 @@ export async function generateMetadata({
 }
 
 export default async function TodoList({ params }: Params) {
+  // ===================================
+  // middleware handles redirect for non-auth users
+  // this is to make typescript happy ¯\_(ツ)_/¯
+  const session = await auth();
+  if (!session || !session.user) {
+    return null;
+  }
+  const { user } = session;
+  if (!user.id) {
+    return null;
+  }
+  // ===================================
+  const userId = +user.id;
+
   const familyId = +params.familyId;
   const todoId = +params.todoId;
 
@@ -60,6 +76,8 @@ export default async function TodoList({ params }: Params) {
                   index={index}
                   key={task.id}
                   task={task}
+                  todoId={todoId}
+                  userId={userId}
                 />
               );
             })}

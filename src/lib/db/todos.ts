@@ -258,3 +258,55 @@ export const getTodoListSummaries = cache(async (familyId: number) => {
     throw err;
   }
 });
+
+export async function toggleTaskDone(
+  familyId: number,
+  todoId: number,
+  taskId: number,
+) {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      family_check AS (
+        SELECT 1
+        FROM todo_lists
+        WHERE id = $3
+        AND family_id = $2
+      ),
+      allowed_check AS (
+        SELECT 1
+        FROM tasks
+        WHERE id = $4
+        AND (assigned_to = $1 OR assigned_to IS NULL)
+      )
+      UPDATE tasks SET done = NOT done
+      WHERE tasks.id = $4
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND EXISTS(SELECT 1 FROM family_check)
+      AND EXISTS(SELECT 1 FROM allowed_check)
+    `;
+
+    const result = await pool.query(query, [
+      userId,
+      familyId,
+      todoId,
+      taskId
+    ]);
+
+    if (result.rowCount) {
+      revalidatePath(`/families/${familyId}/todos/${todoId}`);
+    }
+
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}

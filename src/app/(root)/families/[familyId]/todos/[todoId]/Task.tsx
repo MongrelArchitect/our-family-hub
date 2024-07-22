@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
 import { getUserInfo } from "@/lib/db/users";
+import { toggleTaskDone } from "@/lib/db/todos";
 
 import { TaskInterface } from "@/types/TodoList";
 import { UserInterface } from "@/types/user";
@@ -12,6 +13,8 @@ interface Props {
   familyId: number;
   index: number;
   task: TaskInterface;
+  todoId: number;
+  userId: number;
 }
 
 interface TaskMembers {
@@ -19,10 +22,11 @@ interface TaskMembers {
   createdBy: UserInterface;
 }
 
-export default function Task({ familyId, index, task }: Props) {
+export default function Task({ familyId, index, task, todoId, userId }: Props) {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [memberInfo, setMemberInfo] = useState<TaskMembers | null>(null);
+  const [taskDone, setTaskDone] = useState(task.done);
 
   useEffect(() => {
     const getMemberInfo = async () => {
@@ -49,10 +53,32 @@ export default function Task({ familyId, index, task }: Props) {
     setDetailsVisible(!detailsVisible);
   };
 
+  const toggleDone = async () => {
+    try {
+      setLoading(true);
+      setTaskDone(!taskDone);
+      await toggleTaskDone(familyId, todoId, task.id);
+    } catch (err) {
+      console.error("Error toggling task done: ", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setDoneTitle = () => {
+    if (task.assignedTo && task.assignedTo !== userId) {
+      if (memberInfo && memberInfo.assignedTo) {
+        return `Task is for ${memberInfo.assignedTo.name} only`;
+      }
+      return "Task assigned to another member";
+    }
+    return `Mark task as ${task.done ? "not" : ""} done`;
+  };
+
   return (
     <>
       <tr
-        className={`${index % 2 === 0 ? "bg-neutral-200" : ""} flex justify-between p-2`}
+        className={`${index % 2 === 0 ? "bg-neutral-200" : ""} ${task.done ? "text-neutral-400 line-through" : ""} flex justify-between p-2`}
       >
         {loading ? (
           <td>
@@ -82,9 +108,16 @@ export default function Task({ familyId, index, task }: Props) {
                 : "Anyone"}
             </td>
             <td>
-              <form>
-                <input className="scale-150" type="checkbox" />
-              </form>
+              <input
+                checked={taskDone}
+                className="scale-150"
+                disabled={
+                  task.assignedTo ? task.assignedTo !== userId : false
+                }
+                onChange={toggleDone}
+                title={setDoneTitle()}
+                type="checkbox"
+              />
             </td>
           </>
         )}
