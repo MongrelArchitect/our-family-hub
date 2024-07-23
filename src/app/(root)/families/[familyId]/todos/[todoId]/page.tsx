@@ -59,7 +59,7 @@ export default async function TodoList({ params }: Params) {
   const showTasks = () => {
     if (tasks.length) {
       return (
-        <table className="w-full mb-2">
+        <table className="w-full">
           <thead className="text-left">
             <tr className="p-2 border-b-2 border-neutral-400">
               <th>Title</th>
@@ -90,13 +90,15 @@ export default async function TodoList({ params }: Params) {
   return (
     <main className="p-2 text-lg">
       <Card heading={todoListInfo.title} headingColor="bg-emerald-200">
-        {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
-        {showTasks()}
-        <NewTaskForm
-          familyId={familyId}
-          todoId={todoId}
-          todoTitle={todoListInfo.title}
-        />
+        <div className="flex flex-col gap-4">
+          {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
+          {showTasks()}
+          <NewTaskForm
+            familyId={familyId}
+            todoId={todoId}
+            todoTitle={todoListInfo.title}
+          />
+        </div>
       </Card>
     </main>
   );

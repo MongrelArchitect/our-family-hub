@@ -231,7 +231,7 @@ export const getTodoListSummaries = cache(async (familyId: number) => {
       COUNT(tasks.id)
       AS task_count
       FROM todo_lists
-      JOIN tasks
+      LEFT JOIN tasks
       ON tasks.todo_list_id = todo_lists.id
       WHERE todo_lists.family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
