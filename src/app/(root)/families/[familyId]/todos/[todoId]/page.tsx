@@ -59,16 +59,15 @@ export default async function TodoList({ params }: Params) {
   const showTasks = () => {
     if (tasks.length) {
       return (
-        <table className="flex flex-col text-base lg:text-lg">
-          <thead>
-            <tr className="flex justify-between border-b-2 border-neutral-400">
+        <table className="w-full mb-2">
+          <thead className="text-left">
+            <tr className="p-2 border-b-2 border-neutral-400">
               <th>Title</th>
               <th>Due</th>
-              <th>Assigned to</th>
               <th>Done</th>
             </tr>
           </thead>
-          <tbody className="flex flex-col">
+          <tbody>
             {tasks.map((task, index) => {
               return (
                 <Task
@@ -91,13 +90,13 @@ export default async function TodoList({ params }: Params) {
   return (
     <main className="p-2 text-lg">
       <Card heading={todoListInfo.title} headingColor="bg-emerald-200">
+        {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
+        {showTasks()}
         <NewTaskForm
           familyId={familyId}
           todoId={todoId}
           todoTitle={todoListInfo.title}
         />
-        {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
-        {showTasks()}
       </Card>
     </main>
   );
