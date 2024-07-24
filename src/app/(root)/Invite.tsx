@@ -5,8 +5,8 @@ import Loading from "@/components/Loading";
 
 import { joinFamily, removeInvite } from "@/lib/db/families";
 
-import FamilyInterface from "@/types/families";
-import InviteInterface from "@/types/invites";
+import FamilyInterface from "@/types/Families";
+import InviteInterface from "@/types/Invites";
 
 interface Props {
   familyInfo: FamilyInterface;

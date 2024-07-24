@@ -7,8 +7,8 @@ import { auth } from "@/auth";
 
 import pool from "./pool";
 
-import FamilyInterface from "@/types/families";
-import { UserInterface } from "@/types/user";
+import FamilyInterface from "@/types/Families";
+import UserInterface from "@/types/Users";
 
 export async function createNewFamily(formData: FormData): Promise<number> {
   // XXX TODO XXX

@@ -5,8 +5,8 @@ import pool from "./pool";
 
 import getUserId from "../auth/user";
 
-import InviteInterface from "@/types/invites";
-import { UserInterface } from "@/types/user";
+import InviteInterface from "@/types/Invites";
+import UserInterface from "@/types/Users";
 
 export async function addUserToDatabase(user: {
   // return the id of the newly created user

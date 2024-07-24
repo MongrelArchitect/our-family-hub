@@ -11,7 +11,7 @@ import Loading from "@/components/Loading";
 import {getFamilyInfo} from "@/lib/db/families";
 import { createNewTodoList } from "@/lib/db/todos";
 
-import FamilyInterface from "@/types/families";
+import FamilyInterface from "@/types/Families";
 
 export default function NewTodolist({ params }: { params: { familyId: string } }) {
   const familyId = +params.familyId;

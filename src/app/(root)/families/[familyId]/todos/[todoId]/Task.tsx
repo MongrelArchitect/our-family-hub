@@ -7,7 +7,7 @@ import { getUserInfo } from "@/lib/db/users";
 import { toggleTaskDone } from "@/lib/db/todos";
 
 import { TaskInterface } from "@/types/TodoList";
-import { UserInterface } from "@/types/user";
+import UserInterface from "@/types/Users";
 
 interface Props {
   familyId: number;

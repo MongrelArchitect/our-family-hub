@@ -6,8 +6,11 @@ export default async function getUserId() {
     throw new Error("No session");
   }
   const { user } = session;
-  if (!user || !user.id) {
-    throw new Error("No user or missing id");
+  if (!user) {
+    throw new Error("No user");
+  }
+  if (!user.id) {
+    throw new Error("No user id");
   }
   return +user.id;
 }

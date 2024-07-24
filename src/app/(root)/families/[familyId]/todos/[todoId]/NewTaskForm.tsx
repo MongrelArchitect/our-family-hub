@@ -9,7 +9,7 @@ import Loading from "@/components/Loading";
 import { getFamilyMembers } from "@/lib/db/families";
 import { createNewTask } from "@/lib/db/todos";
 
-import { UserInterface } from "@/types/user";
+import UserInterface from "@/types/Users";
 
 interface Props {
   familyId: number;

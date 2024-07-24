@@ -4,13 +4,15 @@ import Link from "next/link";
 
 import Card from "@/components/Card";
 import Loading from "@/components/Loading";
+
 import {
   getFamilyInfo,
   getFamilyMembers,
   removeMember,
 } from "@/lib/db/families";
-import FamilyInterface from "@/types/families";
-import { UserInterface } from "@/types/user";
+
+import FamilyInterface from "@/types/Families";
+import UserInterface from "@/types/Users";
 
 export default function Invite({ params }: { params: { familyId: string } }) {
   const familyId = +params.familyId;
