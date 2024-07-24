@@ -26,6 +26,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [memberInfo, setMemberInfo] = useState<TaskMembers | null>(null);
+  const [onClient, setOnClient] = useState(false);
   const [taskDone, setTaskDone] = useState(task.done);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
         console.error(err);
       } finally {
         setLoading(false);
+        setOnClient(true); // prevent client not matching server rendered html
       }
     };
     getMemberInfo();
@@ -102,7 +104,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
               </button>
             </td>
             <td className="p-2">
-              {task.dueBy?.toLocaleDateString() || "Whenever"}
+              {onClient && task.dueBy?.toLocaleDateString() || "Whenever"}
             </td>
             <td className="p-2">
               <input
@@ -154,7 +156,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
               <tr>
                 <th align="left">Created on:</th>
                 <td align="left" className="pl-2">
-                  {task.createdAt.toLocaleDateString()}
+                  {onClient ? task.createdAt.toLocaleDateString() : ""}
                 </td>
               </tr>
               <tr>
