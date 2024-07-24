@@ -3,8 +3,7 @@
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/auth";
-
+import getUserId from "@/lib/auth/user";
 import pool from "./pool";
 
 import FamilyInterface from "@/types/Families";
@@ -15,18 +14,13 @@ export async function createNewFamily(formData: FormData): Promise<number> {
   // rate limiting & input validation (surname)
   const client = await pool.connect();
   try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Cannot create family - no session");
-    }
-    const { user } = session;
-    if (!user || !user.id) {
-      throw new Error("Cannot create family - no user or missing id");
-    }
+    const userId = getUserId();
+
     const surname = formData.get("surname");
     if (!surname) {
       throw new Error("Cannot create family - missing surname");
     }
+
     await client.query("BEGIN");
     // create the family with user as admin
     const familyQuery = `
@@ -34,14 +28,14 @@ export async function createNewFamily(formData: FormData): Promise<number> {
       VALUES ($1, $2) 
       RETURNING id
     `;
-    const familyResult = await client.query(familyQuery, [+user.id, surname]);
+    const familyResult = await client.query(familyQuery, [userId, surname]);
     const familyId: number = familyResult.rows[0].id;
     // also add them to the junction table tracking family members
     const memberQuery = `
       INSERT INTO family_members (family_id, member_id) 
       VALUES ($1, $2)
     `;
-    await client.query(memberQuery, [familyId, +user.id]);
+    await client.query(memberQuery, [familyId, userId]);
     await client.query("COMMIT");
     revalidatePath("/families/all");
     // return the id of the newly created family, for redirecting to its page
@@ -79,19 +73,12 @@ export const checkIfUserIsFamilyMember = cache(
 
 export async function editFamilySurname(familyId: number, formData: FormData) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
-      throw new Error("Error editing family - missing session");
-    }
-    const { user } = session;
-    if (!user.id) {
-      throw new Error("Error editing family - missing user id");
-    }
+    const userId = await getUserId();
+
     const surname = formData.get("surname");
     if (!surname) {
       throw new Error("Error editing family - missing surname");
     }
-    const userId = +user.id;
 
     const query = `
       WITH admin_check AS (
@@ -179,15 +166,7 @@ export const getAllUsersFamilies = cache(async (userId: number) => {
 
 export const getFamilyMembers = cache(async (familyId: number) => {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
-      throw new Error("Error getting family members - missing session");
-    }
-    const { user } = session;
-    if (!user.id) {
-      throw new Error("Error getting family members - missing user id");
-    }
-    const userId = +user.id;
+    const userId = await getUserId();
 
     // query is restricted to family members only - hence the AND EXISTS...
     const query = `
@@ -232,6 +211,9 @@ export const getFamilyMembers = cache(async (familyId: number) => {
 });
 
 export const getFamilySurname = cache(async (familyId: number) => {
+  // XXX TODO XXX
+  // 1) do we need this? getFamilyInfo gets surname & we can rely on cache...
+  // 2) if so, protect this so only family members can get the info
   try {
     const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
       familyId,
@@ -245,6 +227,8 @@ export const getFamilySurname = cache(async (familyId: number) => {
 });
 
 export const getFamilyInfo = cache(async (familyId: number) => {
+  // XXX TODO XXX
+  // need to protect this so only family members can get the info
   try {
     const query = `
       SELECT 
@@ -283,15 +267,8 @@ export const inviteNewMember = cache(
     // XXX TODO XXX
     // rate limiting & input validation
     try {
-      const session = await auth();
-      if (!session) {
-        throw new Error("Cannot invite user - no session");
-      }
-      const { user } = session;
-      if (!user || !user.id) {
-        throw new Error("Cannot invite user - no auth user or missing id");
-      }
-      const authUserId = +user.id;
+      const authUserId = await getUserId();
+
       const email = formData.get("email") as string;
       // invite the user if they exist, are not in the family, have not already
       // been invited and if the user making the invite is the family admin
@@ -346,15 +323,8 @@ export const inviteNewMember = cache(
 export const joinFamily = cache(async (familyId: number) => {
   const client = await pool.connect();
   try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Cannot join family - no session");
-    }
-    const { user } = session;
-    if (!user || !user.id) {
-      throw new Error("Cannot join family - no user or missing id");
-    }
-    const userId = +user.id;
+    const userId = await getUserId();
+
     const invitedQuery = await pool.query(
       "SELECT EXISTS(SELECT 1 FROM invites WHERE user_id = $1 AND family_id = $2)",
       [userId, familyId],
@@ -363,7 +333,7 @@ export const joinFamily = cache(async (familyId: number) => {
     if (invited) {
       // first check if the user was invited to join the family
       await client.query("BEGIN");
-      const insert = await client.query(
+      await client.query(
         "INSERT INTO family_members (family_id, member_id) VALUES ($1, $2)",
         [familyId, userId],
       );
@@ -389,15 +359,7 @@ export const joinFamily = cache(async (familyId: number) => {
 
 export const removeInvite = async (familyId: number) => {
   try {
-    const session = await auth();
-    if (!session) {
-      throw new Error("Cannot decline invite - no session");
-    }
-    const { user } = session;
-    if (!user || !user.id) {
-      throw new Error("Cannot decline invite - no user or missing id");
-    }
-    const userId = +user.id;
+    const userId = await getUserId();
     await pool.query(
       "DELETE FROM invites WHERE user_id = $1 AND family_id = $2",
       [userId, familyId],
@@ -412,15 +374,7 @@ export const removeInvite = async (familyId: number) => {
 
 export async function removeMember(familyId: number, memberId: number) {
   try {
-    const session = await auth();
-    if (!session || !session.user) {
-      throw new Error("Error removing member - missing session");
-    }
-    const { user } = session;
-    if (!user.id) {
-      throw new Error("Error removing member - missing user id");
-    }
-    const userId = +user.id;
+    const userId = await getUserId();
 
     const query = `
       DELETE

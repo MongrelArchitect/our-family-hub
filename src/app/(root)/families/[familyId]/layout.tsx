@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
+import getUserId from "@/lib/auth/user";
 
 import Controls from "./Controls";
 
@@ -43,22 +44,23 @@ export default async function RootLayout({
     notFound();
   }
 
-  const session = await auth();
-  if (!session || !session.user || !session.user.id) {
-    // middleware handles this, but typescript yells at us so ¯\_(ツ)_/¯
-    return null;
-  }
+  let userId = 0;
 
-  const { user } = session;
-  if (!user.id) {
-    // we'll have this added during sign-in, but typescript doesn't know that
-    return null;
+  try {
+    userId = await getUserId();
+  } catch (err) {
+    console.error("Error getting user id: ", err);
+    return (
+      <div className="text-red-700">
+        Error getting user id
+      </div>
+    );
   }
 
   // this will also return false if no such family exists with the given id
   const userIsFamilyMember = await checkIfUserIsFamilyMember(
     familyId,
-    +user.id,
+    userId
   );
 
   if (!userIsFamilyMember) {
@@ -76,7 +78,7 @@ export default async function RootLayout({
   return (
     <>
       {children}
-      <Controls familyId={familyId} userIsAdmin={+user.id === family.adminId} />
+      <Controls familyId={familyId} userIsAdmin={userId === family.adminId} />
     </>
   );
 }

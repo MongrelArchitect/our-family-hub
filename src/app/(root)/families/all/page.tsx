@@ -2,31 +2,45 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { auth } from "@/auth";
 import starIcon from "@/assets/icons/star.svg";
 import Card from "@/components/Card";
 import { getAllUsersFamilies } from "@/lib/db/families";
+import getUserId from "@/lib/auth/user";
+import FamilyInterface from "@/types/Families";
 
 export const metadata: Metadata = {
   title: "My Families",
 };
 
 export default async function Families() {
-  // ===================================
-  // middleware handles redirect for non-auth users
-  // this is to make typescript happy ¯\_(ツ)_/¯
-  const session = await auth();
-  if (!session || !session.user) {
-    return null;
-  }
-  const { user } = session;
-  if (!user.id) {
-    return null;
-  }
-  // ===================================
 
-  const userId = +user.id;
-  const families = await getAllUsersFamilies(userId);
+  let userId = 0;
+  try {
+    userId = await getUserId();
+  } catch (err) {
+    console.error("Error getting user id: ", err);
+    return (
+      <main>
+        <div className="text-red-700">
+          Error getting user id
+        </div>
+      </main>
+    );
+  }
+  
+  let families: FamilyInterface[] = [];
+  try {
+    families = await getAllUsersFamilies(userId);
+  } catch (err) {
+    console.error("Error getting user's families: ", err);
+    return (
+      <main>
+        <div className="text-red-700">
+          Error getting user's families
+        </div>
+      </main>
+    );
+  }
 
   const displayFamilies = () => {
     if (families.length) {
