@@ -14,7 +14,7 @@ export async function createNewFamily(formData: FormData): Promise<number> {
   // rate limiting & input validation (surname)
   const client = await pool.connect();
   try {
-    const userId = getUserId();
+    const userId = await getUserId();
 
     const surname = formData.get("surname");
     if (!surname) {

@@ -1,7 +1,16 @@
+import { redirect } from "next/navigation";
+
+import { getUserInfo } from "@/lib/auth/user";
+
 import Hero from "./Hero";
 import SignInForm from "./SignInForm";
 
 export default async function Landing() {
+  const user = await getUserInfo();
+  if (user) {
+    redirect("/");
+  }
+
   return (
     <div className="flex flex-col items-center">
       <main className="flex w-full max-w-[1000px] flex-col gap-2 bg-white shadow-sm shadow-slate-700">

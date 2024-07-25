@@ -1,11 +1,12 @@
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import starIcon from "@/assets/icons/star.svg";
 import Card from "@/components/Card";
 import { getAllUsersFamilies } from "@/lib/db/families";
-import getUserId from "@/lib/auth/user";
+import { getUserInfo } from "@/lib/auth/user";
 import FamilyInterface from "@/types/Families";
 
 export const metadata: Metadata = {
@@ -13,24 +14,14 @@ export const metadata: Metadata = {
 };
 
 export default async function Families() {
-
-  let userId = 0;
-  try {
-    userId = await getUserId();
-  } catch (err) {
-    console.error("Error getting user id: ", err);
-    return (
-      <main>
-        <div className="text-red-700">
-          Error getting user id
-        </div>
-      </main>
-    );
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
   }
   
   let families: FamilyInterface[] = [];
   try {
-    families = await getAllUsersFamilies(userId);
+    families = await getAllUsersFamilies(user.id);
   } catch (err) {
     console.error("Error getting user's families: ", err);
     return (
@@ -47,7 +38,7 @@ export default async function Families() {
       return (
         <ul className="flex flex-col gap-4">
           {families.map((family) => {
-            const userIsAdmin = userId === family.adminId;
+            const userIsAdmin = user.id === family.adminId;
             return (
               <li key={family.id}>
                 <Link

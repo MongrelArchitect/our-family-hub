@@ -1,25 +1,18 @@
-import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { getUsersInvites } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
 
 import Card from "@/components/Card";
+import { getUserInfo } from "@/lib/auth/user";
 import Invite from "./Invite";
 
 export default async function Home() {
-  // ===================================
-  // middleware handles redirect for non-auth users
-  // this is to make typescript happy ¯\_(ツ)_/¯
-  const session = await auth();
-  if (!session || !session.user) {
-    return null;
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
   }
-  const { user } = session;
-  if (!user.id) {
-    return null;
-  }
-  // ===================================
-  const userId = +user.id;
-  const invites = await getUsersInvites(userId);
+
+  const invites = await getUsersInvites(user.id);
 
   const showInvites = () => {
     if (invites.length) {

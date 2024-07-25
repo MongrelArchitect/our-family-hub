@@ -14,3 +14,21 @@ export default async function getUserId() {
   }
   return +user.id;
 }
+
+export async function getUserInfo() {
+  const session = await auth();
+  if (!session) {
+    return null;
+  }
+  const { user } = session;
+  if (!user || !user.id || !user.name || !user.email) {
+    return null;
+  }
+
+  return {
+    id: +user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image || "",
+  };
+}

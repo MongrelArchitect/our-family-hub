@@ -1,10 +1,9 @@
 import { Metadata } from "next";
-
-import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 import Card from "@/components/Card";
-
 import { getTasks, getTodoListInfo } from "@/lib/db/todos";
+import { getUserInfo } from "@/lib/auth/user";
 
 import NewTaskForm from "./NewTaskForm";
 import Task from "./Task";
@@ -16,18 +15,15 @@ interface Params {
   };
 }
 
-export async function generateMetadata({
-  params,
-}: Params): Promise<Metadata> {
-  const familyId = +params.familyId;
-  const todoId = +params.todoId;
-  const todoListInfo = await getTodoListInfo(familyId, todoId);
-  const title = todoListInfo.title;
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  let title = "Todo List";
   try {
+    const familyId = +params.familyId;
+    const todoId = +params.todoId;
+    const todoListInfo = await getTodoListInfo(familyId, todoId);
+    title = todoListInfo.title;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
-    console.error("Error getting tody list info for page title: ", err);
+    console.error("Error getting todo list info for page title: ", err);
   }
 
   return {
@@ -36,19 +32,11 @@ export async function generateMetadata({
 }
 
 export default async function TodoList({ params }: Params) {
-  // ===================================
-  // middleware handles redirect for non-auth users
-  // this is to make typescript happy ¯\_(ツ)_/¯
-  const session = await auth();
-  if (!session || !session.user) {
-    return null;
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
   }
-  const { user } = session;
-  if (!user.id) {
-    return null;
-  }
-  // ===================================
-  const userId = +user.id;
+  const userId = user.id;
 
   const familyId = +params.familyId;
   const todoId = +params.todoId;
@@ -61,7 +49,7 @@ export default async function TodoList({ params }: Params) {
       return (
         <table className="w-full">
           <thead className="text-left">
-            <tr className="p-2 border-b-2 border-neutral-400">
+            <tr className="border-b-2 border-neutral-400 p-2">
               <th>Title</th>
               <th>Due</th>
               <th>Done</th>

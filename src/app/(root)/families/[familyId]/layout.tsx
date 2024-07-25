@@ -1,10 +1,8 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
-
-import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
-import getUserId from "@/lib/auth/user";
+import { getUserInfo } from "@/lib/auth/user";
 
 import Controls from "./Controls";
 
@@ -39,23 +37,13 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { familyId: string };
 }>) {
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
+  }
+  const userId = user.id;
+
   const familyId = +params.familyId;
-  if (isNaN(familyId)) {
-    notFound();
-  }
-
-  let userId = 0;
-
-  try {
-    userId = await getUserId();
-  } catch (err) {
-    console.error("Error getting user id: ", err);
-    return (
-      <div className="text-red-700">
-        Error getting user id
-      </div>
-    );
-  }
 
   // this will also return false if no such family exists with the given id
   const userIsFamilyMember = await checkIfUserIsFamilyMember(

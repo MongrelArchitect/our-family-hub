@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import starIcon from "@/assets/icons/star.svg";
-import { auth } from "@/auth";
 import Card from "@/components/Card";
 import { getFamilyInfo } from "@/lib/db/families";
+import { getUserInfo } from "@/lib/auth/user";
 import { getTodoListSummaries } from "@/lib/db/todos";
 
 export default async function FamilyPage({
@@ -12,23 +13,14 @@ export default async function FamilyPage({
 }: {
   params: { familyId: string };
 }) {
-  // ===================================
-  // middleware handles redirect for non-auth users
-  // this is to make typescript happy ¯\_(ツ)_/¯
-  const session = await auth();
-  if (!session || !session.user) {
-    return null;
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
   }
-  const { user } = session;
-  if (!user.id) {
-    return null;
-  }
-  // ===================================
 
-  const userId = +user.id;
   const familyId = +params.familyId;
   const family = await getFamilyInfo(familyId);
-  const userIsAdmin = userId === family.adminId;
+  const userIsAdmin = user.id === family.adminId;
   const todoLists = await getTodoListSummaries(familyId);
 
   const showTodoListSummaries = () => {
