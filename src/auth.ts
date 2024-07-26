@@ -1,87 +1,56 @@
 import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 
+import {
+  addUserToDatabase,
+  getUserIdFromEmail,
+  updateUserLoginTimestamp,
+} from "./lib/db/users";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
   callbacks: {
     async signIn({ user }) {
-      // XXX FIXME XXX
-      // all this nexted control flow / waterfall is ugly
-      // gotta be a way to improve this
-      if (!user.email || !user.name || !user.image) {
-        // XXX TODO XXX
-        // log this
-        console.error("User is missing data: ", user);
-        // missing data in user object, can't proceed
-        return false;
-      }
       try {
-        // check for existing user in the database
-        const existsResponse = await fetch(
-          `http://localhost:3000/api/users/email/${user.email}`,
-          {
-            method: "GET",
-          },
-        );
-        if (existsResponse.status === 200) {
-          // user exists, save their id for local auth purposes and
-          // update their "last_login_at" field in the db
-          user.id = await existsResponse.json();
-          const updateResponse = await fetch(
-            `http://localhost:3000/api/users/email/${user.email}`,
-            {
-              method: "PATCH",
-            },
-          );
-          if (updateResponse.status === 500) {
-            // some error updating login timestamp - deny auth
-            return false;
-          }
+        if (!user.email || !user.name || !user.image) {
+          throw new Error("Missing user data");
         }
-        // no user exists in our database, so add 'em
-        if (existsResponse.status === 404) {
-          const insertResponse = await fetch(
-            "http://localhost:3000/api/users/",
-            {
-              method: "POST",
-              body: JSON.stringify({
-                name: user.name,
-                email: user.email,
-                image: user.image,
-              }),
-            },
-          );
-          user.id = await insertResponse.json();
-          // some error adding user to database - deny auth
-          if (insertResponse.status === 500) {
-            return false;
-          }
+        // this gives our user's id if they're in the db, 0 if not
+        let userId = await getUserIdFromEmail(user.email);
+        if (userId) {
+          await updateUserLoginTimestamp(userId);
+        } else {
+          const newUserId = await addUserToDatabase({
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
+          userId = newUserId;
         }
-        // some error checking for the user - deny auth
-        if (existsResponse.status === 500) {
-          return false;
-        }
-        // everything successful, so auth is good to go
+        // store the id in the auth user object
+        user.id = userId.toString();
         return true;
       } catch (err) {
-        console.error("Error in signIn callback: ", err);
-        // some unforseen problem - deny auth
+        // XXX TODO XXX
+        // log this
+        console.error("Error signing in: ", err);
+        // some error in database calls
         return false;
       }
     },
-    // XXX
     jwt({ token, user }) {
-      if (user && user.id) { // User is available during sign-in
-        token.id = user.id
+      if (user && user.id) {
+        // attach user id to token for access in session
+        token.id = user.id;
       }
-      return token
+      return token;
     },
     session({ session, token }) {
       if (token.id) {
+        // make sure we have the id available in the current session
         session.user.id = token.id as string;
       }
-      return session
+      return session;
     },
-    // XXX
   },
 });

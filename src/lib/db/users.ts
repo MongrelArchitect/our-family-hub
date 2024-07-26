@@ -119,11 +119,11 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
   }
 });
 
-export async function updateUserLoginTimestamp(email: string) {
+export async function updateUserLoginTimestamp(userId: number) {
   try {
     const result = await pool.query(
-      "UPDATE users SET last_login_at = NOW() WHERE email = $1",
-      [email],
+      "UPDATE users SET last_login_at = NOW() WHERE id = $1",
+      [userId],
     );
     return result;
   } catch (err) {
