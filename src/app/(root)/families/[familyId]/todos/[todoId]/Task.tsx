@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 
 import { getUserInfo } from "@/lib/db/users";
-import { toggleTaskDone } from "@/lib/db/todos";
+import { deleteTask, toggleTaskDone } from "@/lib/db/todos";
 
 import { TaskInterface } from "@/types/TodoList";
 import UserInterface from "@/types/Users";
@@ -15,6 +15,7 @@ interface Props {
   task: TaskInterface;
   todoId: number;
   userId: number;
+  userIsAdmin: boolean;
 }
 
 interface TaskMembers {
@@ -22,7 +23,15 @@ interface TaskMembers {
   createdBy: UserInterface;
 }
 
-export default function Task({ familyId, index, task, todoId, userId }: Props) {
+export default function Task({
+  familyId,
+  index,
+  task,
+  todoId,
+  userId,
+  userIsAdmin,
+}: Props) {
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [memberInfo, setMemberInfo] = useState<TaskMembers | null>(null);
@@ -53,6 +62,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
 
   const toggleDetails = () => {
     setDetailsVisible(!detailsVisible);
+    setConfirmingDelete(false);
   };
 
   const toggleDone = async () => {
@@ -61,6 +71,8 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
       setTaskDone(!taskDone);
       await toggleTaskDone(familyId, todoId, task.id);
     } catch (err) {
+      // XXX TODO XXX
+      // display error somewhere
       console.error("Error toggling task done: ", err);
     } finally {
       setLoading(false);
@@ -77,10 +89,67 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
     return `Mark task as ${task.done ? "not" : ""} done`;
   };
 
+  const confirmDelete = async () => {
+    try {
+      setLoading(true);
+      await deleteTask(familyId, todoId, task.id);
+    } catch (err) {
+      // XXX TODO XXX
+      // display error somewhere
+      console.error("Error deleting task: ", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleDelete = () => {
+    setConfirmingDelete(!confirmingDelete);
+  };
+
+  const showDeleteButton = () => {
+    // only allow the user who created the task (or family admin) to delet it
+    if (userIsAdmin || userId === task.createdBy) {
+      return (
+        <div className="flex flex-col gap-2">
+          {confirmingDelete ? (
+            <>
+              <p className="text-red-700">
+                Are you sure? <b>This cannot be undone!</b>
+              </p>
+              <button
+                className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                onClick={toggleDelete}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-rose-300 p-2 hover:bg-rose-400 focus:bg-rose-400"
+                onClick={confirmDelete}
+                type="button"
+              >
+                Confirm Delete
+              </button>
+            </>
+          ) : (
+            <button
+              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+              onClick={toggleDelete}
+              type="button"
+            >
+              Delete Task
+            </button>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <>
       <tr
-        className={`${index % 2 === 0 ? "bg-neutral-200" : ""} ${task.done && !loading ? "text-neutral-400 line-through" : ""}`}
+        className={`${index % 2 === 0 ? "bg-slate-200" : "bg-slate-300"} ${task.done && !loading ? "text-neutral-400 line-through" : ""}`}
       >
         {loading ? (
           <td colSpan={3}>
@@ -90,6 +159,8 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
           <>
             <td className="p-2">
               <button
+                aria-controls={`task-${task.id}-details`}
+                aria-expanded={detailsVisible ? "true" : "false"}
                 className="flex flex-wrap gap-2"
                 onClick={toggleDetails}
                 title="show details"
@@ -104,7 +175,7 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
               </button>
             </td>
             <td className="p-2">
-              {onClient && task.dueBy?.toLocaleDateString() || "Whenever"}
+              {(onClient && task.dueBy?.toLocaleDateString()) || "Whenever"}
             </td>
             <td className="p-2">
               <input
@@ -120,67 +191,65 @@ export default function Task({ familyId, index, task, todoId, userId }: Props) {
         )}
       </tr>
       <tr
-        className={`${detailsVisible ? "" : "hidden"} ${index % 2 === 0 ? "bg-neutral-200" : ""}`}
+        className={`${detailsVisible ? "" : "hidden"} ${index % 2 === 0 ? "bg-slate-200" : "bg-slate-300"}`}
+        id={`task-${task.id}-details`}
       >
         <td
           className={`${task.done ? "text-neutral-400 line-through" : ""}`}
           colSpan={3}
         >
-          <table className={loading ? "invisible" : ""}>
-            <tbody>
-              {task.details ? (
-                <tr>
-                  <th align="left">Details:</th>
-                  <td align="left" className="pl-2">
-                    {task.details}
-                  </td>
-                </tr>
-              ) : null}
+          <div
+            className={`${loading ? "invisible" : ""} flex flex-col gap-2 p-4`}
+          >
+            {task.details ? (
+              <div>
+                <h3 className="font-bold">Details:</h3>
+                <p>{task.details}</p>
+              </div>
+            ) : null}
 
-              <tr>
-                <th align="left">Created by:</th>
-                <td align="left" className="pl-2">
-                  {memberInfo ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      {memberInfo?.createdBy.name}
-                      <img
-                        alt={memberInfo.createdBy.name}
-                        className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
-                        src={memberInfo.createdBy.image}
-                        title={memberInfo.createdBy.name}
-                      />
-                    </div>
-                  ) : null}
-                </td>
-              </tr>
-              <tr>
-                <th align="left">Created on:</th>
-                <td align="left" className="pl-2">
-                  {onClient ? task.createdAt.toLocaleDateString() : ""}
-                </td>
-              </tr>
-              <tr>
-                <th align="left">Assigned to:</th>
-                <td align="left" className="pl-2">
-                  {memberInfo && memberInfo.assignedTo ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      {memberInfo?.assignedTo.name}
-                      <img
-                        alt={memberInfo.assignedTo.name}
-                        className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
-                        src={memberInfo.assignedTo.image}
-                        title={memberInfo.assignedTo.name}
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap items-center gap-2">
-                      Anyone
-                    </div>
-                  )}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <div>
+              <h3 className="font-bold">Created by:</h3>
+              <div>
+                {memberInfo ? (
+                  <p className="flex flex-wrap items-center gap-2">
+                    {memberInfo?.createdBy.name}
+                    <img
+                      alt={memberInfo.createdBy.name}
+                      className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
+                      src={memberInfo.createdBy.image}
+                      title={memberInfo.createdBy.name}
+                    />
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            <div>
+              <h3 className="font-bold">Created on:</h3>
+              <p>{onClient ? task.createdAt.toLocaleDateString() : ""}</p>
+            </div>
+            <div>
+              <h3 className="font-bold">Assigned to:</h3>
+              <div>
+                {memberInfo && memberInfo.assignedTo ? (
+                  <p className="flex flex-wrap items-center gap-2">
+                    {memberInfo?.assignedTo.name}
+                    <img
+                      alt={memberInfo.assignedTo.name}
+                      className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
+                      src={memberInfo.assignedTo.image}
+                      title={memberInfo.assignedTo.name}
+                    />
+                  </p>
+                ) : (
+                  <p className="flex flex-wrap items-center gap-2">
+                    Anyone
+                  </p>
+                )}
+              </div>
+            </div>
+            {showDeleteButton()}
+          </div>
         </td>
       </tr>
     </>

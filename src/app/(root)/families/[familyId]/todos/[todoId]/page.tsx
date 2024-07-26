@@ -1,7 +1,9 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import Card from "@/components/Card";
+import { getFamilyInfo } from "@/lib/db/families";
 import { getTasks, getTodoListInfo } from "@/lib/db/todos";
 import { getUserInfo } from "@/lib/auth/user";
 
@@ -43,6 +45,7 @@ export default async function TodoList({ params }: Params) {
 
   const todoListInfo = await getTodoListInfo(familyId, todoId);
   const tasks = await getTasks(familyId, todoId);
+  const familyInfo = await getFamilyInfo(familyId);
 
   const showTasks = () => {
     if (tasks.length) {
@@ -65,6 +68,7 @@ export default async function TodoList({ params }: Params) {
                   task={task}
                   todoId={todoId}
                   userId={userId}
+                  userIsAdmin={userId === familyInfo.adminId}
                 />
               );
             })}
@@ -86,6 +90,10 @@ export default async function TodoList({ params }: Params) {
             todoId={todoId}
             todoTitle={todoListInfo.title}
           />
+          <Link
+            className="font-bold text-violet-800 hover:underline focus:underline"
+            href={`/families/${familyId}`}
+          >{`Back to The ${familyInfo.surname} Family`}</Link>
         </div>
       </Card>
     </main>

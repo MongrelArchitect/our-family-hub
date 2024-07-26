@@ -1,7 +1,12 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getUserInfo } from "@/lib/auth/user";
 import NewTodoListForm from "./NewTodoListForm";
+
+export const metadata: Metadata = {
+  title: "New Todo List",
+};
 
 export default async function NewTodolist({
   params,

@@ -123,6 +123,52 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
   }
 }
 
+export async function deleteTask(
+  familyId: number,
+  todoId: number,
+  taskId: number,
+) {
+  try {
+    const userId = await getUserId();
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      author_check AS (
+        SELECT 1
+        FROM tasks
+        WHERE id = $3
+        AND created_by = $1
+      )
+      DELETE FROM tasks
+      WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND (
+        EXISTS(SELECT 1 FROM admin_check)
+        OR EXISTS(SELECT 1 FROM author_check)
+      );
+    `;
+    const result = await pool.query(query, [userId, familyId, taskId]);
+    if (result.rowCount) {
+      revalidatePath(`/families/${familyId}/`);
+      revalidatePath(`/families/${familyId}/todos/${todoId}`);
+    }
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}
+
 export const getTasks = cache(async (familyId: number, todoId: number) => {
   try {
     const userId = await getUserId();
@@ -293,17 +339,11 @@ export async function toggleTaskDone(
       AND EXISTS(SELECT 1 FROM allowed_check)
     `;
 
-    const result = await pool.query(query, [
-      userId,
-      familyId,
-      todoId,
-      taskId
-    ]);
+    const result = await pool.query(query, [userId, familyId, todoId, taskId]);
 
     if (result.rowCount) {
       revalidatePath(`/families/${familyId}/todos/${todoId}`);
     }
-
   } catch (err) {
     // XXX TODO XXX
     // log this
