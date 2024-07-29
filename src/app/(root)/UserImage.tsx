@@ -19,6 +19,7 @@ export default async function UserImage({
       className={className || ""}
       // XXX TODO XXX
       // need placeholder image
+      referrerPolicy="no-referrer"
       src={user.image || ""}
       width={`${width || 32}`}
       height={`${width || 32}`}

@@ -1,5 +1,8 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
+import triangleIcon from "@/assets/icons/triangle.svg";
 
 import Loading from "@/components/Loading";
 
@@ -148,33 +151,36 @@ export default function Task({
 
   return (
     <>
-      <tr
-        className={`${index % 2 === 0 ? "bg-slate-200" : "bg-slate-300"} ${task.done && !loading ? "text-neutral-400 line-through" : ""}`}
-      >
+      <tr className={`${index % 2 === 0 ? "bg-stone-200" : "bg-stone-300"}`}>
         {loading ? (
           <td colSpan={3}>
             <Loading />
           </td>
         ) : (
           <>
-            <td className="p-2">
+            <td
+              className={`${task.done && !loading ? "text-neutral-400 line-through" : ""} p-2`}
+            >
               <button
                 aria-controls={`task-${task.id}-details`}
                 aria-expanded={detailsVisible ? "true" : "false"}
-                className="flex flex-wrap gap-2"
+                className="flex flex-wrap items-center gap-2"
                 onClick={toggleDetails}
                 title="show details"
                 type="button"
               >
                 {task.title}
-                <span
-                  className={`${detailsVisible ? "" : "rotate-180 self-end"} origin-center text-sm transition-all`}
-                >
-                  ▲
-                </span>
+                <Image
+                  alt=""
+                  className={`${detailsVisible ? "" : "rotate-180"} ${task.done ? "opacity-30 grayscale" : ""} transition-all`}
+                  src={triangleIcon}
+                  width={12}
+                />
               </button>
             </td>
-            <td className="p-2">
+            <td
+              className={`${task.done && !loading ? "text-neutral-400 line-through" : ""} p-2`}
+            >
               {(onClient && task.dueBy?.toLocaleDateString()) || "Whenever"}
             </td>
             <td className="p-2">
@@ -191,32 +197,34 @@ export default function Task({
         )}
       </tr>
       <tr
-        className={`${detailsVisible ? "" : "hidden"} ${index % 2 === 0 ? "bg-slate-200" : "bg-slate-300"}`}
+        className={`${detailsVisible ? "" : "hidden"} ${index % 2 === 0 ? "bg-stone-200" : "bg-stone-300"}`}
         id={`task-${task.id}-details`}
       >
-        <td
-          className={`${task.done ? "text-neutral-400 line-through" : ""}`}
-          colSpan={3}
-        >
+        <td colSpan={3}>
           <div
             className={`${loading ? "invisible" : ""} flex flex-col gap-2 p-4`}
           >
             {task.details ? (
-              <div>
+              <div
+                className={`${task.done ? "text-neutral-400 line-through" : ""}`}
+              >
                 <h3 className="font-bold">Details:</h3>
                 <p>{task.details}</p>
               </div>
             ) : null}
 
-            <div>
+            <div
+              className={`${task.done ? "text-neutral-400 line-through" : ""}`}
+            >
               <h3 className="font-bold">Created by:</h3>
               <div>
                 {memberInfo ? (
                   <p className="flex flex-wrap items-center gap-2">
                     {memberInfo?.createdBy.name}
                     <img
-                      alt={memberInfo.createdBy.name}
+                      alt=""
                       className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
+                      referrerPolicy="no-referrer"
                       src={memberInfo.createdBy.image}
                       title={memberInfo.createdBy.name}
                     />
@@ -224,11 +232,15 @@ export default function Task({
                 ) : null}
               </div>
             </div>
-            <div>
+            <div
+              className={`${task.done ? "text-neutral-400 line-through" : ""}`}
+            >
               <h3 className="font-bold">Created on:</h3>
               <p>{onClient ? task.createdAt.toLocaleDateString() : ""}</p>
             </div>
-            <div>
+            <div
+              className={`${task.done ? "text-neutral-400 line-through" : ""}`}
+            >
               <h3 className="font-bold">Assigned to:</h3>
               <div>
                 {memberInfo && memberInfo.assignedTo ? (
@@ -242,9 +254,7 @@ export default function Task({
                     />
                   </p>
                 ) : (
-                  <p className="flex flex-wrap items-center gap-2">
-                    Anyone
-                  </p>
+                  <p className="flex flex-wrap items-center gap-2">Anyone</p>
                 )}
               </div>
             </div>
