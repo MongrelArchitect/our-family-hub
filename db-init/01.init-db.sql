@@ -54,3 +54,22 @@ CREATE TABLE IF NOT EXISTS tasks (
   due_by TIMESTAMPTZ,
   done BOOLEAN NOT NULL DEFAULT false
 );
+
+/* table for discussion threads */
+CREATE TABLE IF NOT EXISTS threads (
+  id SERIAL PRIMARY KEY,
+  author_id INT NOT NULL REFERENCES users(id),
+  family_id INT NOT NULL REFERENCES families(id),
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+/* table for thread posts */
+CREATE TABLE IF NOT EXISTS posts (
+  id SERIAL PRIMARY KEY,
+  author_id INT NOT NULL REFERENCES users(id),
+  thread_id INT NOT NULL REFERENCES threads(id),
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

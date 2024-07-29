@@ -84,7 +84,7 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
     // title required
     const title = formData.get("title");
     if (!title) {
-      throw new Error("Cannot create family - missing surname");
+      throw new Error("Cannot create todo list - missing title");
     }
     // description optional
     const description = formData.get("description");

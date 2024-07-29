@@ -7,15 +7,16 @@ import { useEffect, useRef, useState } from "react";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+import TextArea from "@/components/TextArea";
 import { getFamilyInfo } from "@/lib/db/families";
-import { createNewTodoList } from "@/lib/db/todos";
+import { createNewThread } from "@/lib/db/threads";
 import FamilyInterface from "@/types/Families";
 
 interface Props {
   familyId: number;
 }
 
-export default function NewTodoListForm({ familyId }: Props) {
+export default function NewThreadForm({ familyId }: Props) {
   const [attempted, setAttempted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [familyInfo, setFamilyInfo] = useState<FamilyInterface | null>(null);
@@ -30,31 +31,31 @@ export default function NewTodoListForm({ familyId }: Props) {
   }, []);
 
   const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
 
   const router = useRouter();
 
   const checkFormValidity = (): boolean => {
     const titleInput = titleRef.current;
     const validTitle = titleInput?.checkValidity() || false;
-    const descriptionInput = descriptionRef.current;
-    const validDescription = descriptionInput?.checkValidity() || false;
-    return validTitle && validDescription;
+    const contentTextArea = contentRef.current;
+    const validContent = contentTextArea?.checkValidity() || false;
+    return validTitle && validContent;
   };
 
   const submit = async (formData: FormData) => {
     setAttempted(true);
     if (checkFormValidity()) {
       try {
-        // add the new todo list to the db, getting its id in return
+        // add the new thread to the db, getting its id in return
         setError(null);
         setLoading(true);
-        const todoListId = await createNewTodoList(familyId, formData);
-        router.push(`/families/${familyId}/todos/${todoListId}`);
+        const threadId = await createNewThread(familyId, formData);
+        router.push(`/families/${familyId}/threads/${threadId}`);
       } catch (err) {
         setLoading(false);
-        setError("Error creating new todo list");
-        console.error("Error creating new todo list: ", err);
+        setError("Error creating new thread");
+        console.error("Error creating new thread: ", err);
       } finally {
         setLoading(false);
       }
@@ -63,7 +64,7 @@ export default function NewTodoListForm({ familyId }: Props) {
 
   return (
     <form className="text-lg" action={submit} noValidate>
-      <Card heading="Create New Todo List" headingColor="bg-emerald-200">
+      <Card heading="Create New Thread" headingColor="bg-emerald-200">
         {loading ? (
           <Loading />
         ) : (
@@ -79,13 +80,15 @@ export default function NewTodoListForm({ familyId }: Props) {
               type="text"
             />
 
-            <Input
+            <TextArea 
               attempted={attempted}
-              id="description"
-              labelText="Description (optional)"
-              maxLength={255}
-              ref={descriptionRef}
-              type="text"
+              errorText="Content required"
+              id="content"
+              labelText="Content"
+              maxLength={20000}
+              ref={contentRef}
+              required
+              rows={5}
             />
 
             {attempted && error ? (

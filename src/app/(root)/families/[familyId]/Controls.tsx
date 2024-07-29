@@ -163,8 +163,11 @@ export default function Controls({
               </Link>
             </li>
             <li>
-              <Link className="hover:underline focus:underline" href="#">
-                Something
+              <Link
+                className="hover:underline focus:underline"
+                href={`/families/${familyId}/threads/new`}
+              >
+                New thread
               </Link>
             </li>
             <li>
