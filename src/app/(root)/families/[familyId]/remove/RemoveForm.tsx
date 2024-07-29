@@ -58,6 +58,7 @@ export default function RemoveForm({ familyId }: Props) {
           <img
             alt=""
             className="max-h-[64px] max-w-[64px] rounded-full"
+            referrerPolicy="no-referrer"
             src={memberInfo.image}
           />
           <div className="break-all">
