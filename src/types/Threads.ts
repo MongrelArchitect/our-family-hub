@@ -9,5 +9,9 @@ export interface ThreadInterface {
 }
 
 export interface PostInterface {
-
+  id: number;
+  authorId: number;
+  threadId: number;
+  content: string;
+  createdAt: Date;
 }

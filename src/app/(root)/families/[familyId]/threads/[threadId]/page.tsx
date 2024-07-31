@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
 import NewPostForm from "./NewPostForm";
+import Post from "./Post";
 import { getUserInfo } from "@/lib/auth/user";
 import { getFamilyInfo } from "@/lib/db/families";
-import { getThreadInfo } from "@/lib/db/threads";
+import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
 import { getUserInfo as getAuthorInfo } from "@/lib/db/users";
 
 interface Params {
@@ -44,9 +45,10 @@ export default async function Thread({ params }: Params) {
   const familyInfo = await getFamilyInfo(familyId);
   const threadInfo = await getThreadInfo(threadId, familyId);
   const authorInfo = await getAuthorInfo(threadInfo.authorId, familyId);
+  const posts = await getThreadPosts(familyId, threadId);
 
   return (
-    <main className="p-2 text-lg">
+    <main className="flex flex-col gap-4 p-2 text-lg">
       <Card
         flair={`${threadInfo.postCount} post${threadInfo.postCount === 1 ? "" : "s"}`}
         heading={threadInfo.title}
@@ -79,6 +81,9 @@ export default async function Thread({ params }: Params) {
           </Link>
         </div>
       </Card>
+      {posts.map((post) => {
+        return <Post familyId={familyId} post={post} />;
+      })}
     </main>
   );
 }

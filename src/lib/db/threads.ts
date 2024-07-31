@@ -4,7 +4,7 @@ import { cache } from "react";
 
 import pool from "./pool";
 
-import { ThreadInterface } from "@/types/Threads";
+import { PostInterface, ThreadInterface } from "@/types/Threads";
 import getUserId from "../auth/user";
 
 export async function createNewPost(
@@ -127,6 +127,44 @@ export const getThreadInfo = cache(
       };
 
       return threadInfo;
+    } catch (err) {
+      // XXX TODO XXX
+      // log this
+      throw err;
+    }
+  },
+);
+
+export const getThreadPosts = cache(
+  async (familyId: number, threadId: number) => {
+    try {
+      const userId = await getUserId();
+      const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      SELECT id, author_id, thread_id, content, created_at
+      FROM posts
+      WHERE thread_id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      ;
+      `;
+      const result = await pool.query(query, [userId, familyId, threadId]);
+      const posts: PostInterface[] = [];
+      result.rows.forEach((row) => {
+        const post: PostInterface = {
+          id: +row.id as number,
+          authorId: +row.author_id as number,
+          threadId: +row.thread_id as number,
+          content: row.content as string,
+          createdAt: new Date(row.created_at as string),
+        };
+        posts.push(post);
+      });
+      return posts;
     } catch (err) {
       // XXX TODO XXX
       // log this
