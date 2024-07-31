@@ -1,10 +1,11 @@
 "use client";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import Image from "next/image";
 import alertIcon from "@/assets/icons/alert.svg";
 
 interface Props {
   attempted: boolean;
+  clearTrigger?: boolean;
   errorText: string;
   id: string;
   labelText: string;
@@ -18,6 +19,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, Props>(
   (
     {
       attempted,
+      clearTrigger,
       errorText,
       id,
       labelText,
@@ -29,8 +31,14 @@ const TextArea = forwardRef<HTMLTextAreaElement, Props>(
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
-    const [valid, setValid] = useState(false);
+    const [valid, setValid] = useState(!required);
     const [value, setValue] = useState("");
+
+    useEffect(() => {
+      setValue("");
+      setFocused(false);
+      setValid(!required);
+    }, [clearTrigger]);
 
     const handleChange = (event: React.SyntheticEvent) => {
       const target = event.target as HTMLTextAreaElement;

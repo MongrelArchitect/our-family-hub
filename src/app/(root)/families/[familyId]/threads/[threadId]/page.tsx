@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
+import NewPostForm from "./NewPostForm";
 import { getUserInfo } from "@/lib/auth/user";
 import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo } from "@/lib/db/threads";
@@ -69,6 +70,7 @@ export default async function Thread({ params }: Params) {
               </span>
             </div>
           </div>
+          <NewPostForm familyId={familyId} threadId={threadId} />
           <Link
             className="font-bold text-violet-800 hover:underline focus:underline"
             href={`/families/${familyId}`}

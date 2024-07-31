@@ -7,6 +7,46 @@ import pool from "./pool";
 import { ThreadInterface } from "@/types/Threads";
 import getUserId from "../auth/user";
 
+export async function createNewPost(
+  threadId: number,
+  familyId: number,
+  formData: FormData,
+) {
+  // XXX TODO XXX
+  // input validation & rate limiting
+  try {
+    const userId = await getUserId();
+    const content = formData.get("content");
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      INSERT INTO posts
+      (author_id, thread_id, content)
+      SELECT $1, $3, $4
+      WHERE EXISTS(SELECT 1 FROM member_check);
+    `;
+    const result = await pool.query(query, [
+      userId,
+      familyId,
+      threadId,
+      content,
+    ]);
+    if (!result.rowCount) {
+      throw new Error("Error creating new post");
+    }
+    revalidatePath(`/families/${familyId}/`);
+    revalidatePath(`/families/${familyId}/threads/${threadId}/`);
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}
+
 export async function createNewThread(familyId: number, formData: FormData) {
   // XXX TODO XXX
   // input validation & rate limiting
