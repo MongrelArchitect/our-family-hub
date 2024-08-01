@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { useEffect, useState } from "react";
 
+import chevronIcon from "@/assets/icons/chevron-up.svg";
 import plusIcon from "@/assets/icons/plus.svg";
 import starIcon from "@/assets/icons/star.svg";
 
@@ -17,6 +18,7 @@ export default function Controls({
 }) {
   const [actionsVisible, setActionsVisible] = useState(false);
   const [adminActionsVisible, setAdminActionsVisible] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
 
   const toggleActions = () => {
     setActionsVisible(!actionsVisible);
@@ -46,15 +48,32 @@ export default function Controls({
     };
   }, []);
 
+  const toggleControlsVisible = () => {
+    setControlsVisible(!controlsVisible);
+  };
+
   return (
     <>
       {userIsAdmin ? (
         <>
+          <button
+            aria-hidden="true"
+            className={`fixed bottom-0 left-1/2 ml-[-40px] lg:ml-[45px] rounded-t-xl bg-white shadow-md shadow-slate-500 transition-all ${controlsVisible ? "" : "translate-y-1/2 hover:translate-y-0"} px-[20px] border-t-2 border-violet-300`}
+            onClick={toggleControlsVisible}
+          >
+            <Image
+              alt=""
+              className={`${controlsVisible ? "rotate-180" : ""} transition-all`}
+              src={chevronIcon}
+              width={40}
+            />
+          </button>
+
           {/* SHOW / HIDE ADMIN ACTIONS */}
           <button
             aria-controls="admin-actions"
             aria-expanded={adminActionsVisible ? "true" : "false"}
-            className="absolute bottom-2 mt-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 shadow-md shadow-slate-500 hover:bg-amber-200 focus:bg-amber-200 max-lg:left-2 lg:left-44"
+            className={`${controlsVisible ? "" : "translate-y-24"} fixed bottom-2 mt-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 shadow-md shadow-slate-500 transition-all hover:bg-amber-200 focus:bg-amber-200 max-lg:left-2 lg:left-44`}
             data-menu
             onClick={toggleAdminActions}
             title="Show admin actions"
@@ -121,7 +140,7 @@ export default function Controls({
       <button
         aria-controls="actions"
         aria-expanded={actionsVisible ? "true" : "false"}
-        className="absolute bottom-2 right-2 mt-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 shadow-md shadow-slate-500 hover:bg-indigo-200 focus:bg-indigo-200"
+        className={`${controlsVisible ? "" : "translate-y-24"} fixed bottom-2 right-2 mt-auto flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 shadow-md shadow-slate-500 transition-all hover:bg-indigo-200 focus:bg-indigo-200`}
         data-menu
         onClick={toggleActions}
         title="Show family actions"
