@@ -119,6 +119,36 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
   }
 });
 
+export const getUsersOwnInfo = cache(async() => {
+  try {
+    const userId = await getUserId();
+    const query = `
+      SELECT email, name, image, created_at, last_login_at
+      FROM users
+      WHERE id = $1
+      ;
+    `;
+    const result = await pool.query(query, [userId]);
+    if (!result.rowCount) {
+      throw new Error("Error getting user's own info");
+    }
+    const row = result.rows[0];
+    const userInfo: UserInterface = {
+      id: userId,
+      name: row.name as string,
+      email: row.email as string,
+      image: row.image as string,
+      createdAt: new Date(row.created_at as string),
+      lastLoginAt: new Date(row.last_login_at as string),
+    };
+    return userInfo;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
 export async function updateUserLoginTimestamp(userId: number) {
   try {
     const result = await pool.query(

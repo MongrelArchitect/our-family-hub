@@ -11,6 +11,7 @@ import homeIcon from "@/assets/icons/home.svg";
 import logoutIcon from "@/assets/icons/logout.svg";
 import newFamilyIcon from "@/assets/icons/new-family.svg";
 import openMenuIcon from "@/assets/icons/menu-open.svg";
+import profileIcon from "@/assets/icons/account-circle.svg";
 
 export default function Sidebar() {
   const [expanded, setExpanded] = useState(false);
@@ -81,8 +82,8 @@ export default function Sidebar() {
         >
           <Image alt="" src={closeMenuIcon} width="48" />
         </button>
-        <nav className="text-xl">
-          <ul className="flex flex-col gap-4">
+        <nav className="text-xl h-full">
+          <ul className="flex flex-col gap-4 h-full">
             <li>
               <Link
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
@@ -92,6 +93,18 @@ export default function Sidebar() {
               >
                 <Image alt="" src={homeIcon} width="32" />
                 Home
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                href="/users/me"
+                onClick={toggleExpanded}
+                tabIndex={expanded ? 0 : -1}
+              >
+                <Image alt="" src={profileIcon} width="32" />
+                My Profile
               </Link>
             </li>
 
@@ -119,7 +132,7 @@ export default function Sidebar() {
               </Link>
             </li>
 
-            <li>
+            <li className="mt-8">
               <button
                 className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
                 onClick={() => {
