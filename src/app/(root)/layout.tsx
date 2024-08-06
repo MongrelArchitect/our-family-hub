@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 import logoIcon from "@/assets/icons/logo-white.png";
 
@@ -8,6 +9,7 @@ import Sidebar from "./Sidebar";
 import UserImage from "./UserImage";
 
 import "@/app/globals.css";
+import {getUserInfo} from "@/lib/auth/user";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -25,6 +27,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUserInfo();
+  if (!user) {
+    redirect("/landing");
+  }
+
   return (
     <html className={inter.className} lang="en">
       <body className="grid h-screen grid-rows-[auto_1fr] bg-neutral-200">

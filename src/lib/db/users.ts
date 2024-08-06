@@ -7,6 +7,7 @@ import getUserId from "../auth/user";
 
 import InviteInterface from "@/types/Invites";
 import UserInterface from "@/types/Users";
+import {revalidatePath} from "next/cache";
 
 export async function addUserToDatabase(user: {
   // return the id of the newly created user
@@ -28,13 +29,41 @@ export async function addUserToDatabase(user: {
   }
 }
 
+export async function editUserName(formData: FormData) {
+  try {
+    // XXX TODO XXX
+    // input validation & rate limiting
+    const newName = formData.get("name");
+    if (!newName) {
+      throw new Error("Error editing user name: name required");
+    }
+    const userId = await getUserId();
+    const query = `
+      UPDATE users
+      SET name = $2
+      WHERE id = $1
+    `;
+    const result = await pool.query(query, [userId, newName]);
+    if (!result.rowCount) {
+      throw new Error("Error editing user name");
+    }
+    // XXX ???
+    // need to revalidate all paths that query for a user's name
+    revalidatePath("/users/me");
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error editing user name: ", err);
+    throw new Error("Error editing user name");
+  }
+}
+
 export async function getUserIdFromEmail(email: string): Promise<number> {
   // will return user id if they exist, or 0 if not
   try {
-    const result = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email],
-    );
+    const result = await pool.query("SELECT id FROM users WHERE email = $1", [
+      email,
+    ]);
     if (result.rows.length) {
       return result.rows[0].id;
     }
@@ -49,7 +78,10 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
 
 export const getUsersInvites = cache(async (userId: number) => {
   try {
-    const result = await pool.query("SELECT family_id, created_at FROM invites WHERE user_id = $1 ORDER BY created_at DESC", [userId]);
+    const result = await pool.query(
+      "SELECT family_id, created_at FROM invites WHERE user_id = $1 ORDER BY created_at DESC",
+      [userId],
+    );
     const invites: InviteInterface[] = [];
     result.rows.forEach((row) => {
       invites.push({
@@ -91,11 +123,7 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
       AND EXISTS (SELECT 1 FROM family_check)
     `;
 
-    const result = await pool.query(query, [
-      authUserId,
-      familyId,
-      userId
-    ]);
+    const result = await pool.query(query, [authUserId, familyId, userId]);
 
     if (!result.rowCount) {
       throw new Error("No user found");
@@ -111,7 +139,6 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
     };
 
     return user;
-
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -119,7 +146,7 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
   }
 });
 
-export const getUsersOwnInfo = cache(async() => {
+export const getUsersOwnInfo = cache(async () => {
   try {
     const userId = await getUserId();
     const query = `
