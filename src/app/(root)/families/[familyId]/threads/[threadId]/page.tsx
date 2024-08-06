@@ -38,7 +38,7 @@ export default async function Thread({ params }: Params) {
 
   const familyInfo = await getFamilyInfo(familyId);
   const threadInfo = await getThreadInfo(threadId, familyId);
-  const authorInfo = await getAuthorInfo(threadInfo.authorId, familyId);
+  const authorInfo = await getAuthorInfo(threadInfo.authorId);
   const posts = await getThreadPosts(familyId, threadId);
 
   return (
@@ -76,7 +76,7 @@ export default async function Thread({ params }: Params) {
         </div>
       </Card>
       {posts.map((post) => {
-        return <Post familyId={familyId} post={post} />;
+        return <Post post={post} />;
       })}
     </main>
   );

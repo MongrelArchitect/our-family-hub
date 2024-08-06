@@ -45,9 +45,9 @@ export default function Task({
     const getMemberInfo = async () => {
       try {
         let assignedTo: UserInterface | null = null;
-        const createdBy = await getOtherUsersInfo(task.createdBy, familyId);
+        const createdBy = await getOtherUsersInfo(task.createdBy);
         if (task.assignedTo) {
-          assignedTo = await getOtherUsersInfo(task.assignedTo, familyId);
+          assignedTo = await getOtherUsersInfo(task.assignedTo);
         }
         setMemberInfo({
           assignedTo,

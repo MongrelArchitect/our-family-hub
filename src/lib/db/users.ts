@@ -47,9 +47,8 @@ export async function editUserName(formData: FormData) {
     if (!result.rowCount) {
       throw new Error("Error editing user name");
     }
-    // XXX ???
-    // need to revalidate all paths that query for a user's name
     revalidatePath("/users/me");
+    revalidatePath(`/users/${userId}`);
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -99,32 +98,27 @@ export const getUsersInvites = cache(async (userId: number) => {
 });
 
 export const getOtherUsersInfo = cache(
-  async (userId: number, familyId: number) => {
+  async (userId: number) => {
     try {
       const authUserId = await getUserId();
 
-      // only get user info if one making request is member of same family
+      // only get other user's info if they share a family in common
       const query = `
-      WITH member_check AS (
-        SELECT 1
-        FROM family_members
-        WHERE member_id = $1
-        AND family_id = $2
-      ),
-      family_check AS (
-        SELECT 1
-        FROM family_members
-        WHERE member_id = $3
-        AND family_id = $2
-      )
-      SELECT id, email, name, image, created_at, last_login_at
-      FROM users
-      WHERE id = $3
-      AND EXISTS(SELECT 1 FROM member_check)
-      AND EXISTS (SELECT 1 FROM family_check)
-    `;
+        WITH shared_family_check AS (
+          SELECT 1
+          FROM family_members fm1
+          JOIN family_members fm2
+          ON fm1.family_id = fm2.family_id
+          WHERE fm1.member_id = $1
+          AND fm2.member_id = $2
+        )
+        SELECT id, email, name, image, created_at, last_login_at
+        FROM users
+        WHERE id = $2
+        AND EXISTS (SELECT 1 FROM shared_family_check)
+      `;
 
-      const result = await pool.query(query, [authUserId, familyId, userId]);
+      const result = await pool.query(query, [authUserId, userId]);
 
       if (!result.rowCount) {
         throw new Error("No user found");
