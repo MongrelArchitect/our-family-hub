@@ -7,7 +7,7 @@ import getUserId from "../auth/user";
 
 import InviteInterface from "@/types/Invites";
 import UserInterface from "@/types/Users";
-import {revalidatePath} from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export async function addUserToDatabase(user: {
   // return the id of the newly created user
@@ -98,12 +98,13 @@ export const getUsersInvites = cache(async (userId: number) => {
   }
 });
 
-export const getUserInfo = cache(async (userId: number, familyId: number) => {
-  try {
-    const authUserId = await getUserId();
+export const getOtherUsersInfo = cache(
+  async (userId: number, familyId: number) => {
+    try {
+      const authUserId = await getUserId();
 
-    // only get user info if one making request is member of same family
-    const query = `
+      // only get user info if one making request is member of same family
+      const query = `
       WITH member_check AS (
         SELECT 1
         FROM family_members
@@ -123,28 +124,29 @@ export const getUserInfo = cache(async (userId: number, familyId: number) => {
       AND EXISTS (SELECT 1 FROM family_check)
     `;
 
-    const result = await pool.query(query, [authUserId, familyId, userId]);
+      const result = await pool.query(query, [authUserId, familyId, userId]);
 
-    if (!result.rowCount) {
-      throw new Error("No user found");
+      if (!result.rowCount) {
+        throw new Error("No user found");
+      }
+
+      const user: UserInterface = {
+        id: result.rows[0].id as number,
+        name: result.rows[0].name as string,
+        email: result.rows[0].email as string,
+        image: result.rows[0].image as string,
+        createdAt: new Date(result.rows[0].created_at as string),
+        lastLoginAt: new Date(result.rows[0].last_login_at as string),
+      };
+
+      return user;
+    } catch (err) {
+      // XXX TODO XXX
+      // log this
+      throw err;
     }
-
-    const user: UserInterface = {
-      id: result.rows[0].id as number,
-      name: result.rows[0].name as string,
-      email: result.rows[0].email as string,
-      image: result.rows[0].image as string,
-      createdAt: new Date(result.rows[0].created_at as string),
-      lastLoginAt: new Date(result.rows[0].last_login_at as string),
-    };
-
-    return user;
-  } catch (err) {
-    // XXX TODO XXX
-    // log this
-    throw err;
-  }
-});
+  },
+);
 
 export const getUsersOwnInfo = cache(async () => {
   try {

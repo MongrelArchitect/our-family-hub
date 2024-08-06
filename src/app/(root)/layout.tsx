@@ -3,13 +3,14 @@ import { Inter } from "next/font/google";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
+import { auth } from "@/auth";
+
 import logoIcon from "@/assets/icons/logo-white.png";
 
 import Sidebar from "./Sidebar";
 import UserImage from "./UserImage";
 
 import "@/app/globals.css";
-import {getUserInfo} from "@/lib/auth/user";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -27,8 +28,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUserInfo();
-  if (!user) {
+  const session = await auth();
+  if (!session) {
     redirect("/landing");
   }
 

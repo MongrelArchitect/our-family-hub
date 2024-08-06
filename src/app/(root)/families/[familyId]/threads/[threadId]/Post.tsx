@@ -1,5 +1,5 @@
 import { PostInterface } from "@/types/Threads";
-import { getUserInfo as getAuthorInfo } from "@/lib/db/users";
+import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
 import LocalTime from "@/components/LocalTime";
 

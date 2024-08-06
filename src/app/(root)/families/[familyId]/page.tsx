@@ -1,13 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import starIcon from "@/assets/icons/star.svg";
 import threadIcon from "@/assets/icons/thread.svg";
 import todoListIcon from "@/assets/icons/todo-list.svg";
 import Card from "@/components/Card";
 import { getFamilyInfo } from "@/lib/db/families";
-import { getUserInfo } from "@/lib/auth/user";
+import getUserId from "@/lib/auth/user";
 import { getThreadSummaries } from "@/lib/db/threads";
 import { getTodoListSummaries } from "@/lib/db/todos";
 
@@ -16,14 +15,10 @@ export default async function FamilyPage({
 }: {
   params: { familyId: string };
 }) {
-  const user = await getUserInfo();
-  if (!user) {
-    redirect("/landing");
-  }
-
   const familyId = +params.familyId;
   const family = await getFamilyInfo(familyId);
-  const userIsAdmin = user.id === family.adminId;
+  const userId = await getUserId();
+  const userIsAdmin = userId === family.adminId;
   const todoLists = await getTodoListSummaries(familyId);
   const threads = await getThreadSummaries(familyId);
 

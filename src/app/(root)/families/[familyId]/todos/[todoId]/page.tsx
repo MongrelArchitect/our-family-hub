@@ -1,11 +1,10 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
+import getUserId from "@/lib/auth/user";
 import Card from "@/components/Card";
 import { getFamilyInfo } from "@/lib/db/families";
 import { getTasks, getTodoListInfo } from "@/lib/db/todos";
-import { getUserInfo } from "@/lib/auth/user";
 
 import NewTaskForm from "./NewTaskForm";
 import Task from "./Task";
@@ -34,11 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function TodoList({ params }: Params) {
-  const user = await getUserInfo();
-  if (!user) {
-    redirect("/landing");
-  }
-  const userId = user.id;
+  const userId = await getUserId();
 
   const familyId = +params.familyId;
   const todoId = +params.todoId;

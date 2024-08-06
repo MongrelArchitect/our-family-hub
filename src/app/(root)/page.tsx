@@ -1,17 +1,11 @@
-import { redirect } from "next/navigation";
-import { getUsersInvites } from "@/lib/db/users";
+import { getUsersInvites, getUsersOwnInfo } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
 
 import Card from "@/components/Card";
-import { getUserInfo } from "@/lib/auth/user";
 import Invite from "./Invite";
 
 export default async function Home() {
-  const user = await getUserInfo();
-  if (!user) {
-    redirect("/landing");
-  }
-
+  const user = await getUsersOwnInfo();
   const invites = await getUsersInvites(user.id);
 
   const showInvites = () => {

@@ -1,8 +1,7 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
-import { getUserInfo } from "@/lib/auth/user";
+import getUserId from "@/lib/auth/user";
 
 import Controls from "./Controls";
 
@@ -37,11 +36,7 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { familyId: string };
 }>) {
-  const user = await getUserInfo();
-  if (!user) {
-    redirect("/landing");
-  }
-  const userId = user.id;
+  const userId = await getUserId();
 
   const familyId = +params.familyId;
 

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { redirect } from "next/navigation";
+
+import { auth } from "@/auth";
 
 import "@/app/globals.css";
 
@@ -11,11 +14,15 @@ export const metadata: Metadata = {
   manifest: "site.webmanifest",
 };
 
-export default function LandingLayout({
+export default async function LandingLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  if (session) {
+    redirect("/");
+  }
   return (
     <html className={inter.className} lang="en">
       <body className="bg-neutral-200">

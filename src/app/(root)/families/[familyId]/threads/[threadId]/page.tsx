@@ -1,15 +1,13 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
 import NewPostForm from "./NewPostForm";
 import Post from "./Post";
-import { getUserInfo } from "@/lib/auth/user";
 import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
-import { getUserInfo as getAuthorInfo } from "@/lib/db/users";
+import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
 interface Params {
   params: {
@@ -35,10 +33,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function Thread({ params }: Params) {
-  const user = await getUserInfo();
-  if (!user) {
-    redirect("/landing");
-  }
   const familyId = +params.familyId;
   const threadId = +params.threadId;
 

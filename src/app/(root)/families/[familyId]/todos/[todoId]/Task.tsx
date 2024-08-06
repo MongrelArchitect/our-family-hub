@@ -6,7 +6,7 @@ import triangleIcon from "@/assets/icons/triangle.svg";
 
 import Loading from "@/components/Loading";
 
-import { getUserInfo } from "@/lib/db/users";
+import { getOtherUsersInfo } from "@/lib/db/users";
 import { deleteTask, toggleTaskDone } from "@/lib/db/todos";
 
 import { TaskInterface } from "@/types/TodoList";
@@ -45,9 +45,9 @@ export default function Task({
     const getMemberInfo = async () => {
       try {
         let assignedTo: UserInterface | null = null;
-        const createdBy = await getUserInfo(task.createdBy, familyId);
+        const createdBy = await getOtherUsersInfo(task.createdBy, familyId);
         if (task.assignedTo) {
-          assignedTo = await getUserInfo(task.assignedTo, familyId);
+          assignedTo = await getOtherUsersInfo(task.assignedTo, familyId);
         }
         setMemberInfo({
           assignedTo,
