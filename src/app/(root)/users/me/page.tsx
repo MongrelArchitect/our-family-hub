@@ -20,7 +20,7 @@ export default async function MyProfile() {
         heading="My Profile"
         headingColor="bg-emerald-200"
       >
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-wrap items-center gap-4">
           <img
             alt=""
             className="max-h-[96px] max-w-[96px] flex-1 rounded-full"

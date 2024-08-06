@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import triangleIcon from "@/assets/icons/triangle.svg";
@@ -220,13 +221,18 @@ export default function Task({
               <div>
                 {memberInfo ? (
                   <p className="flex flex-wrap items-center gap-2">
-                    {memberInfo?.createdBy.name}
+                    <Link
+                      className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
+                      href={`/users/${task.createdBy}/`}
+                      title={`View ${memberInfo?.createdBy.name}'s profile`}
+                    >
+                      {memberInfo?.createdBy.name}
+                    </Link>
                     <img
                       alt=""
                       className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
                       referrerPolicy="no-referrer"
                       src={memberInfo.createdBy.image}
-                      title={memberInfo.createdBy.name}
                     />
                   </p>
                 ) : null}
@@ -245,12 +251,18 @@ export default function Task({
               <div>
                 {memberInfo && memberInfo.assignedTo ? (
                   <p className="flex flex-wrap items-center gap-2">
-                    {memberInfo?.assignedTo.name}
+                    <Link
+                      className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
+                      href={`/users/${task.assignedTo}/`}
+                      title={`View ${memberInfo?.assignedTo.name}'s profile`}
+                    >
+                      {memberInfo?.assignedTo.name}
+                    </Link>
                     <img
-                      alt={memberInfo.assignedTo.name}
+                      alt=""
                       className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
                       src={memberInfo.assignedTo.image}
-                      title={memberInfo.assignedTo.name}
+                      referrerPolicy="no-referrer"
                     />
                   </p>
                 ) : (

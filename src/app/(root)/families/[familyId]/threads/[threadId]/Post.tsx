@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PostInterface } from "@/types/Threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
@@ -21,7 +22,13 @@ export default async function Post({ post }: Props) {
           src={authorInfo.image}
         />
         <div className="flex flex-col font-mono text-sm">
-          <span>{authorInfo.name}</span>
+          <Link
+            className="font-bold text-violet-800 hover:underline focus:underline"
+            href={`/users/${post.authorId}`}
+            title={`View ${authorInfo.name}'s profile`}
+          >
+            {authorInfo.name}
+          </Link>
           <span>
             <LocalTime timestampFromServer={post.createdAt} />
           </span>

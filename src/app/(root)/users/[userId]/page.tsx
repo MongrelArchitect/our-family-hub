@@ -5,7 +5,7 @@ import profileIcon from "@/assets/icons/account-circle.svg";
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
 import getUserId from "@/lib/auth/user";
-import {getOtherUsersInfo} from "@/lib/db/users";
+import { getOtherUsersInfo } from "@/lib/db/users";
 import UserInterface from "@/types/Users";
 
 interface Props {
@@ -32,7 +32,6 @@ export default async function UserProfile({ params }: Props) {
     notFound();
   }
 
-
   return (
     <main className="p-2 text-lg">
       <Card
@@ -40,7 +39,7 @@ export default async function UserProfile({ params }: Props) {
         heading="User Profile"
         headingColor="bg-emerald-200"
       >
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-wrap items-center gap-4">
           <img
             alt=""
             className="max-h-[96px] max-w-[96px] flex-1 rounded-full"

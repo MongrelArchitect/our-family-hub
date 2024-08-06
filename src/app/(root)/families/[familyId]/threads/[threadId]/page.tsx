@@ -60,7 +60,13 @@ export default async function Thread({ params }: Params) {
               src={authorInfo.image}
             />
             <div className="flex flex-col font-mono text-sm">
-              <span>{authorInfo.name}</span>
+              <Link
+                className="font-bold text-violet-800 hover:underline focus:underline"
+                href={`/users/${threadInfo.authorId}`}
+                title={`View ${authorInfo.name}'s profile`}
+              >
+                {authorInfo.name}
+              </Link>
               <span>
                 <LocalTime timestampFromServer={threadInfo.createdAt} />
               </span>
