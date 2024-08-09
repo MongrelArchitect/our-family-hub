@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import { redirect, notFound } from "next/navigation";
 
@@ -11,6 +12,26 @@ import UserInterface from "@/types/Users";
 interface Props {
   params: {
     userId: string;
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { userId: string };
+}): Promise<Metadata> {
+  let memberName = "User Profile";
+  try {
+    const { name } = await getOtherUsersInfo(+params.userId);
+    memberName = name;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error getting user name for page title: ", err);
+  }
+
+  return {
+    title: memberName,
   };
 }
 

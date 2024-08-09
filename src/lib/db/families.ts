@@ -345,6 +345,7 @@ export const joinFamily = cache(async (familyId: number) => {
       revalidatePath("/");
       revalidatePath("/families/all");
       revalidatePath(`/families/${familyId}`);
+      revalidatePath(`/families/${familyId}/members`);
       revalidatePath(`/families/${familyId}/remove`);
     }
   } catch (err) {
