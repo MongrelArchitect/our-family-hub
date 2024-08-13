@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { getUsersOwnInfo } from "@/lib/db/users";
 import Image from "next/image";
 import profileIcon from "@/assets/icons/account-circle.svg";
+import EditImageForm from "./EditImage";
 import EditNameForm from "./EditName";
 import LocalTime from "@/components/LocalTime";
 import Card from "@/components/Card";
@@ -21,11 +22,7 @@ export default async function MyProfile() {
         headingColor="bg-emerald-200"
       >
         <div className="flex flex-wrap items-center gap-4">
-          <img
-            alt=""
-            className="max-h-[96px] max-w-[96px] flex-1 rounded-full"
-            src={userInfo.image}
-          />
+          <EditImageForm image={userInfo.image} />
           <div>
             <EditNameForm name={userInfo.name} />
             <p className="break-all text-base">{userInfo.email}</p>
