@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import closeIcon from "@/assets/icons/close-circle.svg";
 import editIcon from "@/assets/icons/pencil.svg";
@@ -8,6 +8,7 @@ import saveIcon from "@/assets/icons/save.svg";
 import Card from "@/components/Card";
 import ImagePicker from "@/components/ImagePicker";
 import Loading from "@/components/Loading";
+import { resizeProfileImage } from "@/lib/images/resize";
 
 interface Props {
   image: string;
@@ -19,11 +20,25 @@ export default function EditImageForm({ image }: Props) {
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
 
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const toggleEditing = () => {
     setEditing(!editing);
   };
 
-  const submit = () => {};
+  const submit = async (formData: FormData) => {
+    if (fileRef.current && fileRef.current.files) {
+      // XXX TODO XXX
+      // do a little bit of front-end validation here
+      try {
+        const result = await resizeProfileImage("image-picker", formData);
+        console.log(result);
+      } catch (err) {
+        console.error("Error uploading file: ", err);
+        setError("Error uploading file");
+      }
+    }
+  };
 
   const showForm = () => {
     return (
@@ -37,6 +52,7 @@ export default function EditImageForm({ image }: Props) {
           if (target.id === "grayout") {
             toggleEditing();
             setAttempted(false);
+            setError(null);
           }
         }}
       >
@@ -51,7 +67,13 @@ export default function EditImageForm({ image }: Props) {
                 id="edit-image-form"
                 noValidate
               >
-                <ImagePicker defaultImage={image} id="image-picker" />
+                <ImagePicker
+                  clearTrigger={editing}
+                  defaultImage={{ url: image, text: "Current profile image" }}
+                  forProfile
+                  id="image-picker"
+                  ref={fileRef}
+                />
 
                 {error ? <div className="text-red-700">{error}</div> : null}
 
@@ -72,6 +94,7 @@ export default function EditImageForm({ image }: Props) {
                   onClick={() => {
                     toggleEditing();
                     setAttempted(false);
+                    setError(null);
                   }}
                   tabIndex={editing ? 0 : -1}
                   type="button"
