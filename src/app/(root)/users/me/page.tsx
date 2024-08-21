@@ -22,7 +22,7 @@ export default async function MyProfile() {
         headingColor="bg-emerald-200"
       >
         <div className="flex flex-wrap items-center gap-4">
-          <EditImageForm image={userInfo.image} />
+          <EditImageForm userId={userInfo.id} />
           <div>
             <EditNameForm name={userInfo.name} />
             <p className="break-all text-base">{userInfo.email}</p>

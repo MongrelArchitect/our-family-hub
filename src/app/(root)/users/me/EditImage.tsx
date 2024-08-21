@@ -8,13 +8,14 @@ import saveIcon from "@/assets/icons/save.svg";
 import Card from "@/components/Card";
 import ImagePicker from "@/components/ImagePicker";
 import Loading from "@/components/Loading";
-import { resizeProfileImage } from "@/lib/images/resize";
+import ProfileImage from "@/components/ProfileImage";
+import { resizeProfileImage } from "@/lib/images/images";
 
 interface Props {
-  image: string;
+  userId: number;
 }
 
-export default function EditImageForm({ image }: Props) {
+export default function EditImageForm({ userId }: Props) {
   const [attempted, setAttempted] = useState(false);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<null | string>(null);
@@ -31,8 +32,10 @@ export default function EditImageForm({ image }: Props) {
       // XXX TODO XXX
       // do a little bit of front-end validation here
       try {
-        const result = await resizeProfileImage("image-picker", formData);
-        console.log(result);
+        await resizeProfileImage("image-picker", formData);
+        toggleEditing();
+        setAttempted(false);
+        setError(null);
       } catch (err) {
         console.error("Error uploading file: ", err);
         setError("Error uploading file");
@@ -69,10 +72,10 @@ export default function EditImageForm({ image }: Props) {
               >
                 <ImagePicker
                   clearTrigger={editing}
-                  defaultImage={{ url: image, text: "Current profile image" }}
                   forProfile
                   id="image-picker"
                   ref={fileRef}
+                  userId={userId}
                 />
 
                 {error ? <div className="text-red-700">{error}</div> : null}
@@ -114,10 +117,10 @@ export default function EditImageForm({ image }: Props) {
     <div>
       {showForm()}
       <div className="relative">
-        <img
-          alt=""
-          className="max-h-[96px] max-w-[96px] flex-1 rounded-full"
-          src={image}
+        <ProfileImage 
+          reloadTrigger={editing}
+          size={128}
+          userId={userId}
         />
         <button
           aria-hidden={editing}

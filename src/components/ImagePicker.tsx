@@ -1,17 +1,15 @@
 "use client";
 import Image from "next/image";
 import { forwardRef, useEffect, useState } from "react";
+import ProfileImage from "./ProfileImage";
 
 import noImageIcon from "@/assets/icons/image-off-outline.svg";
 
 interface Props {
   clearTrigger: boolean;
-  defaultImage?: {
-    url: string;
-    text: string;
-  };
   forProfile?: boolean;
   id: string;
+  userId: number;
 }
 
 function decimalRound(num: number) {
@@ -38,7 +36,7 @@ function prettyBytes(bytes: number) {
 }
 
 const ImagePicker = forwardRef<HTMLInputElement, Props>(
-  ({ clearTrigger, defaultImage, forProfile, id }: Props, ref) => {
+  ({ clearTrigger, forProfile, id, userId }: Props, ref) => {
     const [file, setFile] = useState<File | null>(null);
 
     useEffect(() => {
@@ -54,9 +52,6 @@ const ImagePicker = forwardRef<HTMLInputElement, Props>(
           </div>
         );
       }
-      if (defaultImage) {
-        return defaultImage.text;
-      }
       return "No file selected";
     };
 
@@ -66,9 +61,6 @@ const ImagePicker = forwardRef<HTMLInputElement, Props>(
           <img alt="" className="max-h-32" src={URL.createObjectURL(file)} />
         );
       }
-      if (defaultImage) {
-        return <img alt="" className="max-h-32" src={defaultImage.url} />;
-      }
       return <Image alt="" src={noImageIcon} width={128} />;
     };
 
@@ -76,21 +68,14 @@ const ImagePicker = forwardRef<HTMLInputElement, Props>(
       if (file) {
         return (
           <div
-            className="aspect-square max-h-40 w-full max-w-40 rounded-full border-2 border-slate-600 bg-cover bg-center"
+            className="aspect-square max-h-[128px] w-full max-w-[128px] rounded-full border-2 border-slate-600 bg-cover bg-center"
             style={{ backgroundImage: `url(${URL.createObjectURL(file)})` }}
           />
         );
       }
-      if (defaultImage) {
-        return (
-          <img
-            alt=""
-            className="max-h-32 rounded-full"
-            src={defaultImage.url}
-          />
-        );
-      }
-      return <Image alt="" src={noImageIcon} width={128} />;
+      return (
+        <ProfileImage reloadTrigger={clearTrigger} size={128} userId={userId} />
+      );
     };
 
     const handleChange = (event: React.SyntheticEvent) => {

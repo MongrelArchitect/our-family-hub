@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Card from "@/components/Card";
 import { getFamilyInfo, getFamilyMembers } from "@/lib/db/families";
+import ProfileImage from "@/components/ProfileImage";
 
 export const metadata: Metadata = {
   title: "All Members",
@@ -19,10 +20,6 @@ export default async function FamilyMembers({ params }: Props) {
   const familyInfo = await getFamilyInfo(familyId);
   const familyMembers = await getFamilyMembers(familyId);
 
-  const admin = familyMembers.find((member) => {
-    return member.id === familyInfo.adminId;
-  });
-
   return (
     <main className="p-2 text-lg">
       <Card
@@ -36,12 +33,12 @@ export default async function FamilyMembers({ params }: Props) {
               href={`/users/${familyInfo.adminId}`}
               title={`View ${familyInfo.adminName}'s profile`}
             >
-              <img
-                alt=""
-                className="w-full max-w-16 rounded-full"
-                src={admin?.image}
+              <ProfileImage
+                reloadTrigger={false}
+                size={64}
+                userId={familyInfo.adminId}
               />
-              {admin?.name}
+              {familyInfo.adminName}
             </Link>
           </li>
           {familyMembers.map((member, index) => {
@@ -58,10 +55,10 @@ export default async function FamilyMembers({ params }: Props) {
                   href={`/users/${member.id}`}
                   title={`View ${member.name}'s profile`}
                 >
-                  <img
-                    alt=""
-                    className="w-full max-w-16 rounded-full"
-                    src={member.image}
+                  <ProfileImage
+                    reloadTrigger={false}
+                    size={64}
+                    userId={member.id}
                   />
                   {member.name}
                 </Link>
