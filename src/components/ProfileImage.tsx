@@ -8,11 +8,16 @@ interface Props {
   userId: number;
 }
 
-export default function ProfileImage({ extraClasses, reloadTrigger, size, userId }: Props) {
+export default function ProfileImage({
+  extraClasses,
+  reloadTrigger,
+  size,
+  userId,
+}: Props) {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
-    setUrl(`/images/profiles/${userId}.webp?t=${Date.now()}`);
+    setUrl(`/api/users/${userId}/profile?t=${Date.now()}`);
   }, [reloadTrigger]);
 
   return (

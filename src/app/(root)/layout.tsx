@@ -9,6 +9,7 @@ import logoIcon from "@/assets/icons/logo-white.png";
 
 import Sidebar from "./Sidebar";
 import UserImage from "./UserImage";
+import ProfileImage from "@/components/ProfileImage";
 
 import "@/app/globals.css";
 
@@ -29,7 +30,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
-  if (!session) {
+  if (!session || !session.user || !session.user.id) {
     redirect("/landing");
   }
 
@@ -50,9 +51,9 @@ export default async function RootLayout({
             </h1>
           </div>
           <div className="flex-grow-0 p-2 max-lg:hidden">
-            <UserImage
-              className="rounded-full border-2 border-black bg-white"
-              width={40}
+            <ProfileImage 
+              userId={+session.user.id}
+              size={40}
             />
           </div>
         </div>

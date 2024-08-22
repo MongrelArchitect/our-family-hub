@@ -1,7 +1,7 @@
 import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 
-import { addNewUserProfileImage } from "./lib/images/images";
+import { addNewProfileImage } from "./lib/images/images";
 
 import {
   addUserToDatabase,
@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
           userId = newUserId;
           // get their profile image, reisze & store it locally
-          await addNewUserProfileImage(userId, user.image);
+          await addNewProfileImage(userId, user.image);
         }
         // store the id in the auth user object
         user.id = userId.toString();

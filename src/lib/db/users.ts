@@ -97,13 +97,36 @@ export const getUsersInvites = cache(async (userId: number) => {
   }
 });
 
-export const getOtherUsersInfo = cache(
-  async (userId: number) => {
-    try {
-      const authUserId = await getUserId();
+export const checkIfSameFamily = cache(async (userId: number) => {
+  try {
+    const authUserId = await getUserId();
+    const query = `
+        SELECT 1
+        FROM family_members fm1
+        JOIN family_members fm2
+        ON fm1.family_id = fm2.family_id
+        WHERE fm1.member_id = $1
+        AND fm2.member_id = $2
+      `;
+    const result = await pool.query(query, [authUserId, userId]);
+    if (!result.rowCount) {
+      return false;
+    }
+    return true;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error checking if users are in the same family");
+    throw err;
+  }
+});
 
-      // only get other user's info if they share a family in common
-      const query = `
+export const getOtherUsersInfo = cache(async (userId: number) => {
+  try {
+    const authUserId = await getUserId();
+
+    // only get other user's info if they share a family in common
+    const query = `
         WITH shared_family_check AS (
           SELECT 1
           FROM family_members fm1
@@ -118,29 +141,29 @@ export const getOtherUsersInfo = cache(
         AND EXISTS (SELECT 1 FROM shared_family_check)
       `;
 
-      const result = await pool.query(query, [authUserId, userId]);
+    const result = await pool.query(query, [authUserId, userId]);
 
-      if (!result.rowCount) {
-        throw new Error("No user found");
-      }
-
-      const user: UserInterface = {
-        id: result.rows[0].id as number,
-        name: result.rows[0].name as string,
-        email: result.rows[0].email as string,
-        image: result.rows[0].image as string,
-        createdAt: new Date(result.rows[0].created_at as string),
-        lastLoginAt: new Date(result.rows[0].last_login_at as string),
-      };
-
-      return user;
-    } catch (err) {
-      // XXX TODO XXX
-      // log this
-      throw err;
+    if (!result.rowCount) {
+      throw new Error("No user found");
     }
-  },
-);
+
+    const user: UserInterface = {
+      id: result.rows[0].id as number,
+      name: result.rows[0].name as string,
+      email: result.rows[0].email as string,
+      image: result.rows[0].image as string,
+      createdAt: new Date(result.rows[0].created_at as string),
+      lastLoginAt: new Date(result.rows[0].last_login_at as string),
+    };
+
+    return user;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    console.error("Error getting other user's info");
+    throw err;
+  }
+});
 
 export const getUsersOwnInfo = cache(async () => {
   try {

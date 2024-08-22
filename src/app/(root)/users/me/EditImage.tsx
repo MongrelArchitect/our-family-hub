@@ -9,7 +9,7 @@ import Card from "@/components/Card";
 import ImagePicker from "@/components/ImagePicker";
 import Loading from "@/components/Loading";
 import ProfileImage from "@/components/ProfileImage";
-import { resizeProfileImage } from "@/lib/images/images";
+import { updateProfileImage } from "@/lib/images/images";
 
 interface Props {
   userId: number;
@@ -32,7 +32,7 @@ export default function EditImageForm({ userId }: Props) {
       // XXX TODO XXX
       // do a little bit of front-end validation here
       try {
-        await resizeProfileImage("image-picker", formData);
+        await updateProfileImage("image-picker", formData);
         toggleEditing();
         setAttempted(false);
         setError(null);

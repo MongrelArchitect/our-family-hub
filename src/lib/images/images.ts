@@ -4,7 +4,7 @@ import sharp from "sharp";
 
 import getUserId from "../auth/user";
 
-export async function resizeProfileImage(name: string, formData: FormData) {
+export async function updateProfileImage(name: string, formData: FormData) {
   const userId = await getUserId();
   // XXX TODO XXX
   // some more input validation needed, server-side this time
@@ -14,14 +14,14 @@ export async function resizeProfileImage(name: string, formData: FormData) {
   await sharp(buffer)
     .resize(256, 256, { fit: "cover" })
     .webp()
-    .toFile(`./public/images/profiles/${userId}.webp`);
+    .toFile(`./src/uploads/profiles/${userId}.webp`);
 }
 
-export async function addNewUserProfileImage(userId: number, imageUrl: string) {
+export async function addNewProfileImage(userId: number, imageUrl: string) {
   const image = await fetch(imageUrl);
   const buffer = await image.arrayBuffer();
   await sharp(buffer)
     .resize(256, 256, { fit: "cover" })
     .webp()
-    .toFile(`./public/images/profiles/${userId}.webp`);
+    .toFile(`./src/uploads/profiles/${userId}.webp`);
 }
