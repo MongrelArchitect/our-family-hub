@@ -16,7 +16,6 @@ interface Props {
 }
 
 export default function EditImageForm({ userId }: Props) {
-  const [attempted, setAttempted] = useState(false);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
@@ -27,19 +26,47 @@ export default function EditImageForm({ userId }: Props) {
     setEditing(!editing);
   };
 
+  const chooseInvalidFileError = (file: File) => {
+    if (!file.type.includes("image/")) {
+      return "File is not an image";
+    }
+    if (file.size > 21000000) {
+      return "Image is too large (20MB max)";
+    }
+    return null;
+  };
+
+  const checkValidImage = (file: File) => {
+    if (!file.type.includes("image/") || file.size > 21000000) {
+      return false;
+    }
+    return true;
+  };
+
   const submit = async (formData: FormData) => {
-    if (fileRef.current && fileRef.current.files) {
-      // XXX TODO XXX
-      // do a little bit of front-end validation here
-      try {
-        await updateProfileImage("image-picker", formData);
-        toggleEditing();
-        setAttempted(false);
-        setError(null);
-      } catch (err) {
-        console.error("Error uploading file: ", err);
-        setError("Error uploading file");
+    if (fileRef.current && fileRef.current.files && fileRef.current.files[0]) {
+      const file = fileRef.current.files[0];
+      if (checkValidImage(file)) {
+        try {
+          setLoading(true);
+          await updateProfileImage("image-picker", formData);
+          toggleEditing();
+          setError(null);
+        } catch (err) {
+          console.error("Error uploading file: ", err);
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("Error uploading file");
+          }
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setError(chooseInvalidFileError(file));
       }
+    } else {
+      setError("No file chosen");
     }
   };
 
@@ -54,59 +81,61 @@ export default function EditImageForm({ userId }: Props) {
           // prevent visibility toggling due to clicks bubbling up from input
           if (target.id === "grayout") {
             toggleEditing();
-            setAttempted(false);
             setError(null);
           }
         }}
       >
         <div className={`${editing ? "" : "-translate-y-full"} transition-all`}>
           <Card heading="Edit Image" headingColor="bg-emerald-200">
-            {loading ? (
-              <Loading />
-            ) : (
-              <form
-                action={submit}
-                className="flex flex-col gap-4"
-                id="edit-image-form"
-                noValidate
-              >
-                <ImagePicker
-                  clearTrigger={editing}
-                  forProfile
-                  id="image-picker"
-                  ref={fileRef}
-                  userId={userId}
-                />
+            <form
+              action={submit}
+              className="flex flex-col gap-4"
+              id="edit-image-form"
+              noValidate
+            >
+              <ImagePicker
+                clearTrigger={editing}
+                forProfile
+                id="image-picker"
+                ref={fileRef}
+                removeError={() => {
+                  setError(null);
+                }}
+                userId={userId}
+              />
 
-                {error ? <div className="text-red-700">{error}</div> : null}
+              {error ? <div className="text-red-700">{error}</div> : null}
 
-                <button
-                  className="flex items-center justify-center gap-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-                  tabIndex={editing ? 0 : -1}
-                  type="submit"
-                >
-                  <Image alt="" src={saveIcon} width={32} />
-                  Save
-                </button>
-
-                <button
-                  aria-hidden={!editing}
-                  aria-controls="edit-image-form"
-                  aria-expanded={editing}
-                  className="flex items-center justify-center gap-2 bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
-                  onClick={() => {
-                    toggleEditing();
-                    setAttempted(false);
-                    setError(null);
-                  }}
-                  tabIndex={editing ? 0 : -1}
-                  type="button"
-                >
-                  <Image alt="" src={closeIcon} width={32} />
-                  Cancel
-                </button>
-              </form>
-            )}
+              {loading ? (
+                <Loading />
+              ) : (
+                <>
+                  <button
+                    className="flex items-center justify-center gap-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                    tabIndex={editing ? 0 : -1}
+                    type="submit"
+                  >
+                    <Image alt="" src={saveIcon} width={32} />
+                    Save
+                  </button>
+                  <button
+                    aria-hidden={!editing}
+                    aria-controls="edit-image-form"
+                    aria-expanded={editing}
+                    className="flex items-center justify-center gap-2 bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+                    onClick={() => {
+                      toggleEditing();
+                      setError(null);
+                    }}
+                    tabIndex={editing ? 0 : -1}
+                    type="button"
+                  >
+                    <Image alt="" src={closeIcon} width={32} />
+                    Cancel
+                  </button>
+                </>
+              )}
+            </form>
           </Card>
         </div>
       </div>
@@ -117,11 +146,7 @@ export default function EditImageForm({ userId }: Props) {
     <div>
       {showForm()}
       <div className="relative">
-        <ProfileImage 
-          reloadTrigger={editing}
-          size={128}
-          userId={userId}
-        />
+        <ProfileImage reloadTrigger={editing} size={128} userId={userId} />
         <button
           aria-hidden={editing}
           aria-controls="edit-image-form"

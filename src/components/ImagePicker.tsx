@@ -9,6 +9,7 @@ interface Props {
   clearTrigger: boolean;
   forProfile?: boolean;
   id: string;
+  removeError?: () => void;
   userId: number;
 }
 
@@ -36,7 +37,7 @@ function prettyBytes(bytes: number) {
 }
 
 const ImagePicker = forwardRef<HTMLInputElement, Props>(
-  ({ clearTrigger, forProfile, id, userId }: Props, ref) => {
+  ({ clearTrigger, forProfile, id, removeError, userId }: Props, ref) => {
     const [file, setFile] = useState<File | null>(null);
 
     useEffect(() => {
@@ -84,6 +85,7 @@ const ImagePicker = forwardRef<HTMLInputElement, Props>(
       if (files) {
         setFile(files[0]);
       }
+      removeError ? removeError() : null;
     };
 
     return (

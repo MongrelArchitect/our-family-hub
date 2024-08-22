@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/families";
 import Card from "@/components/Card";
 import Loading from "@/components/Loading";
+import ProfileImage from "@/components/ProfileImage";
 import FamilyInterface from "@/types/Families";
 import UserInterface from "@/types/Users";
 
@@ -54,12 +55,10 @@ export default function RemoveForm({ familyId }: Props) {
     }
     if (memberInfo) {
       return (
-        <div className="flex flex-wrap gap-2">
-          <img
-            alt=""
-            className="max-h-[64px] max-w-[64px] rounded-full"
-            referrerPolicy="no-referrer"
-            src={memberInfo.image}
+        <div className="flex items-start flex-wrap gap-2">
+          <ProfileImage 
+            size={64}
+            userId={memberInfo.id}
           />
           <div className="break-all">
             <p>{memberInfo.name}</p>

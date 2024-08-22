@@ -51,10 +51,7 @@ export default async function RootLayout({
             </h1>
           </div>
           <div className="flex-grow-0 p-2 max-lg:hidden">
-            <ProfileImage 
-              userId={+session.user.id}
-              size={40}
-            />
+            <ProfileImage userId={+session.user.id} size={40} />
           </div>
         </div>
 

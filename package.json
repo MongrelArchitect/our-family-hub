@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "file-type": "^19.4.1",
     "next": "14.2.3",
     "next-auth": "^5.0.0-beta.19",
     "pg": "^8.12.0",
