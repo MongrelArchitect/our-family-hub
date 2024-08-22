@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import triangleIcon from "@/assets/icons/triangle.svg";
 
 import Loading from "@/components/Loading";
+import ProfileImage from "@/components/ProfileImage";
 
 import { getOtherUsersInfo } from "@/lib/db/users";
 import { deleteTask, toggleTaskDone } from "@/lib/db/todos";
@@ -228,11 +229,10 @@ export default function Task({
                     >
                       {memberInfo?.createdBy.name}
                     </Link>
-                    <img
-                      alt=""
-                      className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
-                      referrerPolicy="no-referrer"
-                      src={memberInfo.createdBy.image}
+                    <ProfileImage 
+                      extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
+                      size={40}
+                      userId={memberInfo.createdBy.id}
                     />
                   </p>
                 ) : null}
@@ -258,11 +258,10 @@ export default function Task({
                     >
                       {memberInfo?.assignedTo.name}
                     </Link>
-                    <img
-                      alt=""
-                      className={`${task.done ? "opacity-30 grayscale" : ""} h-8 w-8 rounded-full`}
-                      src={memberInfo.assignedTo.image}
-                      referrerPolicy="no-referrer"
+                    <ProfileImage 
+                      extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
+                      size={40}
+                      userId={memberInfo.assignedTo.id}
                     />
                   </p>
                 ) : (

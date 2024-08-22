@@ -3,8 +3,11 @@ import Link from "next/link";
 
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
+import ProfileImage from "@/components/ProfileImage";
+
 import NewPostForm from "./NewPostForm";
 import Post from "./Post";
+
 import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
@@ -53,11 +56,9 @@ export default async function Thread({ params }: Params) {
             {threadInfo.content}
           </pre>
           <div className="flex flex-wrap items-center gap-2">
-            <img
-              alt=""
-              className="h-8 w-8 rounded-full"
-              referrerPolicy="no-referrer"
-              src={authorInfo.image}
+            <ProfileImage 
+              size={40}
+              userId={authorInfo.id}
             />
             <div className="flex flex-col font-mono text-sm">
               <Link

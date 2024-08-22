@@ -5,6 +5,7 @@ import Card from "@/components/Card";
 import DatePicker from "@/components/DatePicker";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+import ProfileImage from "@/components/ProfileImage";
 
 import { getFamilyMembers } from "@/lib/db/families";
 import { createNewTask } from "@/lib/db/todos";
@@ -29,6 +30,7 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [familyMembers, setFamilyMembers] = useState<UserInterface[]>([]);
   const [loading, setLoading] = useState(false);
+  const [memberChanged, setMemberChanged] = useState(false);
   const [memberInfo, setMemberInfo] = useState<UserInterface | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -62,12 +64,11 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
     if (memberInfo) {
       return (
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2">
-            <img
-              alt=""
-              className="max-h-[64px] max-w-[64px] rounded-full"
-              referrerPolicy="no-referrer"
-              src={memberInfo.image}
+          <div className="flex flex-wrap gap-2 items-center">
+            <ProfileImage 
+              reloadTrigger={memberChanged}
+              size={72}
+              userId={memberInfo.id}
             />
             <div className="break-all">
               <p>{memberInfo.name}</p>
@@ -96,6 +97,7 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
       return member.id === +target.value;
     });
     if (memberToShow) {
+      setMemberChanged(!memberChanged);
       setMemberInfo(memberToShow);
     }
   };
@@ -194,7 +196,7 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
                 />
 
                 <div className="flex flex-col gap-1">
-                  <label htmlFor="members">Assign to member (optional)</label>
+                  <label htmlFor="members">Assigned member (optional)</label>
                   {showMemberInfo()}
                   <select
                     className="border-2 border-neutral-600 bg-neutral-50 p-2 hover:outline hover:outline-slate-600 focus:outline focus:outline-slate-600"
