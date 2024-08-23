@@ -5,6 +5,7 @@ import { redirect, notFound } from "next/navigation";
 import profileIcon from "@/assets/icons/account-circle.svg";
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
+import ProfileImage from "@/components/ProfileImage";
 import getUserId from "@/lib/auth/user";
 import { getOtherUsersInfo } from "@/lib/db/users";
 import UserInterface from "@/types/Users";
@@ -61,10 +62,9 @@ export default async function UserProfile({ params }: Props) {
         headingColor="bg-emerald-200"
       >
         <div className="flex flex-wrap items-center gap-4">
-          <img
-            alt=""
-            className="max-h-[96px] max-w-[96px] flex-1 rounded-full"
-            src={userInfo.image}
+          <ProfileImage 
+            size={96}
+            userId={userInfo.id}
           />
           <div>
             <p>{userInfo.name}</p>

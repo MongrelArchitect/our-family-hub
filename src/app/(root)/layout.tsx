@@ -6,10 +6,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 
 import logoIcon from "@/assets/icons/logo-white.png";
+import ProfileContextProvider from "@/contexts/Profile";
 
 import Sidebar from "./Sidebar";
-import UserImage from "./UserImage";
-import ProfileImage from "@/components/ProfileImage";
+import CurrentUserImage from "./UserImage";
 
 import "@/app/globals.css";
 
@@ -35,6 +35,7 @@ export default async function RootLayout({
   }
 
   return (
+    <ProfileContextProvider>
     <html className={inter.className} lang="en">
       <body className="grid h-screen grid-rows-[auto_1fr] bg-neutral-200">
         {/* HEADER */}
@@ -51,7 +52,7 @@ export default async function RootLayout({
             </h1>
           </div>
           <div className="flex-grow-0 p-2 max-lg:hidden">
-            <ProfileImage userId={+session.user.id} size={40} />
+            <CurrentUserImage userId={+session.user.id} size={40} />
           </div>
         </div>
 
@@ -68,5 +69,6 @@ export default async function RootLayout({
         </div>
       </body>
     </html>
+    </ProfileContextProvider>
   );
 }

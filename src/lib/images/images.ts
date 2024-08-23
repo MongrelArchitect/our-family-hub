@@ -12,7 +12,7 @@ export async function updateProfileImage(name: string, formData: FormData) {
   if (!fileInfo || !fileInfo.mime.includes("image")) {
     throw new Error("File is not an image");
   }
-  if (file.size > 0) {
+  if (file.size > 21000000) {
     throw new Error("Image is too large (20MB max)");
   }
   const buffer = await file.arrayBuffer();

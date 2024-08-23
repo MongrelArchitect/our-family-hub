@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 
 import closeIcon from "@/assets/icons/close-circle.svg";
 import editIcon from "@/assets/icons/pencil.svg";
@@ -9,6 +9,7 @@ import Card from "@/components/Card";
 import ImagePicker from "@/components/ImagePicker";
 import Loading from "@/components/Loading";
 import ProfileImage from "@/components/ProfileImage";
+import { ProfileContext } from "@/contexts/Profile";
 import { updateProfileImage } from "@/lib/images/images";
 
 interface Props {
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export default function EditImageForm({ userId }: Props) {
+  const profile = useContext(ProfileContext);
+
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
@@ -50,6 +53,7 @@ export default function EditImageForm({ userId }: Props) {
         try {
           setLoading(true);
           await updateProfileImage("image-picker", formData);
+          profile.updateProfile();
           toggleEditing();
           setError(null);
         } catch (err) {

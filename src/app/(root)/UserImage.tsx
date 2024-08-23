@@ -1,28 +1,32 @@
-import { auth } from "@/auth";
+"use client";
+import { useContext, useEffect, useState } from "react";
+import { ProfileContext } from "@/contexts/Profile";
 
-export default async function UserImage({
-  className,
-  width,
-}: {
-  className?: string;
-  width?: number;
-}) {
-  const session = await auth();
-  if (!session || !session.user) {
-    return null;
-  }
-  const { user } = session;
+interface Props {
+  extraClasses?: string;
+  size: number;
+  userId: number;
+}
+
+export default function CurrentUserImage({
+  extraClasses,
+  size,
+  userId,
+}: Props) {
+  const profile = useContext(ProfileContext);
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    setUrl(`/api/users/${userId}/profile?t=${Date.now()}`);
+  }, [profile.updated]);
 
   return (
     <img
-      alt="User profile image"
-      className={className || ""}
-      // XXX TODO XXX
-      // need placeholder image
-      referrerPolicy="no-referrer"
-      src={user.image || ""}
-      width={`${width || 32}`}
-      height={`${width || 32}`}
+      alt=""
+      className={`${extraClasses} rounded-full border-2 border-slate-600`}
+      src={url}
+      width={size}
+      height={size}
     />
   );
 }
