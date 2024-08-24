@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 
 import closeIcon from "@/assets/icons/close-circle.svg";
 import editIcon from "@/assets/icons/pencil.svg";
@@ -22,8 +22,6 @@ export default function EditImageForm({ userId }: Props) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
-
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const toggleEditing = () => {
     setEditing(!editing);
@@ -47,8 +45,8 @@ export default function EditImageForm({ userId }: Props) {
   };
 
   const submit = async (formData: FormData) => {
-    if (fileRef.current && fileRef.current.files && fileRef.current.files[0]) {
-      const file = fileRef.current.files[0];
+    const file = formData.get("image-picker") as File;
+    if (file.name && file.size > 0) {
       if (checkValidImage(file)) {
         try {
           setLoading(true);
@@ -101,7 +99,6 @@ export default function EditImageForm({ userId }: Props) {
                 clearTrigger={editing}
                 forProfile
                 id="image-picker"
-                ref={fileRef}
                 removeError={() => {
                   setError(null);
                 }}
