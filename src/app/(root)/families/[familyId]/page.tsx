@@ -4,6 +4,7 @@ import Link from "next/link";
 import starIcon from "@/assets/icons/star.svg";
 import threadIcon from "@/assets/icons/thread.svg";
 import todoListIcon from "@/assets/icons/todo-list.svg";
+import Calendar from "./Calendar";
 import Card from "@/components/Card";
 import { getFamilyInfo } from "@/lib/db/families";
 import getUserId from "@/lib/auth/user";
@@ -72,6 +73,7 @@ export default async function FamilyPage({
 
   return (
     <main className="flex flex-col gap-4 p-2 text-lg">
+      {/* FAMILY INFO */}
       <Card
         flair={
           userIsAdmin ? (
@@ -114,20 +116,29 @@ export default async function FamilyPage({
           )}
         </p>
       </Card>
-      <Card
-        flair={<Image alt="" src={todoListIcon} />}
-        heading="Todo Lists"
-        headingColor="bg-emerald-200"
-      >
-        {showTodoListSummaries()}
-      </Card>
-      <Card
-        flair={<Image alt="" src={threadIcon} />}
-        heading="Discussion Threads"
-        headingColor="bg-emerald-200"
-      >
-        {showThreadSummaries()}
-      </Card>
+
+      <div className="flex grid-cols-2 grid-rows-[auto_1fr] flex-col gap-2 md:grid">
+        {/* TODO LISTS */}
+        <Card
+          flair={<Image alt="" src={todoListIcon} />}
+          heading="Todo Lists"
+          headingColor="bg-emerald-200"
+        >
+          {showTodoListSummaries()}
+        </Card>
+
+        {/* DISCUSSION THREADS */}
+        <Card
+          flair={<Image alt="" src={threadIcon} />}
+          heading="Discussion Threads"
+          headingColor="bg-emerald-200"
+        >
+          {showThreadSummaries()}
+        </Card>
+
+        {/* EVENT CALENDAR */}
+        <Calendar />
+      </div>
     </main>
   );
 }
