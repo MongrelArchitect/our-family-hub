@@ -12,10 +12,10 @@ interface Props {
   errorText?: string;
   id: string;
   labelText: string;
-  maxLength: number;
+  maxLength?: number;
   required?: boolean;
   tabIndex?: number;
-  type: "email" | "text";
+  type: "email" | "text" | "time";
 }
 
 const Input = forwardRef<HTMLInputElement, Props>(
@@ -59,7 +59,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
     return (
       <div className="relative flex flex-col">
         <label
-          className={`${focused || value ? "-translate-y-2.5 translate-x-0.5 text-sm text-neutral-400" : null} pointer-events-none absolute left-2 top-3 select-none text-neutral-600 transition-all`}
+          className={`${focused || (value && type !== "time") ? "-translate-y-2.5 translate-x-0.5 text-sm text-neutral-400" : null} pointer-events-none absolute left-2 top-3 select-none text-neutral-600 transition-all`}
           htmlFor="surname"
         >
           {labelText}
@@ -72,7 +72,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
           />
         ) : null}
         <input
-          className={`${attempted && !valid ? "border-red-700 text-red-700 hover:outline-red-700 focus:outline-red-700" : "hover:outline-slate-600 focus:outline-slate-600"} w-full border-2 border-neutral-600 p-2 pt-4 hover:outline focus:outline`}
+          className={`${attempted && !valid ? "border-red-700 text-red-700 hover:outline-red-700 focus:outline-red-700" : "hover:outline-slate-600 focus:outline-slate-600"} w-full border-2 border-neutral-600 p-2 ${type === "time" ? "pt-8" : "pt-4"} hover:outline focus:outline`}
           id={id}
           maxLength={maxLength}
           name={id}

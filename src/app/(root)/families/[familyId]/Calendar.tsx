@@ -1,20 +1,27 @@
 "use client";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import nextIcon from "@/assets/icons/chevron-right.svg";
 import prevIcon from "@/assets/icons/chevron-left.svg";
 import todayIcon from "@/assets/icons/calendar-today.svg";
 import Card from "@/components/Card";
+import Day from "./Day";
 import Loading from "@/components/Loading";
 
+import { getCalendarEvents } from "@/lib/db/events";
+
 export default function Calendar() {
+  const { familyId } = useParams<{ familyId: string }>();
+
   const [date, setDate] = useState<Date | null>(null);
   const [calendar, setCalendar] = useState({
     dayOne: 0,
     lastDate: 0,
     prevLastDate: 0,
   });
+  const [events, setEvents] = useState(null);
 
   const months = [
     "January",
@@ -36,6 +43,11 @@ export default function Calendar() {
   }, []);
 
   useEffect(() => {
+    const getEvents = async (month: number) => {
+      const events = await getCalendarEvents(+familyId, month);
+      console.log(events);
+    };
+
     if (date) {
       const year = date.getFullYear();
       const month = date.getMonth();
@@ -47,16 +59,14 @@ export default function Calendar() {
 
       // last date of the previous month
       const prevLastDate = new Date(year, month, 0).getDate();
-      console.log({
-        dayOne,
-        lastDate,
-        prevLastDate,
-      });
       setCalendar({
         dayOne,
         lastDate,
         prevLastDate,
       });
+
+      // get events for selected month and adjacent (handle zero index)
+      getEvents(month + 1);
     }
   }, [date]);
 
@@ -87,33 +97,77 @@ export default function Calendar() {
     return false;
   };
 
+  const getMonthNumber = (inNextMonth: boolean, inPrevMonth: boolean) => {
+    if (date) {
+      const currentMonth = date.getMonth();
+      if (inNextMonth) {
+        if (currentMonth === 11) {
+          return 0;
+        }
+        return currentMonth + 1;
+      }
+      if (inPrevMonth) {
+        if (currentMonth === 0) {
+          return 11;
+        }
+        return currentMonth - 1;
+      }
+      return currentMonth;
+    }
+    return 0;
+  };
+
+  const getYearNumber = (inNextMonth: boolean, inPrevMonth: boolean) => {
+    if (date) {
+      if (inNextMonth && date.getMonth() === 11) {
+        return date.getFullYear() + 1;
+      }
+      if (inPrevMonth && date.getMonth() === 0) {
+        return date.getFullYear() - 1;
+      }
+      return date.getFullYear();
+    }
+    return 0;
+  };
+
   const populateCalendar = () => {
-    const days: number[] = [];
-    for (let i = calendar.dayOne; i > 0; i -= 1) {
-      days.push(calendar.prevLastDate - (i - 1));
+    if (date) {
+      const days: number[] = [];
+      for (let i = calendar.dayOne; i > 0; i -= 1) {
+        days.push(calendar.prevLastDate - (i - 1));
+      }
+      for (let i = 1; i <= calendar.lastDate; i += 1) {
+        days.push(i);
+      }
+      const daysLeft = 35 - days.length;
+      for (let i = 35 - days.length; i > 0; i -= 1) {
+        days.push(daysLeft - (i - 1));
+      }
+      return days.map((day, index) => {
+        const inNextMonth = index >= 35 - daysLeft;
+        const inPrevMonth = index < calendar.dayOne;
+        const isTodaysDate =
+          new Date().getDate() === day &&
+          new Date().getMonth() === date?.getMonth() &&
+          new Date().getFullYear() === date?.getFullYear();
+        return (
+          <Day
+            dayNumber={day}
+            key={`${getYearNumber(inNextMonth, inPrevMonth)}-${getMonthNumber(inNextMonth, inPrevMonth)}-${day}`}
+            month={date.getMonth()}
+            monthString={
+              months[getMonthNumber(inNextMonth, inPrevMonth)]
+            }
+            inNextMonth={inNextMonth}
+            inPrevMonth={inPrevMonth}
+            isSaturday={checkSaturday(index)}
+            isTodaysDate={isTodaysDate}
+            year={getYearNumber(inNextMonth, inPrevMonth)}
+          />
+        );
+      });
     }
-    for (let i = 1; i <= calendar.lastDate; i += 1) {
-      days.push(i);
-    }
-    const daysLeft = 35 - days.length;
-    for (let i = 35 - days.length; i > 0; i -= 1) {
-      days.push(daysLeft - (i - 1));
-    }
-    return days.map((day, index) => {
-      const inPrevMonth = index < calendar.dayOne || index >= 35 - daysLeft;
-      const isTodaysDate =
-        new Date().getDate() === day &&
-        new Date().getMonth() === date?.getMonth() &&
-        new Date().getFullYear() === date?.getFullYear();
-      return (
-        <li
-          className={`${inPrevMonth ? "bg-slate-200 text-slate-500" : isTodaysDate ? "bg-amber-100" : "bg-slate-100"} ${checkSaturday(index) ? null : "border-r-2"} border-b-2 border-slate-600 p-2`}
-          key={index}
-        >
-          {day}
-        </li>
-      );
-    });
+    return null;
   };
 
   return (

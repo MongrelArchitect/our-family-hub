@@ -73,3 +73,14 @@ CREATE TABLE IF NOT EXISTS posts (
   content TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+/* table for calendar events */
+CREATE TABLE IF NOT EXISTS events (
+  id SERIAL PRIMARY KEY,
+  family_id INT NOT NULL REFERENCES families(id),
+  created_by INT NOT NULL REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  title TEXT NOT NULL,
+  details TEXT,
+  event_date TIMESTAMPTZ NOT NULL
+);
