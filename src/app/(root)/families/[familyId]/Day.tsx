@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 import Card from "@/components/Card";
@@ -15,8 +13,10 @@ interface Props {
   inPrevMonth: boolean;
   isSaturday: boolean;
   isTodaysDate: boolean;
+  loading: boolean;
   month: number;
   monthString: string;
+  updateDate: (newDate: Date) => void;
   year: number;
 }
 
@@ -27,13 +27,14 @@ export default function Day({
   inPrevMonth,
   isSaturday,
   isTodaysDate,
+  loading,
   month,
   monthString,
+  updateDate,
   year,
 }: Props) {
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   // can have multiple events per day
   let daySchedule: string[] = [];
@@ -86,6 +87,7 @@ export default function Day({
               <NewEventForm
                 date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
                 toggleFormVisible={toggleFormVisible}
+                updateDate={updateDate}
               />
             ) : (
               <div className="flex flex-col gap-2">
@@ -97,27 +99,27 @@ export default function Day({
                   + Add event
                 </button>
                 <ul className="flex flex-col gap-4">
-                  {daysEvents && daySchedule.length
-                    ? daySchedule.map((eventId, index) => {
-                        const event = daysEvents[+eventId];
-                        return (
-                          <li
-                            className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} flex flex-col`}
-                            key={`event-id-${eventId}`}
-                          >
-                            <div className="flex flex-wrap gap-4 p-2">
-                              <span className="font-bold">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</span>
-                              <span>{event.title}</span>
-                            </div>
-                            {event.details ? (
-                              <div className="p-2 text-base">
-                                {event.details}
-                              </div>
-                            ) : null}
-                          </li>
-                        );
-                      })
-                    : null}
+                  {daysEvents && daySchedule.length ? (
+                    daySchedule.map((eventId, index) => {
+                      const event = daysEvents[+eventId];
+                      return (
+                        <li
+                          className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} flex flex-col`}
+                          key={`event-id-${eventId}`}
+                        >
+                          <div className="flex flex-wrap gap-4 p-2">
+                            <span className="font-bold">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</span>
+                            <span>{event.title}</span>
+                          </div>
+                          {event.details ? (
+                            <div className="p-2 text-base">{event.details}</div>
+                          ) : null}
+                        </li>
+                      );
+                    })
+                  ) : (
+                    <li>No events scheduled</li>
+                  )}
                 </ul>
               </div>
             )}

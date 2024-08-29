@@ -42,8 +42,12 @@ export default function Calendar() {
     "December",
   ];
 
+  const updateDate = (newDate: Date) => {
+    setDate(newDate);
+  };
+
   useEffect(() => {
-    setDate(new Date());
+    updateDate(new Date());
   }, []);
 
   useEffect(() => {
@@ -56,8 +60,6 @@ export default function Calendar() {
           month,
           new Date().getTimezoneOffset(),
         );
-        // XXX
-        console.log(eventData);
         setEvents(eventData);
       } catch (err) {
         console.error("Error getting event data: ", err);
@@ -193,12 +195,14 @@ export default function Calendar() {
             dayNumber={day}
             daysEvents={daysEvents}
             key={`${getYearNumber(inNextMonth, inPrevMonth)}-${getMonthNumber(inNextMonth, inPrevMonth)}-${day}`}
+            loading={loading}
             month={date.getMonth()}
             monthString={months[getMonthNumber(inNextMonth, inPrevMonth)]}
             inNextMonth={inNextMonth}
             inPrevMonth={inPrevMonth}
             isSaturday={checkSaturday(index)}
             isTodaysDate={isTodaysDate}
+            updateDate={updateDate}
             year={getYearNumber(inNextMonth, inPrevMonth)}
           />
         );
@@ -214,6 +218,13 @@ export default function Calendar() {
           <Loading />
         </div>
       </Card>
+    );
+  }
+
+  if (error) {
+    // will show the error page
+    throw new Error(
+      `There was a problem generating the event calendar. ${error}`,
     );
   }
 

@@ -10,9 +10,14 @@ import { createNewEvent } from "@/lib/db/events";
 interface Props {
   date: string;
   toggleFormVisible: () => void;
+  updateDate: (newDate: Date) => void;
 }
 
-export default function NewEventForm({ date, toggleFormVisible }: Props) {
+export default function NewEventForm({
+  date,
+  toggleFormVisible,
+  updateDate,
+}: Props) {
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const timeRef = useRef<HTMLInputElement>(null);
@@ -36,6 +41,7 @@ export default function NewEventForm({ date, toggleFormVisible }: Props) {
       try {
         setLoading(true);
         await createNewEvent(formData, +familyId);
+        updateDate(new Date(date));
         toggleFormVisible();
       } catch (err) {
         console.error("Error creating new event: ", err);
