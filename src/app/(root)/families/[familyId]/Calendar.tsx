@@ -12,6 +12,8 @@ import Loading from "@/components/Loading";
 
 import { getCalendarEvents } from "@/lib/db/events";
 
+import EventInterface, { CalendarEventsData } from "@/types/Events";
+
 export default function Calendar() {
   const { familyId } = useParams<{ familyId: string }>();
 
@@ -21,7 +23,9 @@ export default function Calendar() {
     lastDate: 0,
     prevLastDate: 0,
   });
-  const [events, setEvents] = useState(null);
+  const [error, setError] = useState<null | string>(null);
+  const [events, setEvents] = useState<CalendarEventsData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const months = [
     "January",
@@ -44,8 +48,23 @@ export default function Calendar() {
 
   useEffect(() => {
     const getEvents = async (month: number) => {
-      const events = await getCalendarEvents(+familyId, month);
-      console.log(events);
+      try {
+        setError(null);
+        setLoading(true);
+        const eventData = await getCalendarEvents(
+          +familyId,
+          month,
+          new Date().getTimezoneOffset(),
+        );
+        // XXX
+        console.log(eventData);
+        setEvents(eventData);
+      } catch (err) {
+        console.error("Error getting event data: ", err);
+        setError("Error getting event data");
+      } finally {
+        setLoading(false);
+      }
     };
 
     if (date) {
@@ -150,14 +169,31 @@ export default function Calendar() {
           new Date().getDate() === day &&
           new Date().getMonth() === date?.getMonth() &&
           new Date().getFullYear() === date?.getFullYear();
+        let daysEvents: {[key:number]:EventInterface} | null = null;
+        if (events) {
+          if (!inNextMonth && !inPrevMonth) {
+            if (events.current[day]) {
+              daysEvents = events.current[day];
+            }
+          }
+          if (inNextMonth) {
+            if (events.next[day]) {
+              daysEvents = events.next[day];
+            }
+          }
+          if (inPrevMonth) {
+            if (events.prev[day]) {
+              daysEvents = events.prev[day];
+            }
+          }
+        }
         return (
           <Day
             dayNumber={day}
+            daysEvents={daysEvents}
             key={`${getYearNumber(inNextMonth, inPrevMonth)}-${getMonthNumber(inNextMonth, inPrevMonth)}-${day}`}
             month={date.getMonth()}
-            monthString={
-              months[getMonthNumber(inNextMonth, inPrevMonth)]
-            }
+            monthString={months[getMonthNumber(inNextMonth, inPrevMonth)]}
             inNextMonth={inNextMonth}
             inPrevMonth={inPrevMonth}
             isSaturday={checkSaturday(index)}

@@ -5,6 +5,7 @@ import { cache } from "react";
 
 import getUserId from "@/lib/auth/user";
 import pool from "./pool";
+import EventInterface, { CalendarEventsData } from "@/types/Events";
 
 export async function createNewEvent(formData: FormData, familyId: number) {
   try {
@@ -65,8 +66,9 @@ export async function createNewEvent(formData: FormData, familyId: number) {
 }
 
 export const getCalendarEvents = cache(
-  async (familyId: number, month: number) => {
+  async (familyId: number, month: number, offset: number) => {
     try {
+      // get events for the month and it's neighbors
       const userId = await getUserId();
       const prevMonth = month - 1;
       const nextMonth = month + 1;
@@ -90,9 +92,49 @@ export const getCalendarEvents = cache(
         familyId,
         month,
         nextMonth,
-        prevMonth
+        prevMonth,
       ]);
-      return result.rows;
+      const events: CalendarEventsData = {
+        prev: {},
+        current: {},
+        next: {},
+      };
+      result.rows.forEach((row) => {
+        const newEvent: EventInterface = {
+          id: row.id as number,
+          familyId: row.family_id as number,
+          createdBy: row.created_by as number,
+          createdAt: new Date(row.created_at as string),
+          title: row.title as string,
+          eventDate: new Date(row.event_date as string),
+        };
+        const localizedDate = new Date(newEvent.eventDate);
+        localizedDate.setMinutes(newEvent.eventDate.getMinutes() - +offset);
+        if (row.details) {
+          newEvent.details = row.details as string;
+        }
+        const newEventMonth = newEvent.eventDate.getMonth() + 1;
+        const newEventDate = localizedDate.getDate();
+        if (newEventMonth === month) {
+          if (!events.current[newEventDate]) {
+            events.current[newEventDate] = {};
+          }
+          events.current[newEventDate][newEvent.id] = newEvent;
+        }
+        if (newEventMonth === month - 1) {
+          if (!events.prev[newEventDate]) {
+            events.prev[newEventDate] = {};
+          }
+          events.prev[newEventDate][newEvent.id] = newEvent;
+        }
+        if (newEventMonth === month + 1) {
+          if (!events.next[newEventDate]) {
+            events.next[newEventDate] = {};
+          }
+          events.next[newEventDate][newEvent.id] = newEvent;
+        }
+      });
+      return events;
     } catch (err) {
       throw err;
       // XXX TODO XXX

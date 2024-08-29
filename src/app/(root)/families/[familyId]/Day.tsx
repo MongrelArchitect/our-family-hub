@@ -6,8 +6,11 @@ import Card from "@/components/Card";
 import Loading from "@/components/Loading";
 import NewEventForm from "./NewEventForm";
 
+import EventInterface from "@/types/Events";
+
 interface Props {
   dayNumber: number;
+  daysEvents: null | { [key: number]: EventInterface };
   inNextMonth: boolean;
   inPrevMonth: boolean;
   isSaturday: boolean;
@@ -19,6 +22,7 @@ interface Props {
 
 export default function Day({
   dayNumber,
+  daysEvents,
   inNextMonth,
   inPrevMonth,
   isSaturday,
@@ -31,6 +35,21 @@ export default function Day({
   const [formVisible, setFormVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // can have multiple events per day
+  let daySchedule: string[] = [];
+  if (daysEvents) {
+    daySchedule = Object.keys(daysEvents);
+    if (daySchedule.length > 1) {
+      daySchedule.sort((a, b) => {
+        const eventA = daysEvents[+a];
+        const eventB = daysEvents[+b];
+        const timeA = eventA.eventDate.getTime();
+        const timeB = eventB.eventDate.getTime();
+        return timeA - timeB;
+      });
+    }
+  }
+
   const clearForm = () => {};
 
   const toggleFormVisible = () => {
@@ -41,7 +60,7 @@ export default function Day({
     return (
       <div
         aria-hidden={detailsVisible}
-        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} absolute left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 font-sans backdrop-blur-sm transition-all`}
+        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 font-sans backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -77,15 +96,24 @@ export default function Day({
                 >
                   + Add event
                 </button>
-                <ul>
-                  <li className="flex flex-wrap gap-2">
-                    <span className="font-mono">12:30</span>
-                    <span>Mock data</span>
-                  </li>
-                  <li className="flex flex-wrap gap-2">
-                    <span className="font-mono">16:45</span>
-                    <span>More mock data</span>
-                  </li>
+                <ul className="flex flex-col gap-4">
+                  {daysEvents && daySchedule.length
+                    ? daySchedule.map((eventId, index) => {
+                        const event = daysEvents[+eventId];
+                        return (
+                          <li
+                            className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} flex flex-col`}
+                            key={`event-id-${eventId}`}
+                          >
+                            <div className="p-2 flex flex-wrap gap-4">
+                              <span className="font-bold">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</span>
+                              <span>{event.title}</span>
+                            </div>
+                              {event.details ? <div className="text-base p-2">{event.details}</div> : null}
+                          </li>
+                        );
+                      })
+                    : null}
                 </ul>
               </div>
             )}
