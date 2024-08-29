@@ -3,8 +3,6 @@ import { Metadata } from "next";
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
 import getUserId from "@/lib/auth/user";
 
-import Controls from "./Controls";
-
 export async function generateMetadata({
   params,
 }: {
@@ -41,10 +39,7 @@ export default async function RootLayout({
   const familyId = +params.familyId;
 
   // this will also return false if no such family exists with the given id
-  const userIsFamilyMember = await checkIfUserIsFamilyMember(
-    familyId,
-    userId
-  );
+  const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId, userId);
 
   if (!userIsFamilyMember) {
     // don't divulge family existence - just inform about membership requirement
@@ -56,12 +51,5 @@ export default async function RootLayout({
     );
   }
 
-  const family = await getFamilyInfo(familyId);
-
-  return (
-    <>
-      {children}
-      <Controls familyId={familyId} userIsAdmin={userId === family.adminId} />
-    </>
-  );
+  return children;
 }
