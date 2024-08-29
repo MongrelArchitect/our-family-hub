@@ -105,11 +105,15 @@ export default function Day({
                             className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} flex flex-col`}
                             key={`event-id-${eventId}`}
                           >
-                            <div className="p-2 flex flex-wrap gap-4">
+                            <div className="flex flex-wrap gap-4 p-2">
                               <span className="font-bold">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</span>
                               <span>{event.title}</span>
                             </div>
-                              {event.details ? <div className="text-base p-2">{event.details}</div> : null}
+                            {event.details ? (
+                              <div className="p-2 text-base">
+                                {event.details}
+                              </div>
+                            ) : null}
                           </li>
                         );
                       })
@@ -131,13 +135,20 @@ export default function Day({
     <>
       {showDetails()}
       <li
-        className={`${inPrevMonth || inNextMonth ? "bg-slate-200 text-slate-500" : isTodaysDate ? "bg-amber-100" : "bg-slate-100"} ${isSaturday ? null : "border-r-2"} border-b-2 border-slate-600`}
+        className={`${inPrevMonth || inNextMonth ? "bg-slate-200 text-slate-500" : isTodaysDate ? "bg-amber-100" : "bg-slate-100"} ${isSaturday ? null : "border-r-2"} min-h-16 border-b-2 border-slate-600`}
       >
         <button
-          className="flex h-full w-full items-start p-2 hover:bg-indigo-200 focus:bg-indigo-200"
+          className="flex h-full w-full items-start hover:bg-indigo-200 focus:bg-indigo-200"
           onClick={toggleDetailsVisible}
         >
-          <div className="pointer-events-none">{dayNumber}</div>
+          <div className="pointer-events-none flex h-full w-full flex-col items-start justify-between p-1 text-base">
+            <div>{dayNumber}</div>
+            {daySchedule.length ? (
+              <div className="w-full bg-violet-300 p-2 text-sm">
+                {daySchedule.length}
+              </div>
+            ) : null}
+          </div>
         </button>
       </li>
     </>

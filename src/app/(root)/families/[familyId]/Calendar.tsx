@@ -68,6 +68,7 @@ export default function Calendar() {
     };
 
     if (date) {
+      setLoading(true);
       const year = date.getFullYear();
       const month = date.getMonth();
       // first day of the month
@@ -169,7 +170,7 @@ export default function Calendar() {
           new Date().getDate() === day &&
           new Date().getMonth() === date?.getMonth() &&
           new Date().getFullYear() === date?.getFullYear();
-        let daysEvents: {[key:number]:EventInterface} | null = null;
+        let daysEvents: { [key: number]: EventInterface } | null = null;
         if (events) {
           if (!inNextMonth && !inPrevMonth) {
             if (events.current[day]) {
@@ -205,6 +206,16 @@ export default function Calendar() {
     }
     return null;
   };
+
+  if (loading) {
+    return (
+      <Card heading="Event Calendar" headingColor="bg-emerald-200">
+        <div className="flex min-h-[400px] items-center justify-center">
+          <Loading />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card heading="Event Calendar" headingColor="bg-emerald-200">
@@ -255,7 +266,7 @@ export default function Calendar() {
           </div>
         </div>
       ) : (
-        <div className="flex min-h-[300px] items-center justify-center">
+        <div className="flex min-h-[400px] items-center justify-center">
           <Loading />
         </div>
       )}
