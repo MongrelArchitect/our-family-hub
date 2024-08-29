@@ -88,12 +88,14 @@ export default function Day({
                 date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
                 toggleFormVisible={toggleFormVisible}
                 updateDate={updateDate}
+                visible={formVisible}
               />
             ) : (
               <div className="flex flex-col gap-2">
                 <button
                   className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
                   onClick={toggleFormVisible}
+                  tabIndex={detailsVisible && !formVisible ? 0 : -1}
                   type="button"
                 >
                   + Add event

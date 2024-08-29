@@ -11,12 +11,14 @@ interface Props {
   date: string;
   toggleFormVisible: () => void;
   updateDate: (newDate: Date) => void;
+  visible: boolean;
 }
 
 export default function NewEventForm({
   date,
   toggleFormVisible,
   updateDate,
+  visible,
 }: Props) {
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -63,6 +65,7 @@ export default function NewEventForm({
         maxLength={255}
         ref={titleRef}
         required
+        tabIndex={visible ? 0 : -1}
         type="text"
       />
       <TextArea
@@ -72,6 +75,7 @@ export default function NewEventForm({
         labelText="Details (optional)"
         maxLength={1000}
         ref={descriptionRef}
+        tabIndex={visible ? 0 : -1}
       />
       <Input
         attempted={attempted}
@@ -80,6 +84,7 @@ export default function NewEventForm({
         labelText="Time"
         ref={timeRef}
         required
+        tabIndex={visible ? 0 : -1}
         type="time"
       />
       <input
@@ -102,6 +107,7 @@ export default function NewEventForm({
       ) : (
         <button
           className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+          tabIndex={visible ? 0 : -1}
           type="submit"
         >
           Submit
@@ -110,6 +116,7 @@ export default function NewEventForm({
       <button
         className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
         onClick={toggleFormVisible}
+        tabIndex={visible ? 0 : -1}
         type="button"
       >
         Cancel
