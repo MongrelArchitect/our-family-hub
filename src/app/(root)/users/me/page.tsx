@@ -1,11 +1,14 @@
 import { Metadata } from "next";
-import { getUsersOwnInfo } from "@/lib/db/users";
 import Image from "next/image";
+
 import profileIcon from "@/assets/icons/account-circle.svg";
+
+import Card from "@/components/Card";
 import EditImageForm from "./EditImage";
 import EditNameForm from "./EditName";
 import LocalTime from "@/components/LocalTime";
-import Card from "@/components/Card";
+
+import { getUsersOwnInfo } from "@/lib/db/users";
 
 export const metadata: Metadata = {
   title: "My Profile",
@@ -17,9 +20,10 @@ export default async function MyProfile() {
   return (
     <main className="p-2 text-lg">
       <Card
-        flair={<Image alt="" src={profileIcon} />}
+        borderColor="border-green-400"
+        flair={<Image alt="" className="p-2" src={profileIcon} width={48} />}
         heading="My Profile"
-        headingColor="bg-emerald-200"
+        headingColor="bg-green-200"
       >
         <div className="flex flex-wrap items-center gap-4">
           <EditImageForm userId={userInfo.id} />

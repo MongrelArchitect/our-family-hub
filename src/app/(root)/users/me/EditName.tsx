@@ -2,10 +2,10 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-import closeIcon from "@/assets/icons/close-circle.svg";
 import editIcon from "@/assets/icons/pencil.svg";
-import saveIcon from "@/assets/icons/save.svg";
+import editNameIcon from "@/assets/icons/tag-edit.svg";
 
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
@@ -48,7 +48,7 @@ export default function EditNameForm({ name }: Props) {
     return (
       <div
         aria-hidden={editing}
-        className={`${editing ? null : "pointer-events-none opacity-0"} absolute left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
+        className={`${editing ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -59,8 +59,17 @@ export default function EditNameForm({ name }: Props) {
           }
         }}
       >
-        <div className={`${editing ? "" : "-translate-y-full"} transition-all`}>
-          <Card heading="Edit Name" headingColor="bg-emerald-200">
+        <div
+          className={`${editing ? null : "-translate-y-full"} transition-all`}
+        >
+          <Card
+            borderColor="border-green-400"
+            flair={
+              <Image alt="" className="p-2" src={editNameIcon} width={48} />
+            }
+            heading="Edit Name"
+            headingColor="bg-green-200"
+          >
             {loading ? (
               <Loading />
             ) : (
@@ -70,6 +79,9 @@ export default function EditNameForm({ name }: Props) {
                 id="edit-name-form"
                 noValidate
               >
+                Enter a new name below. This will change your name anywhere it
+                is visible, so make sure your fellow family members know who you
+                are!
                 <Input
                   attempted={attempted}
                   clearTrigger={editing}
@@ -82,33 +94,29 @@ export default function EditNameForm({ name }: Props) {
                   ref={nameRef}
                   required
                 />
-
                 {error ? <div className="text-red-700">{error}</div> : null}
-
-                <button
-                  className="flex items-center justify-center gap-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                <Button
+                  ariaHidden={!editing}
+                  style="submit"
                   tabIndex={editing ? 0 : -1}
                   type="submit"
                 >
-                  <Image alt="" src={saveIcon} width={32} />
-                  Save
-                </button>
-
-                <button
-                  aria-hidden={!editing}
-                  aria-controls="edit-name-form"
-                  aria-expanded={editing}
-                  className="flex items-center justify-center gap-2 bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+                  SAVE
+                </Button>
+                <Button
+                  ariaHidden={!editing}
+                  ariaControls="edit-name-form"
+                  ariaExpanded={editing}
                   onClick={() => {
                     toggleEditing();
                     setAttempted(false);
                   }}
+                  style="cancel"
                   tabIndex={editing ? 0 : -1}
                   type="button"
                 >
-                  <Image alt="" src={closeIcon} width={32} />
-                  Cancel
-                </button>
+                  CANCEL
+                </Button>
               </form>
             )}
           </Card>
@@ -125,6 +133,7 @@ export default function EditNameForm({ name }: Props) {
         aria-hidden={editing}
         aria-controls="edit-name-form"
         aria-expanded={editing}
+        className="rounded-full bg-white p-1 shadow-md shadow-slate-600 hover:bg-indigo-300 focus:bg-indigo-300"
         onClick={toggleEditing}
         tabIndex={editing ? -1 : 0}
         title="Edit name"

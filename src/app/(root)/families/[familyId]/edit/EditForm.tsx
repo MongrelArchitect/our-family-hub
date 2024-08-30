@@ -1,10 +1,16 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { editFamilySurname, getFamilySurname } from "@/lib/db/families";
+
+import editIcon from "@/assets/icons/home-edit.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+
+import { editFamilySurname, getFamilySurname } from "@/lib/db/families";
 
 interface Props {
   familyId: number;
@@ -67,12 +73,9 @@ export default function EditForm({ familyId }: Props) {
           type="text"
         />
         {error ? <div className="text-red-700">{error}</div> : null}
-        <button
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-          type="submit"
-        >
-          Submit
-        </button>
+        <Button style="submit" type="submit">
+          SUBMIT
+        </Button>
       </>
     );
   };
@@ -102,7 +105,12 @@ export default function EditForm({ familyId }: Props) {
 
   return (
     <form action={submitForm} className="text-lg" noValidate>
-      <Card heading="Edit Family Info" headingColor="bg-amber-200">
+      <Card
+        borderColor="border-emerald-400"
+        flair={<Image alt="" className="p-2" src={editIcon} width={48} />}
+        heading="Edit Family Info"
+        headingColor="bg-emerald-200"
+      >
         {loading ? (
           <div className="p-2 pb-4">
             <Loading />

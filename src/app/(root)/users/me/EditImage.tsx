@@ -2,14 +2,17 @@
 import Image from "next/image";
 import { useContext, useState } from "react";
 
-import closeIcon from "@/assets/icons/close-circle.svg";
 import editIcon from "@/assets/icons/pencil.svg";
-import saveIcon from "@/assets/icons/save.svg";
+import imageEditIcon from "@/assets/icons/image-edit.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import ImagePicker from "@/components/ImagePicker";
 import Loading from "@/components/Loading";
 import ProfileImage from "@/components/ProfileImage";
+
 import { ProfileContext } from "@/contexts/Profile";
+
 import { updateProfileImage } from "@/lib/images/images";
 
 interface Props {
@@ -76,7 +79,7 @@ export default function EditImageForm({ userId }: Props) {
     return (
       <div
         aria-hidden={editing}
-        className={`${editing ? null : "pointer-events-none opacity-0"} absolute left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
+        className={`${editing ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -88,7 +91,14 @@ export default function EditImageForm({ userId }: Props) {
         }}
       >
         <div className={`${editing ? "" : "-translate-y-full"} transition-all`}>
-          <Card heading="Edit Image" headingColor="bg-emerald-200">
+          <Card
+            borderColor="border-green-400"
+            flair={
+              <Image alt="" className="p-2" src={imageEditIcon} width={48} />
+            }
+            heading="Edit Profile Image"
+            headingColor="bg-green-200"
+          >
             <form
               action={submit}
               className="flex flex-col gap-4"
@@ -102,6 +112,7 @@ export default function EditImageForm({ userId }: Props) {
                 removeError={() => {
                   setError(null);
                 }}
+                tabIndex={editing ? 0 : -1}
                 userId={userId}
               />
 
@@ -111,29 +122,29 @@ export default function EditImageForm({ userId }: Props) {
                 <Loading />
               ) : (
                 <>
-                  <button
-                    className="flex items-center justify-center gap-2 bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                  <Button
+                    ariaHidden={!editing}
+                    style="submit"
                     tabIndex={editing ? 0 : -1}
                     type="submit"
                   >
-                    <Image alt="" src={saveIcon} width={32} />
-                    Save
-                  </button>
-                  <button
-                    aria-hidden={!editing}
-                    aria-controls="edit-image-form"
-                    aria-expanded={editing}
-                    className="flex items-center justify-center gap-2 bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+                    SAVE
+                  </Button>
+
+                  <Button
+                    ariaHidden={!editing}
+                    ariaControls="edit-image-form"
+                    ariaExpanded={editing}
                     onClick={() => {
                       toggleEditing();
                       setError(null);
                     }}
+                    style="cancel"
                     tabIndex={editing ? 0 : -1}
                     type="button"
                   >
-                    <Image alt="" src={closeIcon} width={32} />
-                    Cancel
-                  </button>
+                    CANCEL
+                  </Button>
                 </>
               )}
             </form>
@@ -152,7 +163,7 @@ export default function EditImageForm({ userId }: Props) {
           aria-hidden={editing}
           aria-controls="edit-image-form"
           aria-expanded={editing}
-          className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow-md shadow-slate-600"
+          className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow-md shadow-slate-600 hover:bg-indigo-300 focus:bg-indigo-300"
           onClick={toggleEditing}
           tabIndex={editing ? -1 : 0}
           title="Edit image"

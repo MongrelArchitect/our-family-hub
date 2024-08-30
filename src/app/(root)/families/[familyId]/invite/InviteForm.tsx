@@ -1,10 +1,15 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import inviteIcon from "@/assets/icons/account-plus.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+
 import { getFamilySurname, inviteNewMember } from "@/lib/db/families";
 
 interface Props {
@@ -75,12 +80,9 @@ export default function InviteForm({ familyId }: Props) {
           type="email"
         />
         {error ? <div className="text-red-700">{error}</div> : null}
-        <button
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-          type="submit"
-        >
-          Submit
-        </button>
+        <Button style="submit" type="submit">
+          SUBMIT
+        </Button>
       </>
     );
   };
@@ -108,7 +110,12 @@ export default function InviteForm({ familyId }: Props) {
 
   return (
     <form action={submitForm} className="text-lg" noValidate>
-      <Card heading="Invite New Member" headingColor="bg-amber-200">
+      <Card
+        borderColor="border-emerald-400"
+        flair={<Image alt="" className="p-2" src={inviteIcon} width={48} />}
+        heading="Invite New Member"
+        headingColor="bg-emerald-200"
+      >
         {loading ? (
           <div className="p-2 pb-4">
             <Loading />

@@ -86,6 +86,7 @@ export default async function FamilyPage({
       <div className="flex grid-cols-2 grid-rows-[auto_1fr] flex-col gap-2 md:grid">
         {/* TODO LISTS */}
         <Card
+          borderColor="border-sky-400"
           flair={
             <Link
               className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
@@ -96,13 +97,14 @@ export default async function FamilyPage({
             </Link>
           }
           heading="Todo Lists"
-          headingColor="bg-emerald-200"
+          headingColor="bg-sky-200"
         >
           {showTodoListSummaries()}
         </Card>
 
         {/* DISCUSSION THREADS */}
         <Card
+          borderColor="border-teal-400"
           flair={
             <Link
               className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
@@ -113,7 +115,7 @@ export default async function FamilyPage({
             </Link>
           }
           heading="Discussion Threads"
-          headingColor="bg-emerald-200"
+          headingColor="bg-teal-200"
         >
           {showThreadSummaries()}
         </Card>

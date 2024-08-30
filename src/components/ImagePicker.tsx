@@ -10,6 +10,7 @@ interface Props {
   forProfile?: boolean;
   id: string;
   removeError?: () => void;
+  tabIndex?: number;
   userId: number;
 }
 
@@ -41,6 +42,7 @@ export default function ImagePicker({
   forProfile,
   id,
   removeError,
+  tabIndex,
   userId,
 }: Props) {
   const [file, setFile] = useState<File | null>(null);
@@ -111,18 +113,18 @@ export default function ImagePicker({
         <div className="font-mono text-sm">{displayImageInfo()}</div>
       </div>
       <div
-        className="flex h-32 w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-neutral-900"
+        className="font-mono flex h-32 w-full flex-col items-center justify-center gap-2 border-2 border-dashed border-neutral-900"
         onDragOver={(e) => {
           e.preventDefault();
         }}
         onDrop={handleDrop}
       >
         <label
-          className="cursor-pointer bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+          className="cursor-pointer bg-indigo-300 p-2 hover:bg-indigo-400 focus:bg-indigo-400"
           htmlFor={id}
-          tabIndex={0}
+          tabIndex={tabIndex || 0}
         >
-          Choose a file
+          CHOOSE FILE
         </label>
         or drop file here
         <input

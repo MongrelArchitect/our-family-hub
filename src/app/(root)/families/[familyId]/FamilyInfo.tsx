@@ -36,7 +36,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
       >
         <Link
           aria-label="Invite new member to family"
-          className="rounded-full border-2 border-amber-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
+          className="rounded-full border-2 border-orange-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
           href={`/families/${family.id}/invite`}
           tabIndex={controlsVisible ? 0 : -1}
           title="Invite new member to family"
@@ -45,7 +45,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
         </Link>
         <Link
           aria-label="Remove member from family"
-          className="rounded-full border-2 border-amber-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
+          className="rounded-full border-2 border-orange-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
           href={`/families/${family.id}/remove`}
           tabIndex={controlsVisible ? 0 : -1}
           title="Remove member from family"
@@ -54,7 +54,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
         </Link>
         <Link
           aria-label="Edit family info"
-          className="rounded-full border-2 border-amber-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
+          className="rounded-full border-2 border-orange-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
           href={`/families/${family.id}/edit`}
           tabIndex={controlsVisible ? 0 : -1}
           title="Edit family info"
@@ -67,12 +67,13 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
 
   return (
     <Card
+      borderColor="border-emerald-400"
       flair={
         userIsAdmin ? (
           <button
             aria-controls="admin-controls"
             aria-expanded={controlsVisible ? "true" : "false"}
-            className="rounded-full border-2 border-amber-400 bg-neutral-100 hover:bg-amber-300 focus:bg-amber-300"
+            className="rounded-full border-2 border-orange-400 bg-neutral-100 hover:bg-amber-300 focus:bg-amber-300"
             onClick={toggleControlsVisible}
             title="Open admin controls"
             type="button"
@@ -82,7 +83,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
         ) : null
       }
       heading={`The ${family.surname} Family`}
-      headingColor="bg-emerald-200"
+      headingColor={userIsAdmin ? "bg-emerald-200" : "bg-emerald-200"}
     >
       <div className="flex flex-col gap-2">
         <p>

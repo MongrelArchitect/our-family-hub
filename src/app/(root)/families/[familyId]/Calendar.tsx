@@ -213,7 +213,11 @@ export default function Calendar() {
 
   if (loading) {
     return (
-      <Card heading="Event Calendar" headingColor="bg-emerald-200">
+      <Card
+        borderColor="border-fuchsia-400"
+        heading="Event Calendar"
+        headingColor="bg-fuchsia-200"
+      >
         <div className="flex min-h-[400px] items-center justify-center">
           <Loading />
         </div>
@@ -229,7 +233,11 @@ export default function Calendar() {
   }
 
   return (
-    <Card heading="Event Calendar" headingColor="bg-emerald-200">
+    <Card
+      borderColor="border-fuchsia-400"
+      heading="Event Calendar"
+      headingColor="bg-fuchsia-200"
+    >
       {date ? (
         <div className="grid min-h-[300px] grid-rows-[auto_1fr]">
           <div className="flex flex-wrap items-center justify-between">

@@ -1,15 +1,21 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+
+import removeIcon from "@/assets/icons/account-cancel.svg";
+
+import Button from "@/components/Button";
+import Card from "@/components/Card";
+import Loading from "@/components/Loading";
+import ProfileImage from "@/components/ProfileImage";
 
 import {
   getFamilyInfo,
   getFamilyMembers,
   removeMember,
 } from "@/lib/db/families";
-import Card from "@/components/Card";
-import Loading from "@/components/Loading";
-import ProfileImage from "@/components/ProfileImage";
+
 import FamilyInterface from "@/types/Families";
 import UserInterface from "@/types/Users";
 
@@ -55,11 +61,8 @@ export default function RemoveForm({ familyId }: Props) {
     }
     if (memberInfo) {
       return (
-        <div className="flex items-start flex-wrap gap-2">
-          <ProfileImage 
-            size={64}
-            userId={memberInfo.id}
-          />
+        <div className="flex flex-wrap items-start gap-2">
+          <ProfileImage size={64} userId={memberInfo.id} />
           <div className="break-all">
             <p>{memberInfo.name}</p>
             <p>{memberInfo.email}</p>
@@ -171,7 +174,7 @@ export default function RemoveForm({ familyId }: Props) {
 
         <label htmlFor="members">Member to remove:</label>
         <select
-          className="border-2 border-neutral-600 p-2 bg-neutral-100 hover:outline hover:outline-slate-600 focus:outline focus:outline-slate-600"
+          className="border-2 border-neutral-600 bg-neutral-100 p-2 hover:outline hover:outline-slate-600 focus:outline focus:outline-slate-600"
           defaultValue={0}
           name="members"
           onChange={getMemberInfo}
@@ -201,28 +204,19 @@ export default function RemoveForm({ familyId }: Props) {
               <b>{memberInfo?.name || "them"}</b> from{" "}
               <b>The {familyInfo?.surname || null} Family</b>?
             </p>
-            <button
-              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-              onClick={toggleConfirm}
-              type="button"
-            >
-              Cancel
-            </button>
-            <button
-              className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
-              type="submit"
-            >
-              Remove {memberInfo?.name || "Them"}
-            </button>
+
+            <Button style="cancel" onClick={toggleConfirm} type="button">
+              CANCEL
+            </Button>
+
+            <Button style="submit" type="submit">
+              REMOVE MEMBER
+            </Button>
           </div>
         ) : (
-          <button
-            className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-            onClick={toggleConfirm}
-            type="button"
-          >
-            Submit
-          </button>
+          <Button onClick={toggleConfirm} style="submit" type="button">
+            CONFIRM
+          </Button>
         )}
       </>
     );
@@ -230,7 +224,12 @@ export default function RemoveForm({ familyId }: Props) {
 
   return (
     <form action={submitForm} className="text-lg" noValidate>
-      <Card heading="Remove Member" headingColor="bg-amber-200">
+      <Card
+        borderColor="border-emerald-400"
+        flair={<Image alt="" className="p-2" src={removeIcon} width={48} />}
+        heading="Remove Member"
+        headingColor="bg-emerald-200"
+      >
         {loading ? (
           <div className="p-2 pb-4">
             <Loading />

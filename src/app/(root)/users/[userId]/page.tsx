@@ -57,15 +57,13 @@ export default async function UserProfile({ params }: Props) {
   return (
     <main className="p-2 text-lg">
       <Card
-        flair={<Image alt="" src={profileIcon} />}
+        borderColor="border-green-400"
+        flair={<Image alt="" className="p-2" src={profileIcon} width={48} />}
         heading="User Profile"
-        headingColor="bg-emerald-200"
+        headingColor="bg-green-200"
       >
         <div className="flex flex-wrap items-center gap-4">
-          <ProfileImage 
-            size={96}
-            userId={userInfo.id}
-          />
+          <ProfileImage size={96} userId={userInfo.id} />
           <div>
             <p>{userInfo.name}</p>
             <p className="break-all text-base">{userInfo.email}</p>

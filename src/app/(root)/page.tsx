@@ -33,7 +33,9 @@ export default async function Home() {
   return (
     <main className="flex flex-col gap-2 p-2 text-xl">
       <h2 className="text-2xl">Welcome {user.name || ""}!</h2>
-      <Card heading="Pending Invites" headingColor="bg-emerald-200">
+      <Card 
+        borderColor="border-lime-400"
+        heading="Pending Invites" headingColor="bg-lime-200">
         {showInvites()}
       </Card>
     </main>
