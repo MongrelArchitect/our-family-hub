@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import {notFound} from "next/navigation";
 import { cache } from "react";
 
 import pool from "./pool";
@@ -183,6 +184,7 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
       SELECT id, created_by, assigned_to, created_at, title, details, due_by, done
       FROM tasks
       WHERE todo_list_id = $3
+      AND family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
       ORDER BY due_by
     `;
@@ -235,6 +237,7 @@ export const getTodoListInfo = cache(
       SELECT created_at, created_by, title, description 
       FROM todo_lists 
       WHERE id = $3
+      AND family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
     `;
 
@@ -253,7 +256,7 @@ export const getTodoListInfo = cache(
         }
         return todoList;
       }
-      throw new Error("Error getting todo list info");
+      return notFound();
     } catch (err) {
       // XXX TODO XXX
       // log this

@@ -70,7 +70,7 @@ export default async function FamilyPage({
         </ul>
       );
     }
-    return <p>No todo lists.</p>;
+    return <p>No discussion threads yet.</p>;
   };
 
 

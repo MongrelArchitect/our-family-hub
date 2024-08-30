@@ -83,7 +83,8 @@ export const getCalendarEvents = cache(
       )
       SELECT id, family_id, created_by, created_at, title, details, event_date
       FROM events
-      WHERE EXTRACT(MONTH FROM event_date) IN ($3, $4, $5)
+      WHERE family_id = $2
+      AND EXTRACT(MONTH FROM event_date) IN ($3, $4, $5)
       AND EXISTS (SELECT 1 FROM member_check)
     `;
 

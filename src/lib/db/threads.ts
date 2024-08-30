@@ -1,5 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import {notFound} from "next/navigation";
 import { cache } from "react";
 
 import pool from "./pool";
@@ -108,13 +109,13 @@ export const getThreadInfo = cache(
       ON t.id = p.thread_id
       GROUP BY t.id
       HAVING t.id = $3
+      AND t.family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
       ;
     `;
       const result = await pool.query(query, [userId, familyId, threadId]);
       if (!result.rowCount) {
-        // rowCount will be 1 if successfully created, 0 if not
-        throw new Error("Error getting thread info");
+        return notFound();
       }
       const threadInfo: ThreadInterface = {
         id: +result.rows[0].id as number,
@@ -149,6 +150,7 @@ export const getThreadPosts = cache(
       SELECT id, author_id, thread_id, content, created_at
       FROM posts
       WHERE thread_id = $3
+      AND family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
       ;
       `;
@@ -191,7 +193,8 @@ export const getThreadSummaries = cache(async (familyId: number) => {
       LEFT JOIN posts p
       ON t.id = p.thread_id
       GROUP BY t.id
-      HAVING EXISTS(SELECT 1 FROM member_check)
+      HAVING t.family_id = $2
+      AND EXISTS(SELECT 1 FROM member_check)
       ;
     `;
     const result = await pool.query(query, [userId, familyId]);

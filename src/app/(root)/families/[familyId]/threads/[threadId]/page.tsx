@@ -47,19 +47,17 @@ export default async function Thread({ params }: Params) {
   return (
     <main className="flex flex-col gap-4 p-2 text-lg">
       <Card
+        borderColor="border-teal-400"
         flair={`${threadInfo.postCount} post${threadInfo.postCount === 1 ? "" : "s"}`}
         heading={threadInfo.title}
-        headingColor="bg-emerald-200"
+        headingColor="bg-teal-200"
       >
         <div className="flex flex-col gap-4">
           <pre className="whitespace-pre-wrap font-sans">
             {threadInfo.content}
           </pre>
           <div className="flex flex-wrap items-center gap-2">
-            <ProfileImage 
-              size={40}
-              userId={authorInfo.id}
-            />
+            <ProfileImage size={40} userId={authorInfo.id} />
             <div className="flex flex-col font-mono text-sm">
               <Link
                 className="font-bold text-violet-800 hover:underline focus:underline"
