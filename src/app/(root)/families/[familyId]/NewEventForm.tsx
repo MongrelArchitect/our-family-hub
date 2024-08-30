@@ -1,6 +1,7 @@
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 
+import Button from "@/components/Button";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 import TextArea from "@/components/TextArea";
@@ -105,22 +106,18 @@ export default function NewEventForm({
       {loading ? (
         <Loading />
       ) : (
-        <button
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-          tabIndex={visible ? 0 : -1}
-          type="submit"
-        >
-          Submit
-        </button>
+        <Button style="submit" tabIndex={visible ? 0 : -1} type="submit">
+          SUBMIT
+        </Button>
       )}
-      <button
-        className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+      <Button
         onClick={toggleFormVisible}
+        style="cancel"
         tabIndex={visible ? 0 : -1}
         type="button"
       >
-        Cancel
-      </button>
+        CANCEL
+      </Button>
     </form>
   );
 }

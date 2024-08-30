@@ -1,5 +1,9 @@
+import Image from "next/image";
 import { useState } from "react";
 
+import dayIcon from "@/assets/icons/view-day.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Loading from "@/components/Loading";
 import NewEventForm from "./NewEventForm";
@@ -77,8 +81,10 @@ export default function Day({
           className={`${detailsVisible ? "" : "-translate-y-full"} transition-all`}
         >
           <Card
+            borderColor="border-fuchsia-400"
+            flair={<Image alt="" className="p-2" src={dayIcon} width={48} />}
             heading={`${monthString} ${dayNumber}, ${year}`}
-            headingColor="bg-emerald-200"
+            headingColor="bg-fuchsia-200"
           >
             {loading ? (
               <Loading />
@@ -92,30 +98,34 @@ export default function Day({
               />
             ) : (
               <div className="flex flex-col gap-2">
-                <button
-                  className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                <Button
                   onClick={toggleFormVisible}
+                  style="add"
                   tabIndex={detailsVisible && !formVisible ? 0 : -1}
                   type="button"
                 >
-                  + Add event
-                </button>
+                  ADD EVENT
+                </Button>
+
                 <ul className="flex flex-col gap-4">
                   {daysEvents && daySchedule.length ? (
                     daySchedule.map((eventId, index) => {
                       const event = daysEvents[+eventId];
                       return (
                         <li
-                          className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} flex flex-col`}
+                          className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} grid grid-cols-[112px_1fr] gap-2`}
                           key={`event-id-${eventId}`}
                         >
-                          <div className="flex flex-wrap gap-4 p-2">
-                            <span className="font-bold">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</span>
-                            <span>{event.title}</span>
+                          <div className="p-2 font-bold font-mono">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</div>
+
+                          <div className="flex flex-col p-2">
+                            <div className="text-xl">{event.title}</div>
+                            {event.details ? (
+                              <pre className="whitespace-pre-wrap font-sans text-base">
+                                {event.details}
+                              </pre>
+                            ) : null}
                           </div>
-                          {event.details ? (
-                            <div className="p-2 text-base">{event.details}</div>
-                          ) : null}
                         </li>
                       );
                     })
@@ -148,7 +158,7 @@ export default function Day({
           <div className="pointer-events-none flex h-full w-full flex-col items-start justify-between p-1 text-base">
             <div>{dayNumber}</div>
             {daySchedule.length ? (
-              <div className="w-full bg-violet-300 p-2 text-sm">
+              <div className="w-full bg-fuchsia-400 p-2 text-sm">
                 {daySchedule.length}
               </div>
             ) : null}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import triangleIcon from "@/assets/icons/triangle.svg";
 
+import Button from "@/components/Button";
 import Loading from "@/components/Loading";
 import ProfileImage from "@/components/ProfileImage";
 
@@ -121,29 +122,18 @@ export default function Task({
               <p className="text-red-700">
                 Are you sure? <b>This cannot be undone!</b>
               </p>
-              <button
-                className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-                onClick={toggleDelete}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-rose-300 p-2 hover:bg-rose-400 focus:bg-rose-400"
-                onClick={confirmDelete}
-                type="button"
-              >
-                Confirm Delete
-              </button>
+              <Button onClick={toggleDelete} style="cancel" type="button">
+                CANCEL
+              </Button>
+
+              <Button style="submit" onClick={confirmDelete} type="button">
+                CONFIRM
+              </Button>
             </>
           ) : (
-            <button
-              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-              onClick={toggleDelete}
-              type="button"
-            >
-              Delete Task
-            </button>
+            <Button onClick={toggleDelete} style="delete" type="button">
+              DELETE
+            </Button>
           )}
         </div>
       );
@@ -229,7 +219,7 @@ export default function Task({
                     >
                       {memberInfo?.createdBy.name}
                     </Link>
-                    <ProfileImage 
+                    <ProfileImage
                       extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
                       size={40}
                       userId={memberInfo.createdBy.id}
@@ -258,7 +248,7 @@ export default function Task({
                     >
                       {memberInfo?.assignedTo.name}
                     </Link>
-                    <ProfileImage 
+                    <ProfileImage
                       extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
                       size={40}
                       userId={memberInfo.assignedTo.id}

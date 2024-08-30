@@ -1,11 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
+import newFamilyIcon from "@/assets/icons/home-plus.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+
 import { createNewFamily } from "@/lib/db/families";
 
 export default function NewFamilyForm() {
@@ -41,11 +46,17 @@ export default function NewFamilyForm() {
 
   return (
     <form className="text-lg" action={submit} noValidate>
-      <Card heading="Create New Family" headingColor="bg-emerald-200">
+      <Card
+        borderColor="border-emerald-400"
+        flair={<Image alt="" className="p-2" src={newFamilyIcon} width={48} />}
+        heading="Create New Family"
+        headingColor="bg-emerald-200"
+      >
         {loading ? (
           <Loading />
         ) : (
           <div className="flex flex-col gap-2">
+            Enter a surname for your new family. You can always change it later.
             <Input
               attempted={attempted}
               errorText="Surname required"
@@ -59,12 +70,9 @@ export default function NewFamilyForm() {
             {attempted && error ? (
               <div className="p-2 text-red-700">{error}</div>
             ) : null}
-            <button
-              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-              type="submit"
-            >
-              Submit
-            </button>
+            <Button style="submit" type="submit">
+              SUBMIT
+            </Button>
           </div>
         )}
       </Card>

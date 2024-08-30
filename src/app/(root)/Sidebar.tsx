@@ -6,10 +6,9 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 
 import closeMenuIcon from "@/assets/icons/menu-close.svg";
-import familyIcon from "@/assets/icons/family.svg";
-import homeIcon from "@/assets/icons/home.svg";
+import homeIcon from "@/assets/icons/home-group.svg";
 import logoutIcon from "@/assets/icons/logout.svg";
-import newFamilyIcon from "@/assets/icons/new-family.svg";
+import newFamilyIcon from "@/assets/icons/home-plus.svg";
 import openMenuIcon from "@/assets/icons/menu-open.svg";
 import profileIcon from "@/assets/icons/account-circle.svg";
 
@@ -92,30 +91,6 @@ export default function Sidebar() {
                 tabIndex={expanded ? 0 : -1}
               >
                 <Image alt="" src={homeIcon} width="32" />
-                Home
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
-                href="/users/me"
-                onClick={toggleExpanded}
-                tabIndex={expanded ? 0 : -1}
-              >
-                <Image alt="" src={profileIcon} width="32" />
-                My Profile
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
-                href="/families/all"
-                onClick={toggleExpanded}
-                tabIndex={expanded ? 0 : -1}
-              >
-                <Image alt="" src={familyIcon} width="32" />
                 My Families
               </Link>
             </li>
@@ -129,6 +104,18 @@ export default function Sidebar() {
               >
                 <Image alt="" src={newFamilyIcon} width="32" />
                 New Family
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                className="flex flex-wrap items-center gap-2 hover:underline focus:underline"
+                href="/users/me"
+                onClick={toggleExpanded}
+                tabIndex={expanded ? 0 : -1}
+              >
+                <Image alt="" src={profileIcon} width="32" />
+                My Profile
               </Link>
             </li>
 

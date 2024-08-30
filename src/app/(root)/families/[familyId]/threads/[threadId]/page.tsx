@@ -1,5 +1,8 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+
+import threadIcon from "@/assets/icons/chat.svg";
 
 import Card from "@/components/Card";
 import LocalTime from "@/components/LocalTime";
@@ -48,7 +51,14 @@ export default async function Thread({ params }: Params) {
     <main className="flex flex-col gap-4 p-2 text-lg">
       <Card
         borderColor="border-teal-400"
-        flair={`${threadInfo.postCount} post${threadInfo.postCount === 1 ? "" : "s"}`}
+        flair={
+          <div className="relative">
+            <Image alt="" className="p-2" src={threadIcon} width={48} />
+            <span className="absolute left-[20px] top-[14px] font-mono text-sm text-white">
+              {threadInfo.postCount}
+            </span>
+          </div>
+        }
         heading={threadInfo.title}
         headingColor="bg-teal-200"
       >

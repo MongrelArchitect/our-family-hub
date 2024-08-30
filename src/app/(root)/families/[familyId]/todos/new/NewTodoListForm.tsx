@@ -1,14 +1,19 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { useEffect, useRef, useState } from "react";
 
+import todoListIcon from "@/assets/icons/text-box.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
+
 import { getFamilyInfo } from "@/lib/db/families";
 import { createNewTodoList } from "@/lib/db/todos";
+
 import FamilyInterface from "@/types/Families";
 
 interface Props {
@@ -63,11 +68,17 @@ export default function NewTodoListForm({ familyId }: Props) {
 
   return (
     <form className="text-lg" action={submit} noValidate>
-      <Card heading="Create New Todo List" headingColor="bg-emerald-200">
+      <Card
+        borderColor="border-sky-400"
+        flair={<Image alt="" className="p-2" src={todoListIcon} width={48} />}
+        heading="Create New Todo List"
+        headingColor="bg-sky-200"
+      >
         {loading ? (
           <Loading />
         ) : (
           <div className="flex flex-col gap-4">
+            Your new todo list needs a title, but a description is optional.
             <Input
               attempted={attempted}
               errorText="Title required"
@@ -78,7 +89,6 @@ export default function NewTodoListForm({ familyId }: Props) {
               required
               type="text"
             />
-
             <Input
               attempted={attempted}
               id="description"
@@ -87,17 +97,12 @@ export default function NewTodoListForm({ familyId }: Props) {
               ref={descriptionRef}
               type="text"
             />
-
             {attempted && error ? (
               <div className="p-2 text-red-700">{error}</div>
             ) : null}
-
-            <button
-              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-              type="submit"
-            >
-              Submit
-            </button>
+            <Button style="submit" type="submit">
+              SUBMIT
+            </Button>
             <Link
               className="font-bold text-violet-900 hover:underline focus:underline"
               href={`/families/${familyId}`}

@@ -1,9 +1,14 @@
 "use client";
+import Image from "next/image";
 import { useRef, useState } from "react";
 
+import replyIcon from "@/assets/icons/comment-plus.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Loading from "@/components/Loading";
 import TextArea from "@/components/TextArea";
+
 import { createNewPost } from "@/lib/db/threads";
 
 interface Props {
@@ -61,7 +66,12 @@ export default function NewPostForm({ familyId, threadId }: Props) {
         }}
       >
         <div className={`${visible ? "" : "-translate-y-full"} transition-all`}>
-          <Card heading="Post Reply" headingColor="bg-emerald-200">
+          <Card
+            borderColor="border-teal-400"
+            flair={<Image alt="" className="p-2" src={replyIcon} width={48} />}
+            heading="Post Reply"
+            headingColor="bg-teal-200"
+          >
             {loading ? (
               <Loading />
             ) : (
@@ -83,31 +93,29 @@ export default function NewPostForm({ familyId, threadId }: Props) {
                   rows={5}
                   tabIndex={visible ? 0 : -1}
                 />
-
                 {error ? <div className="text-red-700">{error}</div> : null}
-
-                <button
-                  className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                <Button
+                  ariaHidden={!visible}
+                  style="submit"
                   tabIndex={visible ? 0 : -1}
                   type="submit"
                 >
-                  Submit
-                </button>
-
-                <button
-                  aria-hidden={!visible}
-                  aria-controls="new-post-form"
-                  aria-expanded={visible}
-                  className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+                  SUBMIT
+                </Button>
+                <Button
+                  ariaHidden={!visible}
+                  ariaControls="new-post-form"
+                  ariaExpanded={visible}
                   onClick={() => {
                     toggleVisible();
                     setAttempted(false);
                   }}
+                  style="cancel"
                   tabIndex={visible ? 0 : -1}
                   type="button"
                 >
-                  Cancel
-                </button>
+                  CANCEL
+                </Button>
               </form>
             )}
           </Card>
@@ -120,16 +128,16 @@ export default function NewPostForm({ familyId, threadId }: Props) {
     <>
       {showForm()}
       <div className="flex flex-col">
-        <button
-          aria-hidden={visible}
-          aria-controls="new-post-form"
-          aria-expanded={visible}
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+        <Button
+          ariaHidden={visible}
+          ariaControls="new-post-form"
+          ariaExpanded={visible}
           onClick={toggleVisible}
+          style="add"
           type="button"
         >
-          + Post reply
-        </button>
+          POST REPLY
+        </Button>
       </div>
     </>
   );
