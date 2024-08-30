@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
+import Button from "@/components/Button";
 import Loading from "@/components/Loading";
 
 import { joinFamily, removeInvite } from "@/lib/db/families";
@@ -65,21 +66,24 @@ export default function Invite({ familyInfo, invite }: Props) {
           {error ? (
             <div className="text-base font-bold text-red-700">{error}</div>
           ) : null}
-          <div className="flex flex-wrap gap-2 text-lg">
-            <button
-              className="flex-grow bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+          <div className="flex flex-col gap-2 text-lg">
+
+            <Button
               onClick={acceptInvite}
+              style="submit"
               type="button"
             >
-              Accept
-            </button>
-            <button
-              className="flex-grow bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+              ACCEPT
+            </Button>
+
+            <Button
               onClick={declineInvite}
+              style="cancel"
               type="button"
             >
-              Decline
-            </button>
+              DECLINE
+            </Button>
+
           </div>
         </>
       )}
