@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
+import newTaskIcon from "@/assets/icons/invoice-text-plus.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import DatePicker from "@/components/DatePicker";
 import Input from "@/components/Input";
@@ -64,8 +68,8 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
     if (memberInfo) {
       return (
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap gap-2 items-center">
-            <ProfileImage 
+          <div className="flex flex-wrap items-center gap-2">
+            <ProfileImage
               reloadTrigger={memberChanged}
               size={72}
               userId={memberInfo.id}
@@ -137,7 +141,7 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
     return (
       <div
         aria-hidden={visible}
-        className={`${visible ? null : "pointer-events-none opacity-0"} absolute left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
+        className={`${visible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -150,8 +154,12 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
       >
         <div className={`${visible ? "" : "-translate-y-full"} transition-all`}>
           <Card
-            heading={`${todoTitle} - New Task`}
-            headingColor="bg-emerald-200"
+            borderColor="border-sky-400"
+            flair={
+              <Image alt="" className="p-2" src={newTaskIcon} width={48} />
+            }
+            heading="New Task"
+            headingColor="bg-sky-200"
           >
             {loading ? (
               <Loading />
@@ -163,6 +171,10 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
                 noValidate
                 ref={formRef}
               >
+                <div>
+                  <span>Create new task for</span>
+                  <span className="font-bold">{` ${todoTitle}`}</span>
+                </div>
                 <Input
                   attempted={attempted}
                   clearTrigger={visible}
@@ -221,28 +233,29 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
 
                 {error ? <div className="text-red-700">{error}</div> : null}
 
-                <button
-                  className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+                <Button
+                  ariaHidden={!visible}
                   tabIndex={visible ? 0 : -1}
+                  style="submit"
                   type="submit"
                 >
-                  Submit
-                </button>
+                  SUBMIT
+                </Button>
 
-                <button
-                  aria-hidden={!visible}
-                  aria-controls="new-task-form"
-                  aria-expanded={visible}
-                  className="bg-rose-200 p-2 hover:bg-rose-300 focus:bg-rose-300"
+                <Button
+                  ariaHidden={!visible}
+                  ariaControls="new-task-form"
+                  ariaExpanded={visible}
                   onClick={() => {
                     toggleVisible();
                     clearForm();
                   }}
+                  style="cancel"
                   tabIndex={visible ? 0 : -1}
                   type="button"
                 >
-                  Cancel
-                </button>
+                  CANCEL
+                </Button>
               </form>
             )}
           </Card>
@@ -255,16 +268,16 @@ export default function NewTaskForm({ familyId, todoId, todoTitle }: Props) {
     <>
       {showForm()}
       <div className="flex flex-col">
-        <button
-          aria-hidden={visible}
-          aria-controls="new-task-form"
-          aria-expanded={visible}
-          className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
+        <Button
+          ariaHidden={visible}
+          ariaControls="new-task-form"
+          ariaExpanded={visible}
+          style="add"
           onClick={toggleVisible}
           type="button"
         >
-          + New task
-        </button>
+          NEW TASK
+        </Button>
       </div>
     </>
   );

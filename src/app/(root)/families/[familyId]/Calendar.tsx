@@ -3,9 +3,11 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import calendarIcon from "@/assets/icons/calendar-month.svg";
 import nextIcon from "@/assets/icons/chevron-right.svg";
 import prevIcon from "@/assets/icons/chevron-left.svg";
 import todayIcon from "@/assets/icons/calendar-today.svg";
+
 import Card from "@/components/Card";
 import Day from "./Day";
 import Loading from "@/components/Loading";
@@ -215,6 +217,7 @@ export default function Calendar() {
     return (
       <Card
         borderColor="border-fuchsia-400"
+        flair={<Image alt="" className="p-2" src={calendarIcon} width={48} />}
         heading="Event Calendar"
         headingColor="bg-fuchsia-200"
       >
@@ -235,6 +238,7 @@ export default function Calendar() {
   return (
     <Card
       borderColor="border-fuchsia-400"
+      flair={<Image alt="" className="p-2" src={calendarIcon} width={48} />}
       heading="Event Calendar"
       headingColor="bg-fuchsia-200"
     >

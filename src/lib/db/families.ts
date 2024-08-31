@@ -139,7 +139,7 @@ export const getAllUsersFamilies = cache(async (userId: number) => {
         WHERE family_id = f.id 
         AND member_id = $1
       ) 
-      ORDER BY f.surname
+      ORDER BY f.admin_id = $1 desc, f.surname
   `;
     const res = await pool.query(query, [userId]);
 

@@ -13,7 +13,8 @@ export default function ErrorPage({ error }: Props) {
   return (
     <div className="p-2 text-lg">
       <Card
-        flair={<Image alt="" src={alertIcon} />}
+        borderColor="border-red-600"
+        flair={<Image alt="" src={alertIcon} width={40} />}
         heading="Error"
         headingColor="bg-red-400"
       >

@@ -1,13 +1,16 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
-import getUserId from "@/lib/auth/user";
-import Card from "@/components/Card";
-import { getFamilyInfo } from "@/lib/db/families";
-import { getTasks, getTodoListInfo } from "@/lib/db/todos";
+import todoListIcon from "@/assets/icons/text-box.svg";
 
+import Card from "@/components/Card";
 import NewTaskForm from "./NewTaskForm";
 import Task from "./Task";
+
+import getUserId from "@/lib/auth/user";
+import { getFamilyInfo } from "@/lib/db/families";
+import { getTasks, getTodoListInfo } from "@/lib/db/todos";
 
 interface Params {
   params: {
@@ -76,7 +79,12 @@ export default async function TodoList({ params }: Params) {
 
   return (
     <main className="p-2 text-lg">
-      <Card heading={todoListInfo.title} headingColor="bg-emerald-200">
+      <Card
+        borderColor="border-sky-400"
+        flair={<Image alt="" className="p-2" src={todoListIcon} width={48} />}
+        heading={todoListInfo.title}
+        headingColor="bg-sky-200"
+      >
         <div className="flex flex-col gap-4">
           {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
           {showTasks()}

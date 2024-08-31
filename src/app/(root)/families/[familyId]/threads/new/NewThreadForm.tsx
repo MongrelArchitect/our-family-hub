@@ -1,15 +1,21 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 
+import threadIcon from "@/assets/icons/chat.svg";
+
+import Button from "@/components/Button";
 import Card from "@/components/Card";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 import TextArea from "@/components/TextArea";
+
 import { getFamilyInfo } from "@/lib/db/families";
 import { createNewThread } from "@/lib/db/threads";
+
 import FamilyInterface from "@/types/Families";
 
 interface Props {
@@ -64,11 +70,18 @@ export default function NewThreadForm({ familyId }: Props) {
 
   return (
     <form className="text-lg" action={submit} noValidate>
-      <Card heading="Create New Thread" headingColor="bg-emerald-200">
+      <Card
+        borderColor="border-teal-400"
+        flair={<Image alt="" className="p-2" src={threadIcon} width={48} />}
+        heading="Create New Thread"
+        headingColor="bg-teal-200"
+      >
         {loading ? (
           <Loading />
         ) : (
           <div className="flex flex-col gap-4">
+            A discussion thread requires a title and content. Wouldn&apos;t be
+            much of a thread without those!
             <Input
               attempted={attempted}
               errorText="Title required"
@@ -79,8 +92,7 @@ export default function NewThreadForm({ familyId }: Props) {
               required
               type="text"
             />
-
-            <TextArea 
+            <TextArea
               attempted={attempted}
               errorText="Content required"
               id="content"
@@ -90,17 +102,12 @@ export default function NewThreadForm({ familyId }: Props) {
               required
               rows={5}
             />
-
             {attempted && error ? (
               <div className="p-2 text-red-700">{error}</div>
             ) : null}
-
-            <button
-              className="bg-indigo-200 p-2 hover:bg-indigo-300 focus:bg-indigo-300"
-              type="submit"
-            >
-              Submit
-            </button>
+            <Button style="submit" type="submit">
+              SUBMIT
+            </Button>
             <Link
               className="font-bold text-violet-900 hover:underline focus:underline"
               href={`/families/${familyId}`}

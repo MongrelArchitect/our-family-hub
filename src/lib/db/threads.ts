@@ -150,7 +150,6 @@ export const getThreadPosts = cache(
       SELECT id, author_id, thread_id, content, created_at
       FROM posts
       WHERE thread_id = $3
-      AND family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
       ;
       `;

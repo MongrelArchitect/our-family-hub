@@ -1,6 +1,9 @@
 import Image from "next/image";
 
+import familiesIcon from "@/assets/icons/home-group.svg";
 import inviteIcon from "@/assets/icons/account-group.svg";
+
+import AllFamilies from "./AllFamilies";
 import Card from "@/components/Card";
 import Invite from "./Invite";
 
@@ -36,6 +39,16 @@ export default async function Home() {
   return (
     <main className="flex flex-col gap-2 p-2 text-xl">
       <h2 className="text-2xl">Welcome {user.name || ""}!</h2>
+
+      <Card
+        borderColor="border-emerald-400"
+        flair={<Image alt="" className="p-2" src={familiesIcon} width={48} />}
+        heading="My Families"
+        headingColor="bg-emerald-200"
+      >
+        <AllFamilies />
+      </Card>
+
       <Card
         borderColor="border-purple-400"
         flair={<Image alt="" className="p-2" src={inviteIcon} width={48} />}
@@ -44,6 +57,7 @@ export default async function Home() {
       >
         {showInvites()}
       </Card>
+
     </main>
   );
 }

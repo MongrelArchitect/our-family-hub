@@ -184,7 +184,6 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
       SELECT id, created_by, assigned_to, created_at, title, details, due_by, done
       FROM tasks
       WHERE todo_list_id = $3
-      AND family_id = $2
       AND EXISTS(SELECT 1 FROM member_check)
       ORDER BY due_by
     `;
