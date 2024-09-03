@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 
 import Button from "@/components/Button";
+import FamilyImage from "@/components/FamilyImage";
 import Loading from "@/components/Loading";
 
 import { joinFamily, removeInvite } from "@/lib/db/families";
@@ -51,41 +52,39 @@ export default function Invite({ familyInfo, invite }: Props) {
 
   return (
     <li className="border-2 border-slate-500 p-2">
-      <div className="font-bold">{`The ${familyInfo.surname} Family`}</div>
       {loading ? (
         <Loading />
       ) : (
-        <>
-          <div className="text-base">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-start justify-between gap-2">
             <div>
-              Members:{" "}
-              <span className="font-mono">{familyInfo.memberCount}</span>
+              <div className="font-bold">{`The ${familyInfo.surname} Family`}</div>
+              <div className="text-base">
+                <div>
+                  Members:{" "}
+                  <span className="font-mono">{familyInfo.memberCount}</span>
+                </div>
+                <div>{`Invited by: ${familyInfo.adminName}`}</div>
+                <div>{`Invite date: ${timestamp}`}</div>
+              </div>
             </div>
-            <div>{`Invited by ${familyInfo.adminName} on ${timestamp}`}</div>
+            <FamilyImage familyId={familyInfo.id} size={64} />
           </div>
+
           {error ? (
             <div className="text-base font-bold text-red-700">{error}</div>
           ) : null}
-          <div className="flex flex-col gap-2 text-lg">
 
-            <Button
-              onClick={acceptInvite}
-              style="submit"
-              type="button"
-            >
+          <div className="flex flex-col gap-2 text-lg">
+            <Button onClick={acceptInvite} style="submit" type="button">
               ACCEPT
             </Button>
 
-            <Button
-              onClick={declineInvite}
-              style="cancel"
-              type="button"
-            >
+            <Button onClick={declineInvite} style="cancel" type="button">
               DECLINE
             </Button>
-
           </div>
-        </>
+        </div>
       )}
     </li>
   );
