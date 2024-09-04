@@ -7,10 +7,12 @@ import editIcon from "@/assets/icons/home-edit.svg";
 
 import Button from "@/components/Button";
 import Card from "@/components/Card";
+import ImagePicker from "@/components/ImagePicker";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 
 import { editFamilySurname, getFamilySurname } from "@/lib/db/families";
+import { updateFamilyImage } from "@/lib/images/images";
 
 interface Props {
   familyId: number;
@@ -60,7 +62,7 @@ export default function EditForm({ familyId }: Props) {
     }
     return (
       <>
-        <p>Edit your family's surname below.</p>
+        <p>Edit your family's surname and image below.</p>
         <Input
           attempted={attempted}
           defaultValue={surname}
@@ -72,6 +74,12 @@ export default function EditForm({ familyId }: Props) {
           required
           type="text"
         />
+        <ImagePicker
+          attempted={attempted}
+          clearTrigger={false}
+          familyId={familyId}
+          id="family-image"
+        />
         {error ? <div className="text-red-700">{error}</div> : null}
         <Button style="submit" type="submit">
           SUBMIT
@@ -80,18 +88,32 @@ export default function EditForm({ familyId }: Props) {
     );
   };
 
+  const checkFormValidity = (formData: FormData) => {
+    const surnameInput = surnameRef.current;
+    const validSurname = surnameInput ? surnameInput.checkValidity() : false;
+    const validImage = +(formData.get(
+      "family-image-validity",
+    ) as unknown as number)
+      ? true
+      : false;
+    return validSurname && validImage;
+  };
+
   const submitForm = async (formData: FormData) => {
     setAttempted(true);
     setError(null);
-    const surnameInput = surnameRef.current;
-    const valid = surnameInput?.checkValidity() || false;
 
-    if (valid) {
+    if (checkFormValidity(formData)) {
       try {
         setLoading(true);
         // only perform the update the surname has actually been changed
         if (formData.get("surname") !== surname) {
           await editFamilySurname(familyId, formData);
+        }
+        // likewise for the image
+        const file = formData.get("family-image") as File;
+        if (file.size) {
+          await updateFamilyImage("family-image", familyId, formData);
         }
         setSuccess(true);
       } catch (err) {

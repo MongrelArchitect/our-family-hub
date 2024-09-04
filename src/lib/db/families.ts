@@ -50,6 +50,25 @@ export async function createNewFamily(formData: FormData): Promise<number> {
   }
 }
 
+export const checkIfUserIsAdmin = cache(async (familyId: number) => {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+      SELECT 1
+      FROM families
+      WHERE admin_id = $1
+      AND id = $2
+    `;
+    const result = await pool.query(query, [userId, familyId]);
+    return result.rowCount ? true : false;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
 export const checkIfUserIsFamilyMember = cache(
   async (familyId: number, userId: number): Promise<boolean> => {
     try {
@@ -70,6 +89,36 @@ export const checkIfUserIsFamilyMember = cache(
     }
   },
 );
+
+export const checkIfUserCanViewImage = cache(async (familyId: number) => {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+        WITH member_check AS (
+          SELECT 1
+          FROM family_members
+          WHERE member_id = $1
+          AND family_id = $2
+        ),
+        invite_check AS (
+          SELECT 1
+          FROM invites
+          WHERE user_id = $1
+          AND family_id = $2
+        )
+        SELECT 1
+        WHERE EXISTS (SELECT 1 FROM member_check)
+        OR EXISTS (SELECT 1 FROM invite_check)
+      `;
+    const result = await pool.query(query, [userId, familyId]);
+    return result.rowCount ? true : false;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
 
 export async function editFamilySurname(familyId: number, formData: FormData) {
   try {

@@ -22,6 +22,7 @@ interface Props {
 export default function EditImageForm({ userId }: Props) {
   const profile = useContext(ProfileContext);
 
+  const [attempted, setAttempted] = useState(false);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState(false);
@@ -30,27 +31,14 @@ export default function EditImageForm({ userId }: Props) {
     setEditing(!editing);
   };
 
-  const chooseInvalidFileError = (file: File) => {
-    if (!file.type.includes("image/")) {
-      return "File is not an image";
-    }
-    if (file.size > 21000000) {
-      return "Image is too large (20MB max)";
-    }
-    return null;
-  };
-
-  const checkValidImage = (file: File) => {
-    if (!file.type.includes("image/") || file.size > 21000000) {
-      return false;
-    }
-    return true;
-  };
-
   const submit = async (formData: FormData) => {
+    setAttempted(true);
     const file = formData.get("image-picker") as File;
+    const valid = +(formData.get("image-picker-validity") as unknown as number)
+      ? true
+      : false;
     if (file.name && file.size > 0) {
-      if (checkValidImage(file)) {
+      if (valid) {
         try {
           setLoading(true);
           await updateProfileImage("image-picker", formData);
@@ -67,11 +55,11 @@ export default function EditImageForm({ userId }: Props) {
         } finally {
           setLoading(false);
         }
-      } else {
-        setError(chooseInvalidFileError(file));
       }
     } else {
-      setError("No file chosen");
+      setError(null);
+      setAttempted(false);
+      toggleEditing();
     }
   };
 
@@ -86,6 +74,7 @@ export default function EditImageForm({ userId }: Props) {
           // prevent visibility toggling due to clicks bubbling up from input
           if (target.id === "grayout") {
             toggleEditing();
+            setAttempted(false);
             setError(null);
           }
         }}
@@ -106,12 +95,14 @@ export default function EditImageForm({ userId }: Props) {
               noValidate
             >
               <ImagePicker
+                attempted={attempted}
                 clearTrigger={editing}
                 forProfile
                 id="image-picker"
                 removeError={() => {
                   setError(null);
                 }}
+                required
                 tabIndex={editing ? 0 : -1}
                 userId={userId}
               />
@@ -137,6 +128,7 @@ export default function EditImageForm({ userId }: Props) {
                     ariaExpanded={editing}
                     onClick={() => {
                       toggleEditing();
+                      setAttempted(false);
                       setError(null);
                     }}
                     style="cancel"

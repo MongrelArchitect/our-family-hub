@@ -4,6 +4,8 @@ import Link from "next/link";
 import starIcon from "@/assets/icons/star.svg";
 import homeIcon from "@/assets/icons/home.svg";
 
+import FamilyImage from "@/components/FamilyImage";
+
 import getUserId from "@/lib/auth/user";
 import { getAllUsersFamilies } from "@/lib/db/families";
 
@@ -26,24 +28,39 @@ export default async function AllFamilies() {
         {families.map((family) => {
           const userIsAdmin = userId === family.adminId;
           return (
-            <li className="border-2 border-slate-500 p-2" key={family.id}>
-              <div className="flex flex-wrap items-center justify-between">
-                <Link
-                  className="font-bold text-violet-800 hover:underline focus:underline"
-                  href={`/families/${family.id}`}
-                  title={`${family.surname} family`}
-                >
-                  {`The ${family.surname} Family`}
-                </Link>
-                <Image alt="" className="p-2" src={userIsAdmin ? starIcon : homeIcon} width={40} />
+            <li
+              className="border-2 border-slate-500 p-2"
+              key={`family-${family.id}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <Link
+                    className="font-bold text-violet-800 hover:underline focus:underline"
+                    href={`/families/${family.id}`}
+                    title={`${family.surname} family`}
+                  >
+                    {`The ${family.surname} Family`}
+                  </Link>
+                  <div>
+                    <p className="text-base">
+                      <span>Members: </span>
+                      <span className="font-mono">{family.memberCount}</span>
+                    </p>
+                    <p className="text-base">
+                      Admin: {userIsAdmin ? "You" : family.adminName}
+                    </p>
+                  </div>
+                </div>
+                <div className="relative">
+                  <FamilyImage familyId={family.id} size={96} />
+                  <Image
+                    alt=""
+                    className="absolute bottom-0 right-0 rounded-full bg-white p-1 shadow shadow-slate-600"
+                    src={userIsAdmin ? starIcon : homeIcon}
+                    width={32}
+                  />
+                </div>
               </div>
-              <p className="text-base">
-                <span>Members: </span>
-                <span className="font-mono">{family.memberCount}</span>
-              </p>
-              <p className="text-base">
-                Admin: {userIsAdmin ? "You" : family.adminName}
-              </p>
             </li>
           );
         })}

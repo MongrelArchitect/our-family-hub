@@ -8,10 +8,12 @@ import newFamilyIcon from "@/assets/icons/home-plus.svg";
 
 import Button from "@/components/Button";
 import Card from "@/components/Card";
+import ImagePicker from "@/components/ImagePicker";
 import Input from "@/components/Input";
 import Loading from "@/components/Loading";
 
 import { createNewFamily } from "@/lib/db/families";
+import { addNewFamilyImage} from "@/lib/images/images";
 
 export default function NewFamilyForm() {
   const [attempted, setAttempted] = useState(false);
@@ -20,9 +22,14 @@ export default function NewFamilyForm() {
 
   const surnameRef = useRef<HTMLInputElement>(null);
 
-  const checkFormValidity = (): boolean => {
+  const checkFormValidity = (formData: FormData): boolean => {
     const surnameInput = surnameRef.current;
-    return surnameInput?.checkValidity() || false;
+    const validImage = +(formData.get(
+      "new-family-image-validity",
+    ) as unknown as number)
+      ? true
+      : false;
+    return (surnameInput?.checkValidity() && validImage) || false;
   };
 
   const router = useRouter();
@@ -30,11 +37,12 @@ export default function NewFamilyForm() {
   const submit = async (formData: FormData) => {
     setAttempted(true);
     setError(null);
-    if (checkFormValidity()) {
+    if (checkFormValidity(formData)) {
       try {
         // add the new family to the db, getting its id in return
         setLoading(true);
         const familyId = await createNewFamily(formData);
+        await addNewFamilyImage("new-family-image", familyId, formData);
         router.push(`/families/${familyId}`);
       } catch (err) {
         setLoading(false);
@@ -66,6 +74,12 @@ export default function NewFamilyForm() {
               ref={surnameRef}
               required
               type="text"
+            />
+            Choose an image to represent your family (optional).
+            <ImagePicker
+              attempted={attempted}
+              clearTrigger={false}
+              id="new-family-image"
             />
             {attempted && error ? (
               <div className="p-2 text-red-700">{error}</div>

@@ -10,6 +10,7 @@ import removeIcon from "@/assets/icons/account-cancel.svg";
 import starIcon from "@/assets/icons/star.svg";
 
 import Card from "@/components/Card";
+import FamilyImage from "@/components/FamilyImage";
 
 import FamilyInterface from "@/types/Families";
 
@@ -86,39 +87,45 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
       headingColor={userIsAdmin ? "bg-emerald-200" : "bg-emerald-200"}
     >
       <div className="flex flex-col gap-2">
-        <p>
-          <span>Members: </span>
-          <span className="font-mono">
-            <Link
-              className="font-bold text-violet-800 hover:underline focus:underline"
-              href={`/families/${family.id}/members`}
-              title="View members"
-            >
-              {family.memberCount}
-            </Link>
-          </span>
-        </p>
-        <p>
-          Admin:{" "}
-          {userIsAdmin ? (
-            <Link
-              className="font-bold text-violet-800 hover:underline focus:underline"
-              href={`/users/${userId}`}
-              title="View your profile"
-            >
-              You
-            </Link>
-          ) : (
-            <Link
-              className="font-bold text-violet-800 hover:underline focus:underline"
-              href={`/users/${family.adminId}`}
-              title={`View ${family.adminName}'s profile`}
-            >
-              {family.adminName}
-            </Link>
-          )}
-        </p>
         {userIsAdmin ? showAdminControls() : null}
+        <div className="flex items-start gap-2">
+          <FamilyImage familyId={family.id} size={192} />
+          <div className="flex flex-col gap-2">
+            <p>
+              <span>Members: </span>
+              <span className="font-mono">
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/families/${family.id}/members`}
+                  title="View members"
+                >
+                  {family.memberCount}
+                </Link>
+              </span>
+            </p>
+
+            <p>
+              Admin:{" "}
+              {userIsAdmin ? (
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/users/${userId}`}
+                  title="View your profile"
+                >
+                  You
+                </Link>
+              ) : (
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/users/${family.adminId}`}
+                  title={`View ${family.adminName}'s profile`}
+                >
+                  {family.adminName}
+                </Link>
+              )}
+            </p>
+          </div>
+        </div>
       </div>
     </Card>
   );
