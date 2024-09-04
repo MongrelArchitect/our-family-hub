@@ -12,9 +12,5 @@ export default async function NewTodolist({
   params: { familyId: string };
 }) {
   const familyId = +params.familyId;
-  return (
-    <main className="p-2">
-      <NewTodoListForm familyId={familyId} />
-    </main>
-  );
+  return <NewTodoListForm familyId={familyId} />;
 }

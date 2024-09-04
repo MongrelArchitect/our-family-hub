@@ -62,7 +62,7 @@ export default function RemoveForm({ familyId }: Props) {
     if (memberInfo) {
       return (
         <div className="flex flex-wrap items-start gap-2">
-          <ProfileImage size={64} userId={memberInfo.id} />
+          <ProfileImage size={128} userId={memberInfo.id} />
           <div className="break-all">
             <p>{memberInfo.name}</p>
             <p>{memberInfo.email}</p>

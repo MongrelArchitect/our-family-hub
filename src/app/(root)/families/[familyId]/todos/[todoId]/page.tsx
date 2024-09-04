@@ -78,27 +78,25 @@ export default async function TodoList({ params }: Params) {
   };
 
   return (
-    <main className="p-2 text-lg">
-      <Card
-        borderColor="border-sky-400"
-        flair={<Image alt="" className="p-2" src={todoListIcon} width={48} />}
-        heading={todoListInfo.title}
-        headingColor="bg-sky-200"
-      >
-        <div className="flex flex-col gap-4">
-          {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
-          {showTasks()}
-          <NewTaskForm
-            familyId={familyId}
-            todoId={todoId}
-            todoTitle={todoListInfo.title}
-          />
-          <Link
-            className="font-bold text-violet-800 hover:underline focus:underline"
-            href={`/families/${familyId}`}
-          >{`Back to The ${familyInfo.surname} Family`}</Link>
-        </div>
-      </Card>
-    </main>
+    <Card
+      borderColor="border-sky-400"
+      flair={<Image alt="" className="p-2" src={todoListIcon} width={48} />}
+      heading={todoListInfo.title}
+      headingColor="bg-sky-200"
+    >
+      <div className="flex flex-col gap-4">
+        {todoListInfo.description ? <p>{todoListInfo.description}</p> : null}
+        {showTasks()}
+        <NewTaskForm
+          familyId={familyId}
+          todoId={todoId}
+          todoTitle={todoListInfo.title}
+        />
+        <Link
+          className="font-bold text-violet-800 hover:underline focus:underline"
+          href={`/families/${familyId}`}
+        >{`Back to The ${familyInfo.surname} Family`}</Link>
+      </div>
+    </Card>
   );
 }

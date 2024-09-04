@@ -67,7 +67,7 @@ export default function EditImageForm({ userId }: Props) {
     return (
       <div
         aria-hidden={editing}
-        className={`${editing ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
+        className={`${editing ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 flex h-screen w-full flex-col items-center bg-neutral-600/20 backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -79,7 +79,9 @@ export default function EditImageForm({ userId }: Props) {
           }
         }}
       >
-        <div className={`${editing ? "" : "-translate-y-full"} transition-all`}>
+        <div
+          className={`${editing ? "" : "-translate-y-full"} w-full max-w-[500px] transition-all`}
+        >
           <Card
             borderColor="border-green-400"
             flair={

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import editIcon from "@/assets/icons/home-edit.svg";
+import familyIcon from "@/assets/icons/home.svg";
 import inviteIcon from "@/assets/icons/account-plus.svg";
 import removeIcon from "@/assets/icons/account-cancel.svg";
 import starIcon from "@/assets/icons/star.svg";
@@ -81,7 +82,9 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
           >
             <Image alt="" className="p-2" src={starIcon} width={40} />
           </button>
-        ) : null
+        ) : (
+          <Image alt="" className="p-2" src={familyIcon} width={48} />
+        )
       }
       heading={`The ${family.surname} Family`}
       headingColor={userIsAdmin ? "bg-emerald-200" : "bg-emerald-200"}

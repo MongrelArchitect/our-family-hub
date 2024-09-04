@@ -73,15 +73,10 @@ export default async function FamilyPage({
     return <p>No discussion threads yet.</p>;
   };
 
-
   return (
-    <main className="flex flex-col gap-4 p-2 text-lg">
+    <div className="flex w-full flex-col gap-4 text-lg">
       {/* FAMILY INFO */}
-      <FamilyInfo 
-        userId={userId}
-        userIsAdmin={userIsAdmin}
-        family={family}
-      />
+      <FamilyInfo userId={userId} userIsAdmin={userIsAdmin} family={family} />
 
       <div className="flex grid-cols-2 grid-rows-[auto_1fr] flex-col gap-2 md:grid">
         {/* TODO LISTS */}
@@ -123,6 +118,6 @@ export default async function FamilyPage({
         {/* EVENT CALENDAR */}
         <Calendar />
       </div>
-    </main>
+    </div>
   );
 }

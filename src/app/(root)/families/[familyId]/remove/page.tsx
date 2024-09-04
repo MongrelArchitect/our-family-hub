@@ -6,9 +6,5 @@ export default async function Invite({
   params: { familyId: string };
 }) {
   const familyId = +params.familyId;
-  return (
-    <main className="flex flex-col p-2">
-      <RemoveForm familyId={familyId} />
-    </main>
-  );
+  return <RemoveForm familyId={familyId} />;
 }

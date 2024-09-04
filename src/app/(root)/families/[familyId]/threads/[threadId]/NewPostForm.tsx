@@ -54,7 +54,7 @@ export default function NewPostForm({ familyId, threadId }: Props) {
     return (
       <div
         aria-hidden={visible}
-        className={`${visible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 backdrop-blur-sm transition-all`}
+        className={`${visible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 flex h-screen w-full flex-col items-center bg-neutral-600/20 backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -65,7 +65,9 @@ export default function NewPostForm({ familyId, threadId }: Props) {
           }
         }}
       >
-        <div className={`${visible ? "" : "-translate-y-full"} transition-all`}>
+        <div
+          className={`${visible ? "" : "-translate-y-full"} w-full max-w-[500px] transition-all`}
+        >
           <Card
             borderColor="border-teal-400"
             flair={<Image alt="" className="p-2" src={replyIcon} width={48} />}
