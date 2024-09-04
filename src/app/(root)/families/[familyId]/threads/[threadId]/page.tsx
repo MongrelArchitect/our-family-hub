@@ -91,7 +91,7 @@ export default async function Thread({ params }: Params) {
         </div>
       </Card>
       {posts.map((post) => {
-        return <Post post={post} />;
+        return <Post key={`post-${post.id}`} post={post} />;
       })}
     </div>
   );

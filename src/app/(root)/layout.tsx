@@ -9,7 +9,7 @@ import logoIcon from "@/assets/icons/logo-white.png";
 import ProfileContextProvider from "@/contexts/Profile";
 
 import Sidebar from "./Sidebar";
-import CurrentUserImage from "./UserImage";
+import TopNav from "./TopNav";
 
 import "@/app/globals.css";
 
@@ -48,25 +48,21 @@ export default async function RootLayout({
               <Sidebar />
             </div>
 
-            <div className="flex select-none items-center gap-2 p-2">
-              <Image alt="" src={logoIcon} width="40" />
-              <h1 className="text-2xl">
-                <b>Our Family Hub</b>
-              </h1>
+            <div className="flex w-full select-none items-center justify-between gap-2 p-2">
+              <div className="flex items-center gap-2">
+                <Image alt="" src={logoIcon} width="40" />
+                <h1 className="text-2xl">
+                  <b>Our Family Hub</b>
+                </h1>
+              </div>
+              <TopNav />
             </div>
           </div>
 
-          <div className="flex h-full flex-col overflow-hidden lg:grid lg:grid-cols-[auto_1fr]">
-            {/* sidebar for larger screens */}
-            <div className="border-r-[3px] border-violet-400 max-lg:hidden">
-              <Sidebar />
-            </div>
-
-            {/* MAIN CONTENT*/}
-            <main className="overflow-auto border-t-[2px] border-violet-400 p-2">
-              {children}
-            </main>
-          </div>
+          {/* MAIN CONTENT*/}
+          <main className="overflow-auto border-t-[2px] border-violet-400 p-2">
+            {children}
+          </main>
         </body>
       </html>
     </ProfileContextProvider>
