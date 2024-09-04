@@ -5,9 +5,12 @@ import ProfileImage from "./ProfileImage";
 
 import noImageIcon from "@/assets/icons/image-off-outline.svg";
 
+import FamilyImage from "./FamilyImage";
+
 interface Props {
   attempted: boolean;
   clearTrigger: boolean;
+  familyId?: number;
   forProfile?: boolean;
   id: string;
   removeError?: () => void;
@@ -42,6 +45,7 @@ function prettyBytes(bytes: number) {
 export default function ImagePicker({
   attempted,
   clearTrigger,
+  familyId,
   forProfile,
   id,
   removeError,
@@ -53,7 +57,7 @@ export default function ImagePicker({
 
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [valid, setValid] = useState(!required);
+  const [valid, setValid] = useState(familyId ? true : !required);
 
   useEffect(() => {
     const input = filePickerRef.current;
@@ -62,7 +66,7 @@ export default function ImagePicker({
     }
     setFile(null);
     setError(null);
-    setValid(!required);
+    setValid(familyId ? true : !required);
   }, [clearTrigger]);
 
   const displayImageInfo = () => {
@@ -82,8 +86,14 @@ export default function ImagePicker({
   const displayImagePreview = () => {
     if (file) {
       return (
-        <img alt="" className="max-h-32" src={URL.createObjectURL(file)} />
+        <img alt="" className="max-h-40" src={URL.createObjectURL(file)} />
       );
+    }
+    if (familyId) {
+      return <FamilyImage 
+        familyId={familyId}
+        size={160}
+      />
     }
     return <Image alt="" src={noImageIcon} width={128} />;
   };

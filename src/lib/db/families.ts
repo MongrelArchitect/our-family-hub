@@ -50,6 +50,25 @@ export async function createNewFamily(formData: FormData): Promise<number> {
   }
 }
 
+export const checkIfUserIsAdmin = cache(async (familyId: number) => {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+      SELECT 1
+      FROM families
+      WHERE admin_id = $1
+      AND id = $2
+    `;
+    const result = await pool.query(query, [userId, familyId]);
+    return result.rowCount ? true : false;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
 export const checkIfUserIsFamilyMember = cache(
   async (familyId: number, userId: number): Promise<boolean> => {
     try {

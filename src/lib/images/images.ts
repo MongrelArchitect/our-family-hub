@@ -5,6 +5,10 @@ import { fileTypeFromBlob } from "file-type";
 
 import getUserId from "../auth/user";
 
+import { checkIfUserIsAdmin } from "../db/families";
+
+const FAMILY_IMAGE_SIZE = 640;
+
 export async function addNewFamilyImage(
   name: string,
   familyId: number,
@@ -12,7 +16,6 @@ export async function addNewFamilyImage(
 ) {
   const file = formData.get(name) as File;
   const surname = formData.get("surname") as string;
-  const SIZE = 640;
   if (!surname) {
     throw new Error("Missing surname");
   }
@@ -21,15 +24,15 @@ export async function addNewFamilyImage(
     const firstLetter = surname[0].toUpperCase();
 
     const svg = `
-    <svg width="${SIZE}" height="${SIZE}" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${FAMILY_IMAGE_SIZE}" height="${FAMILY_IMAGE_SIZE}" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="#ddd6fe"/>
-      <text x="${SIZE / 2}" y="${SIZE / 2 + 96}" font-size="320" font-weight="bold" fill="black" dominant-baseline="middle" text-anchor="middle" font-family="Arial">
+      <text x="${FAMILY_IMAGE_SIZE / 2}" y="${FAMILY_IMAGE_SIZE / 2 + 96}" font-size="320" font-weight="bold" fill="black" dominant-baseline="middle" text-anchor="middle" font-family="Arial">
         ${firstLetter}
       </text>
     </svg>
   `;
     await sharp(Buffer.from(svg))
-      .resize(SIZE, SIZE, { fit: "fill" })
+      .resize(FAMILY_IMAGE_SIZE, FAMILY_IMAGE_SIZE, { fit: "fill" })
       .webp()
       .toFile(`./src/uploads/families/${familyId}.webp`);
   } else {
@@ -43,10 +46,33 @@ export async function addNewFamilyImage(
     }
     const buffer = await file.arrayBuffer();
     await sharp(buffer)
-      .resize(SIZE, SIZE, { fit: "inside" })
+      .resize(FAMILY_IMAGE_SIZE, FAMILY_IMAGE_SIZE, { fit: "inside" })
       .webp()
       .toFile(`./src/uploads/families/${familyId}.webp`);
   }
+}
+export async function updateFamilyImage(
+  name: string,
+  familyId: number,
+  formData: FormData,
+) {
+  const userIsAdmin = await checkIfUserIsAdmin(familyId);
+  if (!userIsAdmin) {
+    throw new Error("Only family admin can change image");
+  }
+  const file = formData.get(name) as File;
+  const fileInfo = await fileTypeFromBlob(file);
+  if (!fileInfo || !fileInfo.mime.includes("image")) {
+    throw new Error("File is not an image");
+  }
+  if (file.size > 21000000) {
+    throw new Error("Image is too large (20MB max)");
+  }
+  const buffer = await file.arrayBuffer();
+  await sharp(buffer)
+    .resize(FAMILY_IMAGE_SIZE, FAMILY_IMAGE_SIZE, { fit: "inside" })
+    .webp()
+    .toFile(`./src/uploads/families/${familyId}.webp`);
 }
 
 export async function updateProfileImage(name: string, formData: FormData) {
