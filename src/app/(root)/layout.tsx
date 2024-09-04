@@ -37,7 +37,7 @@ export default async function RootLayout({
   return (
     <ProfileContextProvider>
       <html
-        className={`${inter.className} flex flex-col items-center bg-neutral-100 text-lg`}
+        className={`${inter.className} flex flex-col items-center bg-[url('/background.webp')] bg-cover bg-center text-lg`}
         lang="en"
       >
         <body className="flex h-screen w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
