@@ -77,7 +77,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
             aria-expanded={controlsVisible ? "true" : "false"}
             className="rounded-full border-2 border-orange-400 bg-neutral-100 hover:bg-amber-300 focus:bg-amber-300"
             onClick={toggleControlsVisible}
-            title="Open admin controls"
+            title={`${controlsVisible ? "Close" : "Open"} admin controls`}
             type="button"
           >
             <Image alt="" className="p-2" src={starIcon} width={40} />

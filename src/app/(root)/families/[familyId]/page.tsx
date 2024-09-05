@@ -75,48 +75,60 @@ export default async function FamilyPage({
 
   return (
     <div className="flex w-full flex-col gap-4 text-lg">
-      {/* FAMILY INFO */}
-      <FamilyInfo userId={userId} userIsAdmin={userIsAdmin} family={family} />
-
-      <div className="flex grid-cols-2 grid-rows-[auto_1fr] flex-col gap-2 md:grid">
-        {/* TODO LISTS */}
-        <Card
-          borderColor="border-sky-400"
-          flair={
-            <Link
-              className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
-              href={`/families/${familyId}/todos/new`}
-              title="Create new todo list"
-            >
-              <Image alt="" className="p-2" src={todoListIcon} width={40} />
-            </Link>
-          }
-          heading="Todo Lists"
-          headingColor="bg-sky-200"
-        >
-          {showTodoListSummaries()}
-        </Card>
-
-        {/* DISCUSSION THREADS */}
-        <Card
-          borderColor="border-teal-400"
-          flair={
-            <Link
-              className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
-              href={`/families/${familyId}/threads/new`}
-              title="Create new discussion thread"
-            >
-              <Image alt="" className="p-2" src={threadIcon} width={40} />
-            </Link>
-          }
-          heading="Discussion Threads"
-          headingColor="bg-teal-200"
-        >
-          {showThreadSummaries()}
-        </Card>
+      <div className="flex max-md:flex-col gap-4">
+        <div className="flex flex-col w-full gap-4">
+          {/* FAMILY INFO */}
+          <FamilyInfo
+            userId={userId}
+            userIsAdmin={userIsAdmin}
+            family={family}
+          />
 
         {/* EVENT CALENDAR */}
-        <Calendar />
+        <div className="w-full md:hidden">
+          <Calendar />
+        </div>
+
+          {/* TODO LISTS */}
+          <Card
+            borderColor="border-sky-400"
+            flair={
+              <Link
+                className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
+                href={`/families/${familyId}/todos/new`}
+                title="Create new todo list"
+              >
+                <Image alt="" className="p-2" src={todoListIcon} width={40} />
+              </Link>
+            }
+            heading="Todo Lists"
+            headingColor="bg-sky-200"
+          >
+            {showTodoListSummaries()}
+          </Card>
+
+          {/* DISCUSSION THREADS */}
+          <Card
+            borderColor="border-teal-400"
+            flair={
+              <Link
+                className="rounded-full border-2 border-indigo-400 bg-neutral-100 hover:bg-indigo-300 focus:bg-indigo-300"
+                href={`/families/${familyId}/threads/new`}
+                title="Create new discussion thread"
+              >
+                <Image alt="" className="p-2" src={threadIcon} width={40} />
+              </Link>
+            }
+            heading="Discussion Threads"
+            headingColor="bg-teal-200"
+          >
+            {showThreadSummaries()}
+          </Card>
+        </div>
+        {/* EVENT CALENDAR */}
+        <div className="w-full max-md:hidden">
+          <Calendar />
+        </div>
       </div>
     </div>
   );
