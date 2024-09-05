@@ -3,15 +3,17 @@ import { Inter } from "next/font/google";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
+import "@/app/globals.css";
+
 import { auth } from "@/auth";
 
 import logoIcon from "@/assets/icons/logo-white.png";
-import ProfileContextProvider from "@/contexts/Profile";
 
+import Footer from "@/components/Footer";
 import Sidebar from "./Sidebar";
 import TopNav from "./TopNav";
 
-import "@/app/globals.css";
+import ProfileContextProvider from "@/contexts/Profile";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -63,6 +65,7 @@ export default async function RootLayout({
           <main className="overflow-auto border-t-[2px] border-violet-400 p-2">
             {children}
           </main>
+          <Footer />
         </body>
       </html>
     </ProfileContextProvider>
