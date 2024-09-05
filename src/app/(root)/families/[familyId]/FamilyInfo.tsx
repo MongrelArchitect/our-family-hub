@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import editIcon from "@/assets/icons/home-edit.svg";
+import familyIcon from "@/assets/icons/home.svg";
 import inviteIcon from "@/assets/icons/account-plus.svg";
 import removeIcon from "@/assets/icons/account-cancel.svg";
 import starIcon from "@/assets/icons/star.svg";
@@ -76,12 +77,14 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
             aria-expanded={controlsVisible ? "true" : "false"}
             className="rounded-full border-2 border-orange-400 bg-neutral-100 hover:bg-amber-300 focus:bg-amber-300"
             onClick={toggleControlsVisible}
-            title="Open admin controls"
+            title={`${controlsVisible ? "Close" : "Open"} admin controls`}
             type="button"
           >
             <Image alt="" className="p-2" src={starIcon} width={40} />
           </button>
-        ) : null
+        ) : (
+          <Image alt="" className="p-2" src={familyIcon} width={48} />
+        )
       }
       heading={`The ${family.surname} Family`}
       headingColor={userIsAdmin ? "bg-emerald-200" : "bg-emerald-200"}

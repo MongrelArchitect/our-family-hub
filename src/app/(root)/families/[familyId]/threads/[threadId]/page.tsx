@@ -48,13 +48,13 @@ export default async function Thread({ params }: Params) {
   const posts = await getThreadPosts(familyId, threadId);
 
   return (
-    <main className="flex flex-col gap-4 p-2 text-lg">
+    <div className="flex flex-col gap-4">
       <Card
         borderColor="border-teal-400"
         flair={
           <div className="relative">
             <Image alt="" className="p-2" src={threadIcon} width={48} />
-            <span className="absolute left-[20px] top-[14px] font-mono text-sm text-white">
+            <span className="absolute left-[19px] top-[13px] font-mono text-sm text-white">
               {threadInfo.postCount}
             </span>
           </div>
@@ -91,8 +91,8 @@ export default async function Thread({ params }: Params) {
         </div>
       </Card>
       {posts.map((post) => {
-        return <Post post={post} />;
+        return <Post key={`post-${post.id}`} post={post} />;
       })}
-    </main>
+    </div>
   );
 }

@@ -1,3 +1,5 @@
+import { Josefin_Sans } from "next/font/google";
+
 interface Props {
   borderColor: string;
   children: React.ReactNode;
@@ -5,6 +7,8 @@ interface Props {
   heading: string;
   headingColor: string;
 }
+
+const josefin = Josefin_Sans({ subsets: ["latin"], display: "swap" });
 
 export default function Card({
   borderColor,
@@ -18,9 +22,9 @@ export default function Card({
       className={`${borderColor} flex flex-col rounded-t-2xl border-t-4 bg-slate-100 shadow-md shadow-slate-500`}
     >
       <h2
-        className={`${headingColor} flex flex-wrap items-center justify-between rounded-t-2xl p-2 text-2xl`}
+        className={`${headingColor} ${josefin.className} flex flex-wrap items-center justify-between rounded-t-2xl p-2 text-2xl`}
       >
-        <span>{heading}</span>
+        <span className="font-semibold">{heading}</span>
         {flair || null}
       </h2>
       <div className="p-2">{children}</div>

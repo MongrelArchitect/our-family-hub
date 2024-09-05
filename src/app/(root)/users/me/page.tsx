@@ -18,7 +18,6 @@ export default async function MyProfile() {
   const userInfo = await getUsersOwnInfo();
 
   return (
-    <main className="p-2 text-lg">
       <Card
         borderColor="border-green-400"
         flair={<Image alt="" className="p-2" src={profileIcon} width={48} />}
@@ -41,6 +40,5 @@ export default async function MyProfile() {
           </div>
         </div>
       </Card>
-    </main>
   );
 }

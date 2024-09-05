@@ -9,7 +9,7 @@ import logoIcon from "@/assets/icons/logo-white.png";
 import ProfileContextProvider from "@/contexts/Profile";
 
 import Sidebar from "./Sidebar";
-import CurrentUserImage from "./UserImage";
+import TopNav from "./TopNav";
 
 import "@/app/globals.css";
 
@@ -36,39 +36,35 @@ export default async function RootLayout({
 
   return (
     <ProfileContextProvider>
-    <html className={inter.className} lang="en">
-      <body className="grid h-screen grid-rows-[auto_1fr] bg-neutral-200">
-        {/* HEADER */}
-        <div className="relative flex items-center bg-violet-200 lg:justify-between">
-          {/* sidebar for smaller screens */}
-          <div className="flex-shrink-0 lg:hidden">
-            <Sidebar />
-          </div>
+      <html
+        className={`${inter.className} flex flex-col items-center bg-[url('/background.webp')] bg-cover bg-center text-lg`}
+        lang="en"
+      >
+        <body className="flex h-screen w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
+          {/* HEADER */}
+          <div className="relative flex items-center bg-violet-200">
+            {/* sidebar for smaller screens */}
+            <div className="flex-shrink-0 lg:hidden">
+              <Sidebar />
+            </div>
 
-          <div className="flex select-none flex-wrap items-center gap-2 p-2">
-            <Image alt="" src={logoIcon} width="40" />
-            <h1 className="text-2xl">
-              <b>Our Family Hub</b>
-            </h1>
-          </div>
-          <div className="flex-grow-0 p-2 max-lg:hidden">
-            <CurrentUserImage userId={+session.user.id} size={40} />
-          </div>
-        </div>
-
-        <div className="lg:grid lg:grid-cols-[auto_1fr]">
-          {/* sidebar for larger screens */}
-          <div className="max-lg:hidden">
-            <Sidebar />
+            <div className="flex w-full select-none items-center justify-between gap-2 p-2">
+              <div className="flex items-center gap-2">
+                <Image alt="" src={logoIcon} width="40" />
+                <h1 className="text-2xl">
+                  <b>Our Family Hub</b>
+                </h1>
+              </div>
+              <TopNav />
+            </div>
           </div>
 
           {/* MAIN CONTENT*/}
-          <div className="border-t-2 border-violet-400 lg:border-l-2">
+          <main className="overflow-auto border-t-[2px] border-violet-400 p-2">
             {children}
-          </div>
-        </div>
-      </body>
-    </html>
+          </main>
+        </body>
+      </html>
     </ProfileContextProvider>
   );
 }

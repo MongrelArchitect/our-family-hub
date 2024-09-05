@@ -65,7 +65,7 @@ export default function Day({
     return (
       <div
         aria-hidden={detailsVisible}
-        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 font-sans backdrop-blur-sm transition-all`}
+        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 font-sans backdrop-blur-sm transition-all flex flex-col items-center`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -78,7 +78,7 @@ export default function Day({
         }}
       >
         <div
-          className={`${detailsVisible ? "" : "-translate-y-full"} transition-all`}
+          className={`${detailsVisible ? "" : "-translate-y-full"} transition-all max-w-[500px] w-full`}
         >
           <Card
             borderColor="border-fuchsia-400"

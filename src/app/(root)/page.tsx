@@ -1,3 +1,4 @@
+import { Josefin_Sans } from "next/font/google";
 import Image from "next/image";
 
 import familiesIcon from "@/assets/icons/home-group.svg";
@@ -5,10 +6,13 @@ import inviteIcon from "@/assets/icons/account-group.svg";
 
 import AllFamilies from "./AllFamilies";
 import Card from "@/components/Card";
+import CurrentUserImage from "./UserImage";
 import Invite from "./Invite";
 
 import { getUsersInvites, getUsersOwnInfo } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
+
+const josefin = Josefin_Sans({ subsets: ["latin"], display: "swap" });
 
 export default async function Home() {
   const user = await getUsersOwnInfo();
@@ -37,8 +41,15 @@ export default async function Home() {
   };
 
   return (
-    <main className="flex flex-col gap-2 p-2 text-xl">
-      <h2 className="text-2xl">Welcome {user.name || ""}!</h2>
+    <div className="flex w-full flex-col gap-4 md:grid md:grid-cols-2 md:grid-rows-[auto_1fr]">
+      <div className="col-start-1 col-end-3 flex flex-wrap items-center justify-between gap-2 rounded-2xl border-t-4 border-neutral-400 bg-slate-100 p-2 shadow-md shadow-slate-500">
+        <h2
+          className={`${josefin.className} flex flex-wrap items-center justify-between rounded-2xl bg-neutral-100 text-2xl font-semibold`}
+        >
+          {user.name || ""}
+        </h2>
+        <CurrentUserImage size={48} userId={user.id} />
+      </div>
 
       <Card
         borderColor="border-emerald-400"
@@ -57,7 +68,6 @@ export default async function Home() {
       >
         {showInvites()}
       </Card>
-
-    </main>
+    </div>
   );
 }

@@ -55,29 +55,27 @@ export default async function UserProfile({ params }: Props) {
   }
 
   return (
-    <main className="p-2 text-lg">
-      <Card
-        borderColor="border-green-400"
-        flair={<Image alt="" className="p-2" src={profileIcon} width={48} />}
-        heading="User Profile"
-        headingColor="bg-green-200"
-      >
-        <div className="flex flex-wrap items-center gap-4">
-          <ProfileImage size={96} userId={userInfo.id} />
-          <div>
-            <p>{userInfo.name}</p>
-            <p className="break-all text-base">{userInfo.email}</p>
-            <div className="flex flex-wrap text-base">
-              Joined:{" "}
-              <LocalTime dateOnly timestampFromServer={userInfo.createdAt} />
-            </div>
-            <div className="flex flex-wrap text-base">
-              Last login:{" "}
-              <LocalTime dateOnly timestampFromServer={userInfo.lastLoginAt} />
-            </div>
+    <Card
+      borderColor="border-green-400"
+      flair={<Image alt="" className="p-2" src={profileIcon} width={48} />}
+      heading="User Profile"
+      headingColor="bg-green-200"
+    >
+      <div className="flex flex-wrap items-center gap-4">
+        <ProfileImage size={96} userId={userInfo.id} />
+        <div>
+          <p>{userInfo.name}</p>
+          <p className="break-all text-base">{userInfo.email}</p>
+          <div className="flex flex-wrap text-base">
+            Joined:{" "}
+            <LocalTime dateOnly timestampFromServer={userInfo.createdAt} />
+          </div>
+          <div className="flex flex-wrap text-base">
+            Last login:{" "}
+            <LocalTime dateOnly timestampFromServer={userInfo.lastLoginAt} />
           </div>
         </div>
-      </Card>
-    </main>
+      </div>
+    </Card>
   );
 }

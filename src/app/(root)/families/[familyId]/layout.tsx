@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
 import getUserId from "@/lib/auth/user";
@@ -42,13 +43,8 @@ export default async function RootLayout({
   const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId, userId);
 
   if (!userIsFamilyMember) {
-    // don't divulge family existence - just inform about membership requirement
-    return (
-      <main className="p-2">
-        <h2 className="text-2xl">Not Family Member</h2>
-        <p>Only family members can veiw this page</p>
-      </main>
-    );
+    // don't divulge family existence - just 404
+    notFound();
   }
 
   return children;

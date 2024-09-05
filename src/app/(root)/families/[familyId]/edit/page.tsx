@@ -6,9 +6,5 @@ export default async function EditFamily({
   params: { familyId: string };
 }) {
   const familyId = +params.familyId;
-  return (
-    <main className="flex flex-col p-2">
-      <EditForm familyId={familyId} />
-    </main>
-  );
+  return <EditForm familyId={familyId} />;
 }
