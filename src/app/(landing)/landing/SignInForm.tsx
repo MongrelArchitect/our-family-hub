@@ -1,31 +1,55 @@
-import { signIn } from "@/auth";
+"use client";
+import Link from "next/link";
+import { useState } from "react";
 
-import Image from "next/image";
-import googleIcon from "@/assets/icons/google-logo.png";
+import { logIn } from "@/lib/auth/user";
+
+import Button from "@/components/Button";
 
 export default function SignInForm() {
+  const [accepted, setAccepted] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleChange = (event: React.SyntheticEvent) => {
+    const target = event.target as HTMLInputElement;
+    setAccepted(target.checked);
+    setMessage(null);
+  };
+
+  const handleClick = () => {
+    setMessage("You must accept the terms and conditions to use Our Family Hub.");
+  };
+
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn("google");
-      }}
-      className="flex flex-col gap-2 bg-white p-2 text-lg"
-    >
-      <hr className="border-1 border-violet-300" />
-      <button
-        className="flex flex-wrap items-center gap-4 bg-violet-300 p-2 hover:bg-violet-400 focus:bg-violet-400"
-        type="submit"
+    <form action={logIn} className="flex flex-col gap-2">
+      <Button
+        disabled={!accepted}
+        onClick={accepted ? undefined : handleClick}
+        style="google"
+        type={accepted ? "submit" : "button"}
       >
-        <Image
-          alt=""
-          className="rounded-full bg-white p-1"
-          height="40"
-          src={googleIcon}
-          width="40"
+        LOG IN
+      </Button>
+      <div className="flex items-center gap-2">
+        <input
+          className="size-6 accent-violet-500"
+          id="accept-tos"
+          name="accept-tos"
+          onChange={handleChange}
+          type="checkbox"
         />
-        Sign in with Google
-      </button>
+        <label htmlFor="accept-tos">
+          I agree to the{" "}
+          <Link
+            className="font-bold text-violet-800 hover:underline focus:underline"
+            href="/landing/tos"
+          >
+            terms and conditions
+          </Link>
+          .
+        </label>
+      </div>
+        {message ? <div className="text-red-700 text-sm font-bold">{message}</div> : null}
     </form>
   );
 }

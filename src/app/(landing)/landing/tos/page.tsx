@@ -1,5 +1,9 @@
 import TermsAndConditions from "@/components/TermsAndConditions";
 
 export default function TosPage() {
-  return <TermsAndConditions />
+  return (
+    <div className="p-2">
+      <TermsAndConditions />
+    </div>
+  );
 }
