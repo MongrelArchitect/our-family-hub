@@ -13,6 +13,7 @@ interface Props {
   ariaHidden?: boolean;
   children: React.ReactNode;
   disabled?: boolean;
+  extraClasses?: string;
   onClick?: () => void;
   style: "submit" | "cancel" | "add" | "delete" | "google";
   tabIndex?: number;
@@ -25,6 +26,7 @@ export default function Button({
   ariaHidden,
   children,
   disabled,
+  extraClasses,
   onClick,
   style,
   tabIndex,
@@ -64,7 +66,7 @@ export default function Button({
       aria-controls={ariaControls || undefined}
       aria-expanded={ariaExpanded || undefined}
       aria-hidden={ariaHidden || false}
-      className={`${getColors()} ${disabled ? "cursor-not-allowed" : null} p-2 font-mono`}
+      className={`${extraClasses || null} ${getColors()} ${disabled ? "cursor-not-allowed" : null} p-2 font-mono w-full`}
       onClick={onClick}
       tabIndex={tabIndex || 0}
       type={type}

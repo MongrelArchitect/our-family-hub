@@ -75,8 +75,8 @@ export default async function FamilyPage({
 
   return (
     <div className="flex w-full flex-col gap-4 text-lg">
-      <div className="flex max-md:flex-col gap-4">
-        <div className="flex flex-col w-full gap-4">
+      <div className="flex gap-4 max-md:flex-col">
+        <div className="flex w-full flex-col gap-4">
           {/* FAMILY INFO */}
           <FamilyInfo
             userId={userId}
@@ -84,10 +84,10 @@ export default async function FamilyPage({
             family={family}
           />
 
-        {/* EVENT CALENDAR */}
-        <div className="w-full md:hidden">
-          <Calendar />
-        </div>
+          {/* EVENT CALENDAR */}
+          <div className="w-full md:hidden">
+            <Calendar userId={userId} userIsAdmin={userIsAdmin} />
+          </div>
 
           {/* TODO LISTS */}
           <Card
@@ -127,7 +127,7 @@ export default async function FamilyPage({
         </div>
         {/* EVENT CALENDAR */}
         <div className="w-full max-md:hidden">
-          <Calendar />
+          <Calendar userId={userId} userIsAdmin={userIsAdmin} />
         </div>
       </div>
     </div>

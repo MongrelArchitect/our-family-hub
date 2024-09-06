@@ -16,7 +16,12 @@ import { getCalendarEvents } from "@/lib/db/events";
 
 import EventInterface, { CalendarEventsData } from "@/types/Events";
 
-export default function Calendar() {
+interface Props {
+  userId: number;
+  userIsAdmin: boolean;
+}
+
+export default function Calendar({ userId, userIsAdmin }: Props) {
   const { familyId } = useParams<{ familyId: string }>();
 
   const [date, setDate] = useState<Date | null>(null);
@@ -205,6 +210,8 @@ export default function Calendar() {
             isSaturday={checkSaturday(index)}
             isTodaysDate={isTodaysDate}
             updateDate={updateDate}
+            userId={userId}
+            userIsAdmin={userIsAdmin}
             year={getYearNumber(inNextMonth, inPrevMonth)}
           />
         );

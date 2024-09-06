@@ -5,6 +5,7 @@ import dayIcon from "@/assets/icons/view-day.svg";
 
 import Button from "@/components/Button";
 import Card from "@/components/Card";
+import Event from "./Event";
 import Loading from "@/components/Loading";
 import NewEventForm from "./NewEventForm";
 
@@ -21,6 +22,8 @@ interface Props {
   month: number;
   monthString: string;
   updateDate: (newDate: Date) => void;
+  userId: number;
+  userIsAdmin: boolean;
   year: number;
 }
 
@@ -35,6 +38,8 @@ export default function Day({
   month,
   monthString,
   updateDate,
+  userId,
+  userIsAdmin,
   year,
 }: Props) {
   const [detailsVisible, setDetailsVisible] = useState(false);
@@ -65,7 +70,7 @@ export default function Day({
     return (
       <div
         aria-hidden={detailsVisible}
-        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 h-screen w-full bg-neutral-600/20 font-sans backdrop-blur-sm transition-all flex flex-col items-center`}
+        className={`${detailsVisible ? null : "pointer-events-none opacity-0"} fixed left-0 top-0 z-10 flex h-screen w-full flex-col items-center bg-neutral-600/20 font-sans backdrop-blur-sm transition-all`}
         id="grayout"
         onClick={(e: React.SyntheticEvent) => {
           const target = e.target as HTMLDivElement;
@@ -78,7 +83,7 @@ export default function Day({
         }}
       >
         <div
-          className={`${detailsVisible ? "" : "-translate-y-full"} transition-all max-w-[500px] w-full`}
+          className={`${detailsVisible ? "" : "-translate-y-full"} w-full max-w-[500px] transition-all`}
         >
           <Card
             borderColor="border-fuchsia-400"
@@ -106,27 +111,29 @@ export default function Day({
                 >
                   ADD EVENT
                 </Button>
+                <Button
+                  onClick={toggleDetailsVisible}
+                  style="cancel"
+                  tabIndex={detailsVisible && !formVisible ? 0 : -1}
+                  type="button"
+                >
+                  CLOSE
+                </Button>
 
                 <ul className="flex flex-col gap-4">
                   {daysEvents && daySchedule.length ? (
                     daySchedule.map((eventId, index) => {
                       const event = daysEvents[+eventId];
                       return (
-                        <li
-                          className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} grid grid-cols-[112px_1fr] gap-2`}
+                        <Event
+                          date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
+                          event={event}
+                          index={index}
                           key={`event-id-${eventId}`}
-                        >
-                          <div className="p-2 font-bold font-mono">{`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}</div>
-
-                          <div className="flex flex-col p-2">
-                            <div className="text-xl">{event.title}</div>
-                            {event.details ? (
-                              <pre className="whitespace-pre-wrap font-sans text-base">
-                                {event.details}
-                              </pre>
-                            ) : null}
-                          </div>
-                        </li>
+                          updateDate={updateDate}
+                          userId={userId}
+                          userIsAdmin={userIsAdmin}
+                        />
                       );
                     })
                   ) : (

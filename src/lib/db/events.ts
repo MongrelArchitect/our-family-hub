@@ -65,6 +65,39 @@ export async function createNewEvent(formData: FormData, familyId: number) {
   }
 }
 
+export async function deleteEvent(eventId: number, familyId: number) {
+  try {
+    const userId = await getUserId();
+    const query = `
+      WITH admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      author_check AS (
+        SELECT 1
+        FROM events
+        WHERE id = $3
+        AND created_by = $1
+      )
+      DELETE FROM events
+      WHERE id = $3
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM author_check))
+    `;
+    const result = await pool.query(query, [userId, familyId, eventId]);
+    if (!result.rowCount) {
+      throw new Error("Event not deleted");
+    }
+    revalidatePath(`/families/${familyId}/`);
+  } catch (err) {
+    throw err;
+    // XXX TODO XXX
+    // log this
+  }
+}
+
 export const getCalendarEvents = cache(
   async (familyId: number, month: number, offset: number) => {
     try {
