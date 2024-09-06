@@ -293,7 +293,7 @@ export const getTodoListSummaries = cache(async (familyId: number) => {
     result.rows.forEach((row) => {
       const summary: TodoListSummary = {
         id: row.id as number,
-        taskCount: row.task_count as number,
+        taskCount: +row.task_count as number,
         title: row.title as string,
       };
       todoListSummaries.push(summary);
