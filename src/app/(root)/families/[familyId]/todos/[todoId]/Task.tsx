@@ -211,7 +211,7 @@ export default function Task({
               <h3 className="font-bold">Created by:</h3>
               <div>
                 {memberInfo ? (
-                  <p className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Link
                       className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
                       href={`/users/${task.createdBy}/`}
@@ -224,7 +224,7 @@ export default function Task({
                       size={40}
                       userId={memberInfo.createdBy.id}
                     />
-                  </p>
+                  </div>
                 ) : null}
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function Task({
               <h3 className="font-bold">Assigned to:</h3>
               <div>
                 {memberInfo && memberInfo.assignedTo ? (
-                  <p className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Link
                       className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
                       href={`/users/${task.assignedTo}/`}
@@ -253,7 +253,7 @@ export default function Task({
                       size={40}
                       userId={memberInfo.assignedTo.id}
                     />
-                  </p>
+                  </div>
                 ) : (
                   <p className="flex flex-wrap items-center gap-2">Anyone</p>
                 )}
