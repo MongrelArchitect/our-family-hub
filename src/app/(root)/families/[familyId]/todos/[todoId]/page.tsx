@@ -5,6 +5,7 @@ import Link from "next/link";
 import todoListIcon from "@/assets/icons/text-box.svg";
 
 import Card from "@/components/Card";
+import DeleteTodoList from "./DeleteTodoList";
 import NewTaskForm from "./NewTaskForm";
 import Task from "./Task";
 
@@ -45,6 +46,9 @@ export default async function TodoList({ params }: Params) {
   const tasks = await getTasks(familyId, todoId);
   const familyInfo = await getFamilyInfo(familyId);
 
+  const userIsAdmin = userId === familyInfo.adminId;
+  const userIsCreator = userId === todoListInfo.createdBy;
+
   const showTasks = () => {
     if (tasks.length) {
       return (
@@ -66,7 +70,7 @@ export default async function TodoList({ params }: Params) {
                   task={task}
                   todoId={todoId}
                   userId={userId}
-                  userIsAdmin={userId === familyInfo.adminId}
+                  userIsAdmin={userIsAdmin}
                 />
               );
             })}
@@ -74,7 +78,7 @@ export default async function TodoList({ params }: Params) {
         </table>
       );
     }
-    return <p>No tasks to show. Start adding some!</p>;
+    return <div>No tasks to show. Start adding some!</div>;
   };
 
   return (
@@ -92,6 +96,9 @@ export default async function TodoList({ params }: Params) {
           todoId={todoId}
           todoTitle={todoListInfo.title}
         />
+        {userIsAdmin || userIsCreator ? (
+          <DeleteTodoList familyId={familyId} todoId={todoId} />
+        ) : null}
         <Link
           className="font-bold text-violet-800 hover:underline focus:underline"
           href={`/families/${familyId}`}

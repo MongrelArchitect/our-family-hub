@@ -86,7 +86,7 @@ export default function Event({
         </Button>
         <Button
           extraClasses="m-2"
-          style="submit"
+          style="delete"
           onClick={submitDelete}
           type="button"
         >

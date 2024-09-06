@@ -41,10 +41,10 @@ export async function createNewFamily(formData: FormData): Promise<number> {
     // return the id of the newly created family, for redirecting to its page
     return familyId;
   } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
     // XXX TODO XXX
     // log this
+    await client.query("ROLLBACK");
+    throw err;
   } finally {
     client.release();
   }

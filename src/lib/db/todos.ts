@@ -69,6 +69,7 @@ export async function createNewTask(
     }
     // revalidate
     // XXX - more
+    revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
     // XXX TODO XXX
@@ -167,6 +168,66 @@ export async function deleteTask(
     // XXX TODO XXX
     // log this
     throw err;
+  }
+}
+
+export async function deleteTodoList(familyId: number, todoId: number) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const userId = await getUserId();
+    // first delete all the tasks for this todo list
+    const tasksQuery = `
+      WITH admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      creator_check AS (
+        SELECT 1
+        FROM todo_lists
+        WHERE id = $3
+        AND created_by = $1
+      )
+      DELETE FROM tasks
+      WHERE todo_list_id = $3
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM creator_check))
+    `;
+    await client.query(tasksQuery, [userId, familyId, todoId]);
+
+    // then delete the todo list itself
+    const todoQuery = `
+      WITH admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      creator_check AS (
+        SELECT 1
+        FROM todo_lists
+        WHERE id = $3
+        AND created_by = $1
+      )
+      DELETE FROM todo_lists
+      WHERE id = $3
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM creator_check))
+    `;
+    await client.query(todoQuery, [userId, familyId, todoId]);
+
+    await client.query("COMMIT");
+    revalidatePath(`/families/${familyId}`);
+    revalidatePath(`/families/${familyId}/todos/${todoId}`);
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
   }
 }
 

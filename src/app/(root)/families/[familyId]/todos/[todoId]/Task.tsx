@@ -156,7 +156,7 @@ export default function Task({
               <button
                 aria-controls={`task-${task.id}-details`}
                 aria-expanded={detailsVisible ? "true" : "false"}
-                className="flex flex-wrap items-center gap-2"
+                className="flex items-center gap-2"
                 onClick={toggleDetails}
                 title="show details"
                 type="button"
