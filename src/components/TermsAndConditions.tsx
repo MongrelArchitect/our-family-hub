@@ -40,10 +40,11 @@ export default function TermsAndConditions() {
           <div className="flex flex-col">
             <h3 className="font-bold">3. Privacy and Security</h3>
             <p>
-              We do our best to keep your data private. For example, profile
+              We do our best to keep your data private - for example, profile
               images are only visible to family members. However, we cannot
               guarantee complete privacy or security. Please use caution when
-              sharing sensitive information.
+              sharing sensitive information. We don’t share your data with any
+              third parties for now, but this may change in the future.
             </p>
           </div>
 
@@ -66,16 +67,16 @@ export default function TermsAndConditions() {
               >
                 email us
               </a>
-              . We're working on improving this process in the future.
+              . We're working on improving this process in the near future.
             </p>
           </div>
 
           <div className="flex flex-col">
             <h3 className="font-bold">6. Future Changes</h3>
             <p>
-              We don’t share your data with any third parties for now, but this
-              may change. If it does, we’ll update these terms. By continuing to
-              use the site, you agree to any future changes.
+              These terms and conditions are subject to change at any time
+              without any prior notice. By continuing to use the site you agree
+              to any future changes.
             </p>
           </div>
 
