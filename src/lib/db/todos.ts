@@ -178,7 +178,13 @@ export async function deleteTodoList(familyId: number, todoId: number) {
     const userId = await getUserId();
     // first delete all the tasks for this todo list
     const tasksQuery = `
-      WITH admin_check AS (
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
         SELECT 1
         FROM families
         WHERE id = $2
@@ -192,6 +198,7 @@ export async function deleteTodoList(familyId: number, todoId: number) {
       )
       DELETE FROM tasks
       WHERE todo_list_id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
       AND (EXISTS(SELECT 1 FROM admin_check)
       OR EXISTS(SELECT 1 FROM creator_check))
     `;
@@ -199,7 +206,13 @@ export async function deleteTodoList(familyId: number, todoId: number) {
 
     // then delete the todo list itself
     const todoQuery = `
-      WITH admin_check AS (
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
         SELECT 1
         FROM families
         WHERE id = $2
@@ -213,6 +226,7 @@ export async function deleteTodoList(familyId: number, todoId: number) {
       )
       DELETE FROM todo_lists
       WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
       AND (EXISTS(SELECT 1 FROM admin_check)
       OR EXISTS(SELECT 1 FROM creator_check))
     `;
