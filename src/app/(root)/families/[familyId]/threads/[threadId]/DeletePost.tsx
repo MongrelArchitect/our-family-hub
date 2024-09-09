@@ -1,18 +1,18 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import Button from "@/components/Button";
 import Loading from "@/components/Loading";
 
-import { deleteThread } from "@/lib/db/threads";
+import { deletePost } from "@/lib/db/threads";
 
 interface Props {
   familyId: number;
+  postId: number;
   threadId: number;
 }
 
-export default function DeleteThread({ familyId, threadId }: Props) {
+export default function DeletePost({ familyId, postId, threadId }: Props) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,13 +21,10 @@ export default function DeleteThread({ familyId, threadId }: Props) {
     setConfirmingDelete(!confirmingDelete);
   };
 
-  const router = useRouter();
-
   const submitDelete = async () => {
     try {
       setLoading(true);
-      await deleteThread(threadId, familyId);
-      router.push(`/families/${familyId}`);
+      await deletePost(postId, familyId, threadId);
     } catch (err) {
       setError("Error deleting thread");
       console.error("Error deleting thread: ", err);
@@ -43,8 +40,7 @@ export default function DeleteThread({ familyId, threadId }: Props) {
     return (
       <>
         <div className="text-red-700">
-          Are you sure you want to delete the entire thread?{" "}
-          <b>This cannot be undone!</b>
+          Are you sure you want to delete this post? <b>This cannot be undone!</b>
         </div>
         <>
           <Button onClick={toggleConfirmingDelete} style="cancel" type="button">

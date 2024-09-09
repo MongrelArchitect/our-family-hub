@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import {notFound} from "next/navigation";
+import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import pool from "./pool";
@@ -84,6 +84,52 @@ export async function createNewThread(familyId: number, formData: FormData) {
     }
     revalidatePath(`/families/${familyId}/`);
     return +result.rows[0].id;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+}
+
+export async function deletePost(
+  postId: number,
+  familyId: number,
+  threadId: number,
+) {
+  try {
+    const userId = await getUserId();
+    // first delete all the posts for this thread
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      author_check AS (
+        SELECT 1
+        FROM posts 
+        WHERE id = $3
+        AND author_id = $1
+      )
+      DELETE FROM posts
+      WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM author_check))
+    `;
+    const result = await pool.query(query, [userId, familyId, postId]);
+    if (!result.rowCount) {
+      throw new Error("Error deleting post");
+    }
+    revalidatePath(`/families/${familyId}`);
+    revalidatePath(`/families/${familyId}/threads/${threadId}`);
   } catch (err) {
     // XXX TODO XXX
     // log this

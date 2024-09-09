@@ -101,7 +101,15 @@ export default async function Thread({ params }: Params) {
         </div>
       </Card>
       {posts.map((post) => {
-        return <Post key={`post-${post.id}`} post={post} />;
+        return (
+          <Post
+            familyId={familyId}
+            key={`post-${post.id}`}
+            post={post}
+            userIsAdmin={userIsAdmin}
+            userIsPostAuthor={userId === post.authorId}
+          />
+        );
       })}
     </div>
   );

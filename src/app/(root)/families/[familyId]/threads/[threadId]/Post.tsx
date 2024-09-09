@@ -2,14 +2,23 @@ import Link from "next/link";
 import { PostInterface } from "@/types/Threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
+import DeletePost from "./DeletePost";
 import LocalTime from "@/components/LocalTime";
 import ProfileImage from "@/components/ProfileImage";
 
 interface Props {
+  familyId: number;
   post: PostInterface;
+  userIsAdmin: boolean;
+  userIsPostAuthor: boolean;
 }
 
-export default async function Post({ post }: Props) {
+export default async function Post({
+  familyId,
+  post,
+  userIsAdmin,
+  userIsPostAuthor,
+}: Props) {
   const authorInfo = await getAuthorInfo(post.authorId);
 
   return (
@@ -30,6 +39,9 @@ export default async function Post({ post }: Props) {
           </span>
         </div>
       </div>
+      {userIsAdmin || userIsPostAuthor ? (
+        <DeletePost familyId={familyId} postId={post.id} threadId={post.threadId} />
+      ) : null}
     </div>
   );
 }
