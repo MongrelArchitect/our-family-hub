@@ -5,12 +5,14 @@ import Link from "next/link";
 import threadIcon from "@/assets/icons/chat.svg";
 
 import Card from "@/components/Card";
+import DeleteThread from "./DeleteThread";
 import LocalTime from "@/components/LocalTime";
 import ProfileImage from "@/components/ProfileImage";
 
 import NewPostForm from "./NewPostForm";
 import Post from "./Post";
 
+import getUserId from "@/lib/auth/user";
 import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
@@ -39,6 +41,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function Thread({ params }: Params) {
+  const userId = await getUserId();
+
   const familyId = +params.familyId;
   const threadId = +params.threadId;
 
@@ -46,6 +50,9 @@ export default async function Thread({ params }: Params) {
   const threadInfo = await getThreadInfo(threadId, familyId);
   const authorInfo = await getAuthorInfo(threadInfo.authorId);
   const posts = await getThreadPosts(familyId, threadId);
+
+  const userIsAdmin = userId === familyInfo.adminId;
+  const userIsThreadAuthor = userId === threadInfo.authorId;
 
   return (
     <div className="flex flex-col gap-4">
@@ -82,6 +89,9 @@ export default async function Thread({ params }: Params) {
             </div>
           </div>
           <NewPostForm familyId={familyId} threadId={threadId} />
+          {userIsAdmin || userIsThreadAuthor ? (
+            <DeleteThread familyId={familyId} threadId={threadId} />
+          ) : null}
           <Link
             className="font-bold text-violet-800 hover:underline focus:underline"
             href={`/families/${familyId}`}

@@ -91,6 +91,80 @@ export async function createNewThread(familyId: number, formData: FormData) {
   }
 }
 
+export async function deleteThread(threadId: number, familyId: number) {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const userId = await getUserId();
+    // first delete all the posts for this thread
+    const postsQuery = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      author_check AS (
+        SELECT 1
+        FROM threads
+        WHERE id = $3
+        AND author_id = $1
+      )
+      DELETE FROM posts
+      WHERE thread_id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM author_check))
+    `;
+    await client.query(postsQuery, [userId, familyId, threadId]);
+
+    // then delete the thread itself
+    const threadQuery = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      ),
+      admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $2
+        AND admin_id = $1
+      ),
+      author_check AS (
+        SELECT 1
+        FROM threads
+        WHERE id = $3
+        AND author_id = $1
+      )
+      DELETE FROM threads
+      WHERE id = $3
+      AND EXISTS(SELECT 1 FROM member_check)
+      AND (EXISTS(SELECT 1 FROM admin_check)
+      OR EXISTS(SELECT 1 FROM author_check))
+    `;
+    await client.query(threadQuery, [userId, familyId, threadId]);
+
+    await client.query("COMMIT");
+    revalidatePath(`/families/${familyId}`);
+    revalidatePath(`/families/${familyId}/threads/${threadId}`);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    // XXX TODO XXX
+    // log this
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 export const getThreadInfo = cache(
   async (threadId: number, familyId: number) => {
     try {
