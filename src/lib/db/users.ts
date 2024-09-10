@@ -24,8 +24,19 @@ export async function addUserToDatabase(user: {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error adding new user: ", err);
-    throw new Error("Error adding new user");
+    throw err;
+  }
+}
+
+export async function deleteUser() {
+  try {
+    const userId = await getUserId();
+    const query = ``;
+    await pool.query(query, []);
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
   }
 }
 
@@ -52,8 +63,7 @@ export async function editUserName(formData: FormData) {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error editing user name: ", err);
-    throw new Error("Error editing user name");
+    throw err;
   }
 }
 
@@ -70,8 +80,7 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error checking for existing user: ", err);
-    throw new Error("Error checking for existing user");
+    throw err;
   }
 }
 
@@ -92,8 +101,7 @@ export const getUsersInvites = cache(async (userId: number) => {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error getting user's invites: ", err);
-    throw new Error("Error getting user's invites");
+    throw err;
   }
 });
 
@@ -116,7 +124,6 @@ export const checkIfSameFamily = cache(async (userId: number) => {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error checking if users are in the same family");
     throw err;
   }
 });
@@ -160,7 +167,6 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error getting other user's info");
     throw err;
   }
 });
@@ -205,7 +211,6 @@ export async function updateUserLoginTimestamp(userId: number) {
   } catch (err) {
     // XXX TODO XXX
     // log this
-    console.error("Error updating user's login timestamp: ", err);
-    throw new Error("Error updating user's login timestamp");
+    throw err;
   }
 }
