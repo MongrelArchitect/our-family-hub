@@ -38,8 +38,11 @@ export async function GET(
     });
   }
   const { userId } = params;
-  const sharedFamily = await checkIfSameFamily(+userId);
-  if (!sharedFamily) {
+  // allow user to see their own profile image or those of fellow family members
+  const allowedToViewImage =
+    +userId === +session.user.id ? true : await checkIfSameFamily(+userId);
+
+  if (!allowedToViewImage) {
     return new Response("Unauthorized", {
       status: 403,
     });

@@ -68,5 +68,5 @@ export default async function AllFamilies() {
     );
   }
 
-  return <div>Not a member of any families</div>;
+  return <div className="text-lg p-2">Not a member of any families.</div>;
 }

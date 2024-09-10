@@ -13,12 +13,11 @@ export async function addUserToDatabase(user: {
   // return the id of the newly created user
   name: string;
   email: string;
-  image: string;
 }): Promise<number> {
   try {
     const result = await pool.query(
-      "INSERT INTO users (name, email, image) VALUES ($1, $2, $3) RETURNING id",
-      [user.name, user.email, user.image],
+      "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id",
+      [user.name, user.email],
     );
     return result.rows[0].id;
   } catch (err) {
@@ -31,8 +30,13 @@ export async function addUserToDatabase(user: {
 export async function deleteUser() {
   try {
     const userId = await getUserId();
-    const query = ``;
-    await pool.query(query, []);
+    const query = `
+      UPDATE users
+      SET email = "Deleted",
+      name = "Deleted"
+      WHERE id = $1
+    `;
+    await pool.query(query, [userId]);
   } catch (err) {
     // XXX TODO XXX
     // log this
@@ -142,7 +146,7 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
           WHERE fm1.member_id = $1
           AND fm2.member_id = $2
         )
-        SELECT id, email, name, image, created_at, last_login_at
+        SELECT id, email, name, created_at, last_login_at
         FROM users
         WHERE id = $2
         AND EXISTS (SELECT 1 FROM shared_family_check)
@@ -158,7 +162,6 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
       id: result.rows[0].id as number,
       name: result.rows[0].name as string,
       email: result.rows[0].email as string,
-      image: result.rows[0].image as string,
       createdAt: new Date(result.rows[0].created_at as string),
       lastLoginAt: new Date(result.rows[0].last_login_at as string),
     };
@@ -175,7 +178,7 @@ export const getUsersOwnInfo = cache(async () => {
   try {
     const userId = await getUserId();
     const query = `
-      SELECT email, name, image, created_at, last_login_at
+      SELECT email, name, created_at, last_login_at
       FROM users
       WHERE id = $1
       ;
@@ -189,7 +192,6 @@ export const getUsersOwnInfo = cache(async () => {
       id: userId,
       name: row.name as string,
       email: row.email as string,
-      image: row.image as string,
       createdAt: new Date(row.created_at as string),
       lastLoginAt: new Date(row.last_login_at as string),
     };

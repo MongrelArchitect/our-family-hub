@@ -1,17 +1,35 @@
 "use client";
 import { useState } from "react";
 
+import { signOut } from "@/auth";
+
 import Button from "@/components/Button";
+import Loading from "@/components/Loading";
+
+import { deleteUser } from "@/lib/db/users";
 
 export default function DeleteAccount() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [doubleChecked, setDoubleChecked] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const toggleConfirming = () => {
     setConfirmingDelete(!confirmingDelete);
   };
 
-  const submitDelete = async () => {};
+  const submitDelete = async () => {
+    try {
+      setLoading(true);
+      await deleteUser();
+      await signOut();
+    } catch (err) {
+      console.error("Error deleting account: ", err);
+      setError("Error deleting account");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleClick = (event: React.SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
@@ -24,15 +42,13 @@ export default function DeleteAccount() {
         <div>
           <h3 className="font-bold text-red-700">Confirm Account Deletion</h3>
           <p>
-            Please confirm that you would like to delete your account. This will
-            remove your name, email, image and any related account information
-            from our database, but{" "}
-            <b>will not remove any content you have created</b>. All families
-            with you as admin will still exist and will remain accessible to
-            other members, but <b>will be without an admin</b>. This is
-            permanent and <b>your account cannot be recovered</b> - any future
-            logins with the same email will create an entirely new account.
-          <b className="text-red-700">This cannot be undone!</b>
+            Your account will be deleted, but any{" "}
+            <b>content you&apos;ve created will remain</b>. Families you created
+            will still be accessible to members but{" "}
+            <b>will not have an admin</b>. This is permanent -{" "}
+            <b>your account cannot be recovered</b>, and future logins with the
+            same email will create a new account.{" "}
+            <b className="text-red-700">This action cannot be undone!</b>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -45,20 +61,29 @@ export default function DeleteAccount() {
           />
           <label htmlFor="confirm-delete">Delete my account</label>
         </div>
-        <Button onClick={() => {
-          toggleConfirming();
-          setDoubleChecked(false);
-          }} style="cancel" type="button">
-          CANCEL
-        </Button>
+        {error ? <div className="text-red-700">{error}</div> : null}
         <Button
-          disabled={!doubleChecked}
-          onClick={submitDelete}
-          style="delete"
+          onClick={() => {
+            toggleConfirming();
+            setDoubleChecked(false);
+          }}
+          style="cancel"
           type="button"
         >
-          CONFIRM
+          CANCEL
         </Button>
+        {loading ? (
+          <Loading />
+        ) : (
+          <Button
+            disabled={!doubleChecked}
+            onClick={submitDelete}
+            style="delete"
+            type="button"
+          >
+            CONFIRM
+          </Button>
+        )}
       </>
     );
   }

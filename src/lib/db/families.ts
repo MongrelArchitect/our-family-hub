@@ -223,7 +223,6 @@ export const getFamilyMembers = cache(async (familyId: number) => {
         u.id, 
         u.name, 
         u.email, 
-        u.image, 
         u.created_at, 
         u.last_login_at 
       FROM users AS u 
@@ -245,7 +244,6 @@ export const getFamilyMembers = cache(async (familyId: number) => {
         id: row.id,
         name: row.name,
         email: row.email,
-        image: row.image,
         createdAt: row.created_at,
         lastLoginAt: row.last_login_at,
       };

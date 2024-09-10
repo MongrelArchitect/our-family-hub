@@ -25,7 +25,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const newUserId = await addUserToDatabase({
             name: user.name,
             email: user.email,
-            image: user.image,// XXX dont neet this anymore...
           });
           userId = newUserId;
           // get their profile image, reisze & store it locally
