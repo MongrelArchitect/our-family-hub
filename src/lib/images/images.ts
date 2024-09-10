@@ -1,7 +1,9 @@
 "use server";
 
-import sharp from "sharp";
 import { fileTypeFromBlob } from "file-type";
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
 
 import getUserId from "../auth/user";
 
@@ -51,6 +53,7 @@ export async function addNewFamilyImage(
       .toFile(`./src/uploads/families/${familyId}.webp`);
   }
 }
+
 export async function updateFamilyImage(
   name: string,
   familyId: number,
@@ -99,4 +102,23 @@ export async function addNewProfileImage(userId: number, imageUrl: string) {
     .resize(256, 256, { fit: "cover" })
     .webp()
     .toFile(`./src/uploads/profiles/${userId}.webp`);
+}
+
+export async function deleteProfileImage() {
+  const userId = await getUserId();
+
+  const imagePath = path.join(
+    process.cwd(),
+    "src",
+    "uploads",
+    "profiles",
+    `${userId}.webp`,
+  );
+  if (fs.existsSync(imagePath)) {
+    fs.unlink(imagePath, (err) => {
+      // XXX TODO XXX
+      // log this
+      if (err) throw err;
+    });
+  }
 }

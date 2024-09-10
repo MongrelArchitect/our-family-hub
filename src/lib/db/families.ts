@@ -160,6 +160,53 @@ export async function editFamilySurname(familyId: number, formData: FormData) {
   }
 }
 
+export const getAllAdminFamilies = cache(async () => {
+  try {
+    const userId = await getUserId();
+
+    const query = `
+      SELECT 
+        f.id AS family_id, 
+        f.surname, 
+        fm.member_count AS member_count, 
+        f.admin_id
+      FROM families 
+      AS f 
+      LEFT JOIN (
+        SELECT family_id, 
+        COUNT(member_id) AS member_count 
+        FROM family_members 
+        GROUP BY family_id
+      ) 
+      AS fm 
+      ON f.id = fm.family_id 
+      WHERE f.admin_id = $1
+      ORDER BY f.surname
+    `;
+
+    const response = await pool.query(query, [userId]);
+
+    const families: FamilyInterface[] = [];
+
+    response.rows.forEach((row) => {
+      const family: FamilyInterface = {
+        adminId: row.admin_id,
+        adminName: "You",
+        id: row.family_id,
+        memberCount: +row.member_count,
+        surname: row.surname,
+      };
+      families.push(family);
+    });
+
+    return families;
+  } catch (err) {
+    // XXX TODO XXX
+    // log this
+    throw err;
+  }
+});
+
 export const getAllUsersFamilies = cache(async (userId: number) => {
   try {
     const query = `

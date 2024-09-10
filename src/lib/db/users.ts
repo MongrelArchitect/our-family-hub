@@ -30,13 +30,23 @@ export async function addUserToDatabase(user: {
 export async function deleteUser() {
   try {
     const userId = await getUserId();
-    const query = `
+    const userQuery = `
       UPDATE users
-      SET email = "Deleted",
-      name = "Deleted"
+      SET email = 'deleted@${userId}',
+          name = 'Deleted'
       WHERE id = $1
+      AND NOT EXISTS(
+        SELECT 1 
+        FROM families 
+        WHERE admin_id = $1
+      )
     `;
-    await pool.query(query, [userId]);
+    const result = await pool.query(userQuery, [userId]);
+    if (!result.rowCount) {
+      throw new Error(
+        "User cannot be deleted because they are admin of 1 or more families",
+      );
+    }
   } catch (err) {
     // XXX TODO XXX
     // log this

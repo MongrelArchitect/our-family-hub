@@ -36,7 +36,7 @@ export default async function Home() {
       );
     }
     return (
-      <p className="p-2 text-lg">No invites available. Check back later!</p>
+      <p className="p-2 text-lg">No invites available</p>
     );
   };
 
