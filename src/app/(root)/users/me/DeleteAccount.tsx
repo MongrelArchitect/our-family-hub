@@ -61,8 +61,8 @@ export default function DeleteAccount() {
               admin of {adminFamilies.length} famil
               {adminFamilies.length === 1 ? "y" : "ies"}
             </b>
-            . Please either delete these families or assign them new admins before
-            deleting your account:
+            . Please either delete these families or assign them new admins
+            before deleting your account:
           </p>
           <ul className="flex flex-col gap-2">
             {adminFamilies.map((family) => {
@@ -73,9 +73,9 @@ export default function DeleteAccount() {
                     href={`/families/${family.id}`}
                   >
                     The {family.surname} Family
-                  </Link>
-                  {" "}
-                  ({family.memberCount} member{family.memberCount === 1 ? "" : "s"})
+                  </Link>{" "}
+                  ({family.memberCount} member
+                  {family.memberCount === 1 ? "" : "s"})
                 </li>
               );
             })}
@@ -98,9 +98,8 @@ export default function DeleteAccount() {
               </h3>
               <p>
                 Your account will be deleted, but any{" "}
-                <b>content you&apos;ve created will remain</b>. Families you
-                created will still be accessible to members but{" "}
-                <b>will not have an admin</b>. This is permanent -{" "}
+                <b>content you&apos;ve created will remain</b> unless you delete
+                such content individually. This is permanent -{" "}
                 <b>your account cannot be recovered</b>, and future logins with
                 the same email will create a new account.{" "}
                 <b className="text-red-700">This action cannot be undone!</b>

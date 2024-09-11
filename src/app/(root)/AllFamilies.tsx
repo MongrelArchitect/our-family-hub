@@ -68,5 +68,16 @@ export default async function AllFamilies() {
     );
   }
 
-  return <div className="p-2 text-lg">Not a member of any families.</div>;
+  return (
+    <div className="p-2 text-lg">
+      Not a member of any families.{" "}
+      <Link
+        className="font-bold text-violet-800 hover:underline focus:underline"
+        href="/families/new"
+      >
+        Create a new family
+      </Link>{" "}
+      to get started.
+    </div>
+  );
 }

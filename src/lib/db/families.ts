@@ -120,6 +120,102 @@ export const checkIfUserCanViewImage = cache(async (familyId: number) => {
   }
 });
 
+export async function deleteFamily(familyId: number) {
+  const client = await pool.connect();
+  try {
+    const userId = await getUserId();
+    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
+    // first check if the user making this request is the family admin
+    const adminCheck = `
+      SELECT 1
+      FROM families
+      WHERE admin_id = $1
+      AND id = $2
+    `;
+    const adminCheckResult = await client.query(adminCheck, [userId, familyId]);
+    const isAdmin = adminCheckResult.rowCount ? true : false;
+    if (!isAdmin) {
+      throw new Error("User is not family admin");
+    }
+
+    // now start deleting content - first, todo list tasks
+    const tasksQuery = `
+      DELETE FROM tasks
+      WHERE todo_list_id IN (
+        SELECT id
+        FROM todo_lists
+        WHERE family_id = $1
+      )
+    `;
+    await client.query(tasksQuery, [familyId]);
+
+    // now delete all the todo lists themselves
+    const todoQuery = `
+      DELETE FROM todo_lists
+      WHERE family_id = $1
+    `;
+    await client.query(todoQuery, [familyId]);
+
+    // next comes discussion thread posts
+    const postsQuery = `
+      DELETE FROM posts 
+      WHERE thread_id IN (
+        SELECT id
+        FROM threads
+        WHERE family_id = $1
+      )
+    `;
+    await client.query(postsQuery, [familyId]);
+
+    // now the threads themselves
+    const threadsQuery = `
+      DELETE FROM threads
+      WHERE family_id = $1
+    `;
+    await client.query(threadsQuery, [familyId]);
+
+    // delete calendar events
+    const eventsQuery = `
+      DELETE FROM events
+      WHERE family_id = $1
+    `;
+    await client.query(eventsQuery, [familyId]);
+
+    // now get rid of any pending invites
+    const invitesQuery = `
+      DELETE FROM invites 
+      WHERE family_id = $1
+    `;
+    await client.query(invitesQuery, [familyId]);
+
+    // remove the family members
+    const membersQuery = `
+      DELETE FROM family_members 
+      WHERE family_id = $1
+    `;
+    await client.query(membersQuery, [familyId]);
+
+    // finally get rid of the family itself
+    const familyQuery = `
+      DELETE FROM families
+      WHERE id = $1
+    `;
+    await client.query(familyQuery, [familyId]);
+
+    // everything's good to go - commit the transaction
+    await client.query("COMMIT");
+    revalidatePath("/");
+    revalidatePath(`/families/${familyId}`);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    // XXX TODO XXX
+    // log this
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 export async function editFamilySurname(familyId: number, formData: FormData) {
   try {
     const userId = await getUserId();

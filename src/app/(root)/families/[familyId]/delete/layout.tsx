@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Invite New Member",
+  title: "Delete Family",
 };
 
 export default function InviteLayout({

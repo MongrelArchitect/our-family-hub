@@ -122,3 +122,26 @@ export async function deleteProfileImage() {
     });
   }
 }
+
+export async function deleteFamilyImage(familyId: number) {
+  const userIsAdmin = await checkIfUserIsAdmin(familyId);
+
+  if (!userIsAdmin) {
+    throw new Error("User is not family admin");
+  }
+
+  const imagePath = path.join(
+    process.cwd(),
+    "src",
+    "uploads",
+    "families",
+    `${familyId}.webp`,
+  );
+  if (fs.existsSync(imagePath)) {
+    fs.unlink(imagePath, (err) => {
+      // XXX TODO XXX
+      // log this
+      if (err) throw err;
+    });
+  }
+}

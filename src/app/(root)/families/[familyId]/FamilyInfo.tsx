@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+import deleteIcon from "@/assets/icons/trash-can.svg";
 import editIcon from "@/assets/icons/home-edit.svg";
 import familyIcon from "@/assets/icons/home.svg";
 import inviteIcon from "@/assets/icons/account-plus.svg";
@@ -62,6 +63,15 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
           title="Edit family info"
         >
           <Image alt="" className="p-2" src={editIcon} width={48} />
+        </Link>
+        <Link
+          aria-label="Delete family"
+          className="rounded-full border-2 border-orange-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
+          href={`/families/${family.id}/delete`}
+          tabIndex={controlsVisible ? 0 : -1}
+          title="Delete family"
+        >
+          <Image alt="" className="p-2" src={deleteIcon} width={48} />
         </Link>
       </div>
     );
