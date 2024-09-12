@@ -17,6 +17,8 @@ import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
+import UserInterface from "@/types/Users";
+
 interface Params {
   params: {
     familyId: string;
@@ -49,6 +51,7 @@ export default async function Thread({ params }: Params) {
   const familyInfo = await getFamilyInfo(familyId);
   const threadInfo = await getThreadInfo(threadId, familyId);
   const authorInfo = await getAuthorInfo(threadInfo.authorId);
+
   const posts = await getThreadPosts(familyId, threadId);
 
   const userIsAdmin = userId === familyInfo.adminId;
@@ -76,13 +79,17 @@ export default async function Thread({ params }: Params) {
           <div className="flex flex-wrap items-center gap-2">
             <ProfileImage size={40} userId={authorInfo.id} />
             <div className="flex flex-col font-mono text-sm">
-              <Link
-                className="font-bold text-violet-800 hover:underline focus:underline"
-                href={`/users/${threadInfo.authorId}`}
-                title={`View ${authorInfo.name}'s profile`}
-              >
-                {authorInfo.name}
-              </Link>
+              {authorInfo.id === 1 ? (
+                authorInfo.name
+              ) : (
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/users/${threadInfo.authorId}`}
+                  title={`View ${authorInfo.name}'s profile`}
+                >
+                  {authorInfo.name}
+                </Link>
+              )}
               <span>
                 <LocalTime timestampFromServer={threadInfo.createdAt} />
               </span>

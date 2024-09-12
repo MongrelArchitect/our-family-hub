@@ -7,6 +7,15 @@ CREATE TABLE IF NOT EXISTS users (
   last_login_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+/* need a replacement user for content created by deleted accounts */
+INSERT INTO users (
+  email,
+  name
+) VALUES (
+  'deleted@ourfamilyhub.net',
+  'Former Member'
+);
+
 /* families table */
 CREATE TABLE IF NOT EXISTS families (
   id SERIAL PRIMARY KEY,

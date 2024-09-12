@@ -6,6 +6,8 @@ import DeletePost from "./DeletePost";
 import LocalTime from "@/components/LocalTime";
 import ProfileImage from "@/components/ProfileImage";
 
+import UserInterface from "@/types/Users";
+
 interface Props {
   familyId: number;
   post: PostInterface;
@@ -27,20 +29,28 @@ export default async function Post({
       <div className="flex flex-wrap items-center gap-2">
         <ProfileImage size={40} userId={authorInfo.id} />
         <div className="flex flex-col font-mono text-sm">
-          <Link
-            className="font-bold text-violet-800 hover:underline focus:underline"
-            href={`/users/${post.authorId}`}
-            title={`View ${authorInfo.name}'s profile`}
-          >
-            {authorInfo.name}
-          </Link>
+          {authorInfo.id === 1 ? (
+            authorInfo.name
+          ) : (
+            <Link
+              className="font-bold text-violet-800 hover:underline focus:underline"
+              href={`/users/${post.authorId}`}
+              title={`View ${authorInfo.name}'s profile`}
+            >
+              {authorInfo.name}
+            </Link>
+          )}
           <span>
             <LocalTime timestampFromServer={post.createdAt} />
           </span>
         </div>
       </div>
       {userIsAdmin || userIsPostAuthor ? (
-        <DeletePost familyId={familyId} postId={post.id} threadId={post.threadId} />
+        <DeletePost
+          familyId={familyId}
+          postId={post.id}
+          threadId={post.threadId}
+        />
       ) : null}
     </div>
   );

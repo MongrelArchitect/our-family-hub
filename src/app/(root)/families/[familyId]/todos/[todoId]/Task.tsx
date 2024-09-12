@@ -212,13 +212,17 @@ export default function Task({
               <div>
                 {memberInfo ? (
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
-                      href={`/users/${task.createdBy}/`}
-                      title={`View ${memberInfo?.createdBy.name}'s profile`}
-                    >
-                      {memberInfo?.createdBy.name}
-                    </Link>
+                    {memberInfo.createdBy.id === 1 ? (
+                      memberInfo.createdBy.name
+                    ) : (
+                      <Link
+                        className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
+                        href={`/users/${task.createdBy}/`}
+                        title={`View ${memberInfo?.createdBy.name}'s profile`}
+                      >
+                        {memberInfo?.createdBy.name}
+                      </Link>
+                    )}
                     <ProfileImage
                       extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
                       size={40}
@@ -241,13 +245,17 @@ export default function Task({
               <div>
                 {memberInfo && memberInfo.assignedTo ? (
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
-                      href={`/users/${task.assignedTo}/`}
-                      title={`View ${memberInfo?.assignedTo.name}'s profile`}
-                    >
-                      {memberInfo?.assignedTo.name}
-                    </Link>
+                    {memberInfo.assignedTo.id === 1 ? (
+                      memberInfo.assignedTo.name
+                    ) : (
+                      <Link
+                        className={`font-bold ${task.done ? "text-neutral-400" : "text-violet-800"} hover:underline focus:underline`}
+                        href={`/users/${task.assignedTo}/`}
+                        title={`View ${memberInfo?.assignedTo.name}'s profile`}
+                      >
+                        {memberInfo?.assignedTo.name}
+                      </Link>
+                    )}
                     <ProfileImage
                       extraClasses={`${task.done ? "opacity-30 grayscale" : ""}`}
                       size={40}

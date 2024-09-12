@@ -38,6 +38,35 @@ export async function GET(
     });
   }
   const { userId } = params;
+
+  // user id of 1 means the user has deleted their account or is no longer a
+  // family member - need a placeholder image for any content they left behind
+  if (+userId === 1) {
+    const imagePath = path.join(
+      process.cwd(),
+      "src",
+      "assets",
+      "icons",
+      "account-circle.svg",
+    );
+    if (!fs.existsSync(imagePath)) {
+      return new Response("Image not found", { status: 404 });
+    }
+
+    try {
+      const data: ReadableStream<Uint8Array> = streamFile(imagePath);
+      const res = new Response(data, {
+        status: 200,
+        headers: new Headers({
+          "content-type": "image/svg+xml",
+        }),
+      });
+      return res;
+    } catch (err) {
+      return new Response("Error reading image", { status: 500 });
+    }
+  }
+
   // allow user to see their own profile image or those of fellow family members
   const allowedToViewImage =
     +userId === +session.user.id ? true : await checkIfSameFamily(+userId);
@@ -47,6 +76,7 @@ export async function GET(
       status: 403,
     });
   }
+
   const imagePath = path.join(
     process.cwd(),
     "src",

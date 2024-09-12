@@ -28,29 +28,97 @@ export async function addUserToDatabase(user: {
 }
 
 export async function deleteUser() {
+  const client = await pool.connect();
   try {
+    await client.query("BEGIN");
     const userId = await getUserId();
-    const userQuery = `
-      UPDATE users
-      SET email = 'deleted@${userId}',
-          name = 'Deleted'
-      WHERE id = $1
-      AND NOT EXISTS(
-        SELECT 1 
-        FROM families 
+
+    // first check if user is admin of any family, if so they can't be deleted
+    const adminQuery = `
+      SELECT EXISTS(
+        SELECT 1
+        FROM families
         WHERE admin_id = $1
       )
     `;
-    const result = await pool.query(userQuery, [userId]);
-    if (!result.rowCount) {
+    const adminResult = await client.query(adminQuery, [userId]);
+    const userIsAdminOfAFamily = adminResult.rows[0].exists ? true : false;
+    if (userIsAdminOfAFamily) {
       throw new Error(
-        "User cannot be deleted because they are admin of 1 or more families",
+        "User cannot be deleted because they are admin of one or more families",
       );
     }
+
+    // not an admin, so first remove the user from all family membership
+    const memberQuery = `
+      DELETE FROM family_members
+      WHERE member_id = $1
+    `;
+    await client.query(memberQuery, [userId]);
+
+    // don't forget to remove any pending invites
+    const invitesQuery = `
+      DELETE FROM invites
+      WHERE user_id = $1
+    `;
+    await client.query(invitesQuery, [userId]);
+
+    // now we need to replace all the user's content with the "Former Member" user
+
+    // starting with tasks
+    const tasksQuery = `
+      UPDATE tasks
+      SET created_by = 1
+      WHERE created_by = $1
+    `;
+    await client.query(tasksQuery, [userId]);
+    
+    // then todo lists
+    const todosQuery = `
+      UPDATE todo_lists 
+      SET created_by = 1
+      WHERE created_by = $1
+    `;
+    await client.query(todosQuery, [userId]);
+
+    // now thread posts
+    const postsQuery = `
+      UPDATE posts
+      SET author_id = 1
+      WHERE author_id = $1
+    `;
+    await client.query(postsQuery, [userId]);
+
+    // then threads themselves
+    const threadsQuery = `
+      UPDATE threads 
+      SET author_id = 1
+      WHERE author_id = $1
+    `;
+    await client.query(threadsQuery, [userId]);
+
+    // then calendar events
+    const eventsQuery = `
+      UPDATE events
+      SET created_by = 1
+      WHERE created_by = $1
+    `;
+    await client.query(eventsQuery, [userId]);
+
+    // finally delete the user
+    const userQuery = `
+      DELETE FROM users
+      WHERE id = $1
+    `;
+    await client.query(userQuery, [userId]);
+    await client.query("COMMIT");
   } catch (err) {
+    await client.query("ROLLBACK");
     // XXX TODO XXX
     // log this
     throw err;
+  } finally {
+    client.release();
   }
 }
 
@@ -146,7 +214,8 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
   try {
     const authUserId = await getUserId();
 
-    // only get other user's info if they share a family in common
+    // only get other user's info if they share a family in common or
+    // if they're querying for the "Former Member" use with id of 1
     const query = `
         WITH shared_family_check AS (
           SELECT 1
@@ -159,7 +228,10 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
         SELECT id, email, name, created_at, last_login_at
         FROM users
         WHERE id = $2
-        AND EXISTS (SELECT 1 FROM shared_family_check)
+        AND (
+          EXISTS (SELECT 1 FROM shared_family_check)
+          OR $2 = 1
+        )
       `;
 
     const result = await pool.query(query, [authUserId, userId]);

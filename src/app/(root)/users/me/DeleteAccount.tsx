@@ -25,7 +25,6 @@ export default function DeleteAccount() {
     };
     getFamilies();
   }, []);
-  console.log(adminFamilies);
 
   const toggleConfirming = () => {
     setConfirmingDelete(!confirmingDelete);

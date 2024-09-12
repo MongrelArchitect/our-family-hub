@@ -134,12 +134,16 @@ export default function Event({
           <div className="flex flex-col">
             <span>
               Created by{" "}
-              <Link
-                className="font-bold text-violet-800 hover:underline focus:underline"
-                href={`/users/${event.createdBy}`}
-              >
-                {creatorName}
-              </Link>{" "}
+              {event.createdBy === 1 ? (
+                creatorName
+              ) : (
+                <Link
+                  className="font-bold text-violet-800 hover:underline focus:underline"
+                  href={`/users/${event.createdBy}`}
+                >
+                  {creatorName}
+                </Link>
+              )}{" "}
               on {<LocalTime dateOnly timestampFromServer={event.createdAt} />}
             </span>
           </div>
