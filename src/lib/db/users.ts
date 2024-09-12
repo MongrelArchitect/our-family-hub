@@ -72,7 +72,7 @@ export async function deleteUser() {
       WHERE created_by = $1
     `;
     await client.query(tasksQuery, [userId]);
-    
+
     // then todo lists
     const todosQuery = `
       UPDATE todo_lists 

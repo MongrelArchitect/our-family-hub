@@ -564,30 +564,104 @@ export const removeInvite = async (familyId: number) => {
 };
 
 export async function removeMember(familyId: number, memberId: number) {
+  const client = await pool.connect();
   try {
     const userId = await getUserId();
+    await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
+    // first check if the user making this request is the family admin
+    const adminCheck = `
+      SELECT 1
+      FROM families
+      WHERE admin_id = $1
+      AND id = $2
+    `;
+    const adminCheckResult = await client.query(adminCheck, [userId, familyId]);
+    const isAdmin = adminCheckResult.rowCount ? true : false;
+    if (!isAdmin) {
+      throw new Error("User is not family admin");
+    }
 
-    const query = `
+    if (userId === memberId) {
+      throw new Error("Admin cannot remove themselves from the family");
+    }
+
+    // before the member can be removed, all of their content for this family
+    // must be reassiged to the "Former Member" user (id 1)
+
+    // starting with tasks
+    const tasksQuery = `
+      UPDATE tasks
+      SET created_by = 1
+      WHERE created_by = $1
+      AND todo_list_id
+      IN (
+        SELECT id
+        FROM todo_lists
+        WHERE family_id = $2
+      )
+    `;
+    await client.query(tasksQuery, [memberId, familyId]);
+
+    // then todo lists
+    const todosQuery = `
+      UPDATE todo_lists 
+      SET created_by = 1
+      WHERE created_by = $1
+      AND family_id = $2
+    `;
+    await client.query(todosQuery, [memberId, familyId]);
+
+    // now thread posts
+    const postsQuery = `
+      UPDATE posts
+      SET author_id = 1
+      WHERE author_id = $1
+      AND thread_id
+      IN (
+        SELECT id
+        FROM threads
+        WHERE family_id = $2
+      )
+    `;
+    await client.query(postsQuery, [memberId, familyId]);
+
+    // then threads themselves
+    const threadsQuery = `
+      UPDATE threads 
+      SET author_id = 1
+      WHERE author_id = $1
+      AND family_id = $2
+    `;
+    await client.query(threadsQuery, [memberId, familyId]);
+
+    // then calendar events
+    const eventsQuery = `
+      UPDATE events
+      SET created_by = 1
+      WHERE created_by = $1
+      AND family_id = $2
+    `;
+    await client.query(eventsQuery, [memberId, familyId]);
+
+    // finally, remove the member from the family
+    const removeQuery = `
       DELETE
       FROM family_members fm
       WHERE fm.family_id = $1 
       AND fm.member_id = $2
-      AND fm.member_id <> $3
-      AND EXISTS(
-        SELECT 1
-        FROM families f
-        WHERE f.id = $1
-        AND f.admin_id = $3
-      )
     `;
 
-    await pool.query(query, [familyId, memberId, userId]);
+    await client.query(removeQuery, [familyId, memberId]);
+    await client.query("COMMIT");
     revalidatePath("/families/all");
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/remove`);
   } catch (err) {
+    await client.query("ROLLBACK");
     throw err;
     // XXX TODO XXX
     // log this
+  } finally {
+    client.release();
   }
 }
