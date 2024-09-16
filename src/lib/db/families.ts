@@ -665,3 +665,35 @@ export async function removeMember(familyId: number, memberId: number) {
     client.release();
   }
 }
+
+export async function transferAdminStatus(familyId: number, memberId: number) {
+  try {
+    const userId = await getUserId();
+    const query = `
+      WITH admin_check AS (
+        SELECT 1
+        FROM families
+        WHERE id = $1
+        AND admin_id = $2
+      ) 
+      UPDATE families
+      SET admin_id = $3
+      WHERE id = $1
+      AND EXISTS (SELECT 1 FROM admin_check)
+    `;
+    const result = await pool.query(query, [familyId, userId, memberId]);
+    if (!result.rowCount) {
+      throw new Error("Error transferring admin role");
+    }
+    revalidatePath("/");
+    revalidatePath("/users/me");
+    revalidatePath(`/families/${familyId}`);
+    revalidatePath(`/families/${familyId}/members`);
+    revalidatePath(`/families/${familyId}/promote`);
+    revalidatePath(`/families/${familyId}/remove`);
+  } catch (err) {
+    throw err;
+    // XXX TODO XXX
+    // log this
+  }
+}

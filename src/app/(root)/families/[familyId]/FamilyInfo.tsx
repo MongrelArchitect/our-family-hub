@@ -8,6 +8,7 @@ import deleteIcon from "@/assets/icons/trash-can.svg";
 import editIcon from "@/assets/icons/home-edit.svg";
 import familyIcon from "@/assets/icons/home.svg";
 import inviteIcon from "@/assets/icons/account-plus.svg";
+import promoteIcon from "@/assets/icons/account-tie.svg";
 import removeIcon from "@/assets/icons/account-cancel.svg";
 import starIcon from "@/assets/icons/star.svg";
 
@@ -35,7 +36,7 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
         aria-label="Admin controls"
         aria-hidden={!controlsVisible}
         id="admin-controls"
-        className={`${controlsVisible ? "max-h-[300px]" : "max-h-0"} flex flex-wrap items-start justify-start gap-6 overflow-hidden transition-[max-height] duration-500`}
+        className={`${controlsVisible ? "max-h-[300px]" : "max-h-0"} flex flex-wrap items-start justify-start gap-4 overflow-hidden transition-[max-height] duration-500`}
       >
         <Link
           aria-label="Invite new member to family"
@@ -54,6 +55,15 @@ export default function FamilyInfo({ family, userId, userIsAdmin }: Props) {
           title="Remove member from family"
         >
           <Image alt="" className="p-2" src={removeIcon} width={48} />
+        </Link>
+        <Link
+          aria-label="Transfer admin role to another member"
+          className="rounded-full border-2 border-orange-400 bg-amber-200 hover:bg-amber-300 focus:bg-amber-300"
+          href={`/families/${family.id}/promote`}
+          tabIndex={controlsVisible ? 0 : -1}
+          title="Transfer admin role to another member"
+        >
+          <Image alt="" className="p-2" src={promoteIcon} width={48} />
         </Link>
         <Link
           aria-label="Edit family info"

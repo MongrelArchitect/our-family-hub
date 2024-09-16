@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import removeIcon from "@/assets/icons/account-cancel.svg";
+import promoteIcon from "@/assets/icons/account-tie.svg";
 
 import Button from "@/components/Button";
 import Card from "@/components/Card";
@@ -13,7 +13,7 @@ import ProfileImage from "@/components/ProfileImage";
 import {
   getFamilyInfo,
   getFamilyMembers,
-  removeMember,
+  transferAdminStatus,
 } from "@/lib/db/families";
 
 import FamilyInterface from "@/types/Families";
@@ -23,22 +23,15 @@ interface Props {
   familyId: number;
 }
 
-export default function RemoveForm({ familyId }: Props) {
+export default function PromoteForm({ familyId }: Props) {
   const [error, setError] = useState<null | string>(null);
   const [confirming, setConfirming] = useState(false);
-  const [deletedSuccess, setDeletedSuccess] = useState(false);
+  const [promotionSuccess, setPromotionSuccess] = useState(false);
   const [familyInfo, setFamilyInfo] = useState<FamilyInterface | null>(null);
   const [familyMembers, setFamilyMembers] = useState<UserInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [memberInfo, setMemberInfo] = useState<UserInterface | null>(null);
   const [memberLoading, setMemberLoading] = useState(false);
-
-  const reset = () => {
-    setError(null);
-    setConfirming(false);
-    setDeletedSuccess(false);
-    setMemberInfo(null);
-  };
 
   useEffect(() => {
     const loadInfo = async () => {
@@ -53,7 +46,7 @@ export default function RemoveForm({ familyId }: Props) {
       }
     };
     loadInfo();
-  }, [deletedSuccess]);
+  }, []);
 
   const showMemberInfo = () => {
     if (memberLoading) {
@@ -93,12 +86,12 @@ export default function RemoveForm({ familyId }: Props) {
       try {
         setError(null);
         setLoading(true);
-        await removeMember(familyId, memberInfo.id);
-        setDeletedSuccess(true);
+        await transferAdminStatus(familyId, memberInfo.id);
+        setPromotionSuccess(true);
       } catch (err) {
         setConfirming(false);
-        console.error("Error removing member from family: ", err);
-        setError("Error removing member from family");
+        console.error("Error transferring admin role: ", err);
+        setError("Error transferring admin role");
       } finally {
         setLoading(false);
       }
@@ -113,13 +106,13 @@ export default function RemoveForm({ familyId }: Props) {
 
   const showForm = () => {
     if (familyMembers.length === 1) {
-      // in this case the admin is the only user, and they can't remove themselves
+      // in this case the admin is the only user, so there's nobody to promote
       return (
         <>
           <p>
             You are the only member of{" "}
-            <b>The {familyInfo?.surname || null} Family</b> and as its admin,
-            cannot be removed from it.
+            <b>The {familyInfo?.surname || null} Family</b>. There are no other
+            members who can become admin.
           </p>
           <p>
             <Link
@@ -133,31 +126,13 @@ export default function RemoveForm({ familyId }: Props) {
         </>
       );
     }
-    if (deletedSuccess) {
+    if (promotionSuccess) {
       return (
         <>
           <p>
-            <b>{memberInfo?.name || "Member"}</b> has been successfully removed
-            from <b>The {familyInfo?.surname || null} Family</b>.
+            <b>{memberInfo?.name || "Member"}</b> has been successfully promoted
+            to admin of <b>The {familyInfo?.surname || null} Family</b>.
           </p>
-          <p>
-            If this was a mistake, you can
-            <Link
-              className="font-bold text-violet-900 hover:underline focus:underline"
-              href={`/families/${familyId}/invite`}
-            >
-              {" "}
-              send a new invite{" "}
-            </Link>
-            to their email address <b>{memberInfo?.email || null}</b>.
-          </p>
-          <button
-            className="self-start font-bold text-violet-900 hover:underline focus:underline"
-            onClick={reset}
-            type="button"
-          >
-            Remove another member
-          </button>
         </>
       );
     }
@@ -165,14 +140,13 @@ export default function RemoveForm({ familyId }: Props) {
       <>
         {memberInfo || memberLoading ? null : (
           <p>
-            Choose a family member you&apos;d like to remove from{" "}
-            {`The ${familyInfo?.surname || ""} Family`} to view their
-            information and confirm their removal from the family.
+            Choose a family member to view their information and confirm their
+            status as the new admin of <b>The {familyInfo?.surname} Family</b>.
           </p>
         )}
         {showMemberInfo()}
 
-        <label htmlFor="members">Member to remove:</label>
+        <label htmlFor="members">Member to promote:</label>
         <select
           className="border-2 border-neutral-600 bg-neutral-100 p-2 hover:outline hover:outline-slate-600 focus:outline focus:outline-slate-600"
           defaultValue={0}
@@ -200,9 +174,9 @@ export default function RemoveForm({ familyId }: Props) {
         {confirming ? (
           <div className="flex flex-col gap-2">
             <p className="text-red-700">
-              Are you sure you want to remove{" "}
-              <b>{memberInfo?.name || "them"}</b> from{" "}
-              <b>The {familyInfo?.surname || null} Family</b>?
+              Are you sure you want to transfer admin status to{" "}
+              <b>{memberInfo?.name || "them"}</b>? You will no longer be admin
+              of <b>The {familyInfo?.surname || null} Family</b>!
             </p>
 
             <Button style="cancel" onClick={toggleConfirm} type="button">
@@ -210,7 +184,7 @@ export default function RemoveForm({ familyId }: Props) {
             </Button>
 
             <Button style="submit" type="submit">
-              REMOVE MEMBER
+              TRANSFER
             </Button>
           </div>
         ) : (
@@ -231,8 +205,8 @@ export default function RemoveForm({ familyId }: Props) {
     <form action={submitForm} className="text-lg" noValidate>
       <Card
         borderColor="border-emerald-400"
-        flair={<Image alt="" className="p-2" src={removeIcon} width={48} />}
-        heading="Remove Member"
+        flair={<Image alt="" className="p-2" src={promoteIcon} width={48} />}
+        heading="Transfer Admin Role"
         headingColor="bg-emerald-200"
       >
         {loading ? (
