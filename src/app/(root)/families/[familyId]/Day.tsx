@@ -127,6 +127,7 @@ export default function Day({
                       return (
                         <Event
                           date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
+                          dayVisible={detailsVisible}
                           event={event}
                           index={index}
                           key={`event-id-${eventId}`}

@@ -16,6 +16,7 @@ import EventInterface from "@/types/Events";
 
 interface Props {
   date: string;
+  dayVisible: boolean;
   event: EventInterface;
   index: number;
   updateDate: (newDate: Date) => void;
@@ -25,6 +26,7 @@ interface Props {
 
 export default function Event({
   date,
+  dayVisible,
   event,
   index,
   updateDate,
@@ -80,6 +82,7 @@ export default function Event({
           extraClasses="m-2"
           style="cancel"
           onClick={toggleConfirmDelete}
+          tabIndex={dayVisible && detailsVisible && confirmingDelete ? 0 : -1}
           type="button"
         >
           CANCEL
@@ -88,6 +91,7 @@ export default function Event({
           extraClasses="m-2"
           style="delete"
           onClick={submitDelete}
+          tabIndex={dayVisible && detailsVisible && confirmingDelete ? 0 : -1}
           type="button"
         >
           CONFIRM
@@ -103,7 +107,12 @@ export default function Event({
         return showConfirming();
       }
       return (
-        <Button style="delete" onClick={toggleConfirmDelete} type="button">
+        <Button
+          style="delete"
+          onClick={toggleConfirmDelete}
+          tabIndex={dayVisible && detailsVisible ? 0 : -1}
+          type="button"
+        >
           DELETE
         </Button>
       );
@@ -140,6 +149,7 @@ export default function Event({
                 <Link
                   className="font-bold text-violet-800 hover:underline focus:underline"
                   href={`/users/${event.createdBy}`}
+                  tabIndex={dayVisible && detailsVisible ? 0 : -1}
                 >
                   {creatorName}
                 </Link>
@@ -159,31 +169,30 @@ export default function Event({
 
   return (
     <li
-      className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} grid grid-cols-[112px_1fr] grid-rows-[auto_1fr] gap-2`}
+      className={`${index % 2 === 0 ? "bg-slate-300" : "bg-slate-200"} grid grid-cols-[112px_1fr] grid-rows-[auto_1fr] gap-2 items-center`}
     >
       <div className="p-2 font-mono text-base font-bold">
         {`${event.eventDate.toLocaleTimeString([], { timeStyle: "short" })}`}
       </div>
 
       <div className="flex flex-col p-2">
-        <div className="flex items-center justify-between gap-2">
+        <button
+          aria-controls={`event-${event.id}-details`}
+          aria-expanded={detailsVisible ? "true" : "false"}
+          className="flex items-center justify-between gap-2 hover:underline focus:underline"
+          onClick={toggleDetailsVisible}
+          tabIndex={dayVisible ? 0 : -1}
+          title={`${detailsVisible ? "Hide" : "Show"} "${event.title}" details`}
+          type="button"
+        >
           <div className="text-xl">{event.title}</div>
-          <button
-            aria-controls={`event-${event.id}-details`}
-            aria-expanded={detailsVisible ? "true" : "false"}
-            className="flex flex-wrap items-center gap-2"
-            onClick={toggleDetailsVisible}
-            title={`${detailsVisible ? "Hide" : "Show"} "${event.title}" details`}
-            type="button"
-          >
-            <Image
-              alt=""
-              className={`${detailsVisible ? "" : "rotate-180"} transition-all`}
-              src={triangleIcon}
-              width={16}
-            />
-          </button>
-        </div>
+          <Image
+            alt=""
+            className={`${detailsVisible ? "" : "rotate-180"} transition-all`}
+            src={triangleIcon}
+            width={16}
+          />
+        </button>
       </div>
       {showDetails()}
     </li>
