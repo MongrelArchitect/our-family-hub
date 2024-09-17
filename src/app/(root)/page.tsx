@@ -11,11 +11,22 @@ import Invite from "./Invite";
 
 import { getUsersInvites, getUsersOwnInfo } from "@/lib/db/users";
 import { getFamilyInfo } from "@/lib/db/families";
+import UserInterface from "@/types/Users";
 
 const josefin = Josefin_Sans({ subsets: ["latin"], display: "swap" });
 
 export default async function Home() {
-  const user = await getUsersOwnInfo();
+  let user: UserInterface | null;
+  try {
+    user = await getUsersOwnInfo();
+  } catch {
+    user = null;
+  }
+
+  if (!user) {
+    return null;
+  }
+
   const invites = await getUsersInvites(user.id);
 
   const showInvites = () => {

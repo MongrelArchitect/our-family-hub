@@ -17,8 +17,6 @@ import { getFamilyInfo } from "@/lib/db/families";
 import { getThreadInfo, getThreadPosts } from "@/lib/db/threads";
 import { getOtherUsersInfo as getAuthorInfo } from "@/lib/db/users";
 
-import UserInterface from "@/types/Users";
-
 interface Params {
   params: {
     familyId: string;
@@ -44,16 +42,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function Thread({ params }: Params) {
   const userId = await getUserId();
-
   const familyId = +params.familyId;
   const threadId = +params.threadId;
-
   const familyInfo = await getFamilyInfo(familyId);
   const threadInfo = await getThreadInfo(threadId, familyId);
   const authorInfo = await getAuthorInfo(threadInfo.authorId);
-
   const posts = await getThreadPosts(familyId, threadId);
-
   const userIsAdmin = userId === familyInfo.adminId;
   const userIsThreadAuthor = userId === threadInfo.authorId;
 

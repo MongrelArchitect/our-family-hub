@@ -105,7 +105,6 @@ export const getCalendarEvents = cache(
       const userId = await getUserId();
       const prevMonth = month - 1;
       const nextMonth = month + 1;
-      console.log(month);
 
       const query = `
       WITH member_check AS (
