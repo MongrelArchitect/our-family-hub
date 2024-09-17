@@ -58,21 +58,7 @@ export default function TermsAndConditions() {
           </div>
 
           <div className="flex flex-col">
-            <h3 className="font-bold">5. Account Deletion</h3>
-            <p>
-              If you want to delete your account, please{" "}
-              <a
-                className="font-bold text-violet-800 hover:underline focus:underline"
-                href="mailto:set@seanericthomas.com"
-              >
-                email us
-              </a>
-              . We're working on improving this process in the near future.
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <h3 className="font-bold">6. Future Changes</h3>
+            <h3 className="font-bold">5. Future Changes</h3>
             <p>
               These terms and conditions are subject to change at any time
               without any prior notice. By continuing to use the site you agree
@@ -81,7 +67,7 @@ export default function TermsAndConditions() {
           </div>
 
           <div className="flex flex-col">
-            <h3 className="font-bold">7. Liability</h3>
+            <h3 className="font-bold">6. Liability</h3>
             <p>
               Our Family Hub cannot be held liable for any errors, bugs, or data
               loss you might experience while using the site. We provide no
@@ -96,9 +82,9 @@ export default function TermsAndConditions() {
               email:{" "}
               <a
                 className="font-bold text-violet-800 hover:underline focus:underline"
-                href="mailto:set@seanericthomas.com"
+                href="mailto:sean@ourfamilyhub.net"
               >
-                set@seanericthomas.com
+                sean@ourfamilyhub.net
               </a>
             </p>
           </div>
