@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { isEmpty, isLength, trim } from "validator";
 
 import pool from "./pool";
 
@@ -13,11 +14,18 @@ export async function createNewPost(
   familyId: number,
   formData: FormData,
 ) {
-  // XXX TODO XXX
-  // input validation & rate limiting
   try {
     const userId = await getUserId();
-    const content = formData.get("content");
+
+    let content = formData.get("content");
+    if (!content || typeof content !== "string") {
+      throw new Error("Missing or invalid content");
+    }
+    content = trim(content);
+    if (isEmpty(content) || !isLength(content, {min: 1, max: 20000})) {
+      throw new Error("Content required - 20,000 characters max");
+    }
+
     const query = `
       WITH member_check AS (
         SELECT 1
@@ -49,18 +57,25 @@ export async function createNewPost(
 }
 
 export async function createNewThread(familyId: number, formData: FormData) {
-  // XXX TODO XXX
-  // input validation & rate limiting
   try {
     const userId = await getUserId();
 
-    const title = formData.get("title");
-    const content = formData.get("content");
-    if (!title) {
-      throw new Error("Cannot create thread - missing title");
+    let title = formData.get("title");
+    if (!title || typeof title !== "string") {
+      throw new Error("Missing or invalid title");
     }
-    if (!content) {
-      throw new Error("Cannot create thread - missing content");
+    title = trim(title);
+    if (isEmpty(title) || !isLength(title, {min: 1, max: 255})) {
+      throw new Error("Title required - 255 characters max");
+    }
+
+    let content = formData.get("content");
+    if (!content || typeof content !== "string") {
+      throw new Error("Missing or invalid content");
+    }
+    content = trim(content);
+    if (isEmpty(content) || !isLength(content, {min: 1, max: 20000})) {
+      throw new Error("Content required - 20,000 characters max");
     }
 
     const query = `

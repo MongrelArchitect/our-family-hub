@@ -15,15 +15,12 @@ export async function addNewFamilyImage(
   name: string,
   familyId: number,
   formData: FormData,
+  surname: string,
 ) {
   const file = formData.get(name) as File;
-  const surname = formData.get("surname") as string;
-  if (!surname) {
-    throw new Error("Missing surname");
-  }
   if (!file.size) {
-    // no image provided, make a default one
-    const firstLetter = surname[0].toUpperCase();
+    // no image provided, make a default one with the first alphabet letter
+    const firstLetter = (surname.match(/[a-zA-Z]/) || []).pop()?.toUpperCase();
 
     const svg = `
     <svg width="${FAMILY_IMAGE_SIZE}" height="${FAMILY_IMAGE_SIZE}" xmlns="http://www.w3.org/2000/svg">

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cache } from "react";
+import { isDate, isEmpty, isInt, isLength, isTime, trim } from "validator";
 
 import getUserId from "@/lib/auth/user";
 import pool from "./pool";
@@ -11,14 +12,55 @@ export async function createNewEvent(formData: FormData, familyId: number) {
   try {
     const userId = await getUserId();
 
-    // XXX TODO XXX
-    // input validation & rate limiting
-    const title = formData.get("event-title") as string;
-    const details = formData.get("event-details") as string;
-    const eventDate = formData.get("event-date") as string;
-    const eventTime = formData.get("event-time") as string;
-    const eventOffset = formData.get("event-offset") as string;
-    // XXX
+    /* SANITIZE & VALIDATE */
+
+    let title = formData.get("event-title");
+    if (!title || typeof title !== "string") {
+      throw new Error("Missing or invalid title");
+    }
+    title = trim(title);
+    if (isEmpty(title) || !isLength(title, { min: 1, max: 255 })) {
+      throw new Error("Title required - 255 characters max");
+    }
+
+    let details = formData.get("event-details");
+    if (details) {
+      if (typeof details !== "string") {
+        throw new Error("Invalid details");
+      }
+      details = trim(details);
+      if (!isLength(details, { min: 0, max: 1000 })) {
+        throw new Error("Details 1000 characters max");
+      }
+    }
+
+    const eventDate = formData.get("event-date");
+    if (
+      !eventDate ||
+      typeof eventDate !== "string" ||
+      !isDate(eventDate, {
+        strictMode: true,
+        format: "YYYY-MM-DD",
+        delimiters: ["-"],
+      })
+    ) {
+      throw new Error("Misisng or invalid date");
+    }
+
+    const eventTime = formData.get("event-time");
+    if (!eventTime || typeof eventTime !== "string" || !isTime(eventTime)) {
+      throw new Error("Missing or invalid time");
+    }
+
+    const eventOffset = formData.get("event-offset");
+    // max possible offset is 720 (UTC-12), min possible is -840 (UTC+14)
+    if (
+      !eventOffset ||
+      typeof eventOffset !== "string" ||
+      !isInt(eventOffset, { min: -840, max: 720 })
+    ) {
+      throw new Error("Missing or invalid timezone offset");
+    }
 
     // need to make sure user's local time selection is converted to db's UTC
     const fullUTCDate = new Date(eventDate);
@@ -27,6 +69,8 @@ export async function createNewEvent(formData: FormData, familyId: number) {
     fullUTCDate.setHours(hours);
     fullUTCDate.setMinutes(minutes);
     fullUTCDate.setMinutes(fullUTCDate.getMinutes() + +eventOffset);
+
+    /* QUERY */
 
     const query = `
       WITH member_check AS (
@@ -103,8 +147,8 @@ export const getCalendarEvents = cache(
     try {
       // get events for the month and it's neighbors
       const userId = await getUserId();
-      const prevMonth = month - 1;
-      const nextMonth = month + 1;
+      const prevMonth = month === 1 ? 12 : month - 1;
+      const nextMonth = month === 12 ? 1 : month + 1;
 
       const query = `
       WITH member_check AS (
@@ -154,13 +198,13 @@ export const getCalendarEvents = cache(
           }
           events.current[newEventDate][newEvent.id] = newEvent;
         }
-        if (newEventMonth === month - 1) {
+        if (newEventMonth === prevMonth) {
           if (!events.prev[newEventDate]) {
             events.prev[newEventDate] = {};
           }
           events.prev[newEventDate][newEvent.id] = newEvent;
         }
-        if (newEventMonth === month + 1) {
+        if (newEventMonth === nextMonth) {
           if (!events.next[newEventDate]) {
             events.next[newEventDate] = {};
           }

@@ -66,6 +66,33 @@ export default function Day({
     setFormVisible(!formVisible);
   };
 
+  const generateDateString = () => {
+    // need to generate a YYYY-MM-DD date string for new events
+    let correctedMonth = month;
+
+    if (!inPrevMonth) {
+      if (inNextMonth) {
+        correctedMonth += 2;
+      } else {
+        correctedMonth += 1;
+      }
+    }
+
+    if (correctedMonth > 12) {
+      correctedMonth = 1;
+    }
+
+    if (correctedMonth < 1) {
+      correctedMonth = 12;
+    }
+
+    const paddedMonth = correctedMonth.toString().padStart(2, "0")
+
+    const paddedDay = dayNumber.toString().padStart(2, "0")
+
+    return `${year}-${paddedMonth}-${paddedDay}`;
+  };
+
   const showDetails = () => {
     return (
       <div
@@ -96,7 +123,7 @@ export default function Day({
             ) : formVisible ? (
               // "date" used to construct db timestamp - add 1 to zero indexed month
               <NewEventForm
-                date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
+                date={generateDateString()}
                 toggleFormVisible={toggleFormVisible}
                 updateDate={updateDate}
                 visible={formVisible}
@@ -126,7 +153,7 @@ export default function Day({
                       const event = daysEvents[+eventId];
                       return (
                         <Event
-                          date={`${year}-${inPrevMonth ? month : inNextMonth ? month + 2 : month + 1}-${dayNumber}`}
+                          date={generateDateString()}
                           dayVisible={detailsVisible}
                           event={event}
                           index={index}

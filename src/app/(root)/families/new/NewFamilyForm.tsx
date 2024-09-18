@@ -41,8 +41,7 @@ export default function NewFamilyForm() {
       try {
         // add the new family to the db, getting its id in return
         setLoading(true);
-        const familyId = await createNewFamily(formData);
-        await addNewFamilyImage("new-family-image", familyId, formData);
+        const familyId = await createNewFamily("new-family-image", formData);
         router.push(`/families/${familyId}`);
       } catch (err) {
         setLoading(false);

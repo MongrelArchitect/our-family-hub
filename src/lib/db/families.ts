@@ -2,23 +2,36 @@
 
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
+import { isEmail, isEmpty, isLength, trim } from "validator";
 
+import { addNewFamilyImage } from "../images/images";
 import getUserId from "@/lib/auth/user";
 import pool from "./pool";
 
 import FamilyInterface from "@/types/Families";
 import UserInterface from "@/types/Users";
 
-export async function createNewFamily(formData: FormData): Promise<number> {
-  // XXX TODO XXX
-  // rate limiting & input validation (surname)
+export async function createNewFamily(
+  imageName: string,
+  formData: FormData,
+): Promise<number> {
   const client = await pool.connect();
   try {
     const userId = await getUserId();
 
-    const surname = formData.get("surname");
-    if (!surname) {
-      throw new Error("Cannot create family - missing surname");
+    let surname = formData.get("surname");
+    if (!surname || typeof surname !== "string") {
+      throw new Error("Missing or invalid surname");
+    }
+
+    surname = trim(surname);
+
+    if (isEmpty(surname)) {
+      throw new Error("Surname required");
+    }
+
+    if (!isLength(surname, { min: 1, max: 255 })) {
+      throw new Error("255 characters max");
     }
 
     await client.query("BEGIN");
@@ -30,12 +43,15 @@ export async function createNewFamily(formData: FormData): Promise<number> {
     `;
     const familyResult = await client.query(familyQuery, [userId, surname]);
     const familyId: number = familyResult.rows[0].id;
+    // now that we have the id, handle the family image
+    await addNewFamilyImage(imageName, familyId, formData, surname);
     // also add them to the junction table tracking family members
     const memberQuery = `
       INSERT INTO family_members (family_id, member_id) 
       VALUES ($1, $2)
     `;
     await client.query(memberQuery, [familyId, userId]);
+
     await client.query("COMMIT");
     revalidatePath("/families/all");
     // return the id of the newly created family, for redirecting to its page
@@ -220,9 +236,19 @@ export async function editFamilySurname(familyId: number, formData: FormData) {
   try {
     const userId = await getUserId();
 
-    const surname = formData.get("surname");
-    if (!surname) {
-      throw new Error("Error editing family - missing surname");
+    let surname = formData.get("surname");
+    if (!surname || typeof surname !== "string") {
+      throw new Error("Missing or invalid surname");
+    }
+
+    surname = trim(surname);
+
+    if (isEmpty(surname)) {
+      throw new Error("Surname required");
+    }
+
+    if (!isLength(surname, { min: 1, max: 255 })) {
+      throw new Error("255 characters max");
     }
 
     const query = `
@@ -454,12 +480,23 @@ export const getFamilyInfo = cache(async (familyId: number) => {
 
 export const inviteNewMember = cache(
   async (familyId: number, formData: FormData) => {
-    // XXX TODO XXX
-    // rate limiting & input validation
     try {
       const authUserId = await getUserId();
 
-      const email = formData.get("email") as string;
+      let email = formData.get("email");
+      if (!email || typeof email !== "string") {
+        throw new Error("Missing or invalid email");
+      }
+
+      email = trim(email);
+
+      if (isEmpty(email)) {
+        throw new Error("Email required");
+      }
+
+      if (!isEmail(email)) {
+        throw new Error("Invalid email");
+      }
       // invite the user if they exist, are not in the family, have not already
       // been invited and if the user making the invite is the family admin
 

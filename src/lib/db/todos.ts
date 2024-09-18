@@ -1,7 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import {notFound} from "next/navigation";
+import { notFound } from "next/navigation";
 import { cache } from "react";
+import { isDate, isEmpty, isInt, isLength, trim } from "validator";
 
 import pool from "./pool";
 
@@ -18,15 +19,38 @@ export async function createNewTask(
   offset: number | null,
   formData: FormData,
 ) {
-  // XXX TODO XXX
-  // input validation & rate limiting
   try {
     const userId = await getUserId();
 
-    // task info
-    const title = formData.get("title");
-    const details = formData.get("details");
+    // title required
+    let title = formData.get("title");
+    if (!title || typeof title !== "string") {
+      throw new Error("Missing or invalid title");
+    }
+    title = trim(title);
+    if (isEmpty(title) || !isLength(title, { min: 1, max: 255 })) {
+      throw new Error("Title required - 255 characters max");
+    }
+
+    // details optional
+    let details = formData.get("details");
+    if (details) {
+      if (typeof details !== "string") {
+        throw new Error("Invalid details");
+      }
+      details = trim(details);
+      if (!isLength(details, { min: 0, max: 255 })) {
+        throw new Error("Details 255 characters max");
+      }
+    }
+
+    // due date optional
     const dueDate = formData.get("due");
+    if (dueDate) {
+      if (typeof dueDate !== "string" || !isDate(dueDate)) {
+        throw new Error("Invalud due date");
+      }
+    }
 
     // we need to standarize any timestamps coming from the user by first
     // converting them into UTC, so that any conversions back to user's time zone
@@ -39,7 +63,13 @@ export async function createNewTask(
       dueDateUTC = date.toISOString();
     }
 
+    // assigned optional
     const assigned = formData.get("assigned");
+    if (assigned) {
+      if (typeof assigned !== "string" || !isInt(assigned)) {
+        throw new Error("Invalid assigned user id");
+      }
+    }
 
     const query = `
       WITH member_check AS (
@@ -67,8 +97,7 @@ export async function createNewTask(
     if (!result.rowCount) {
       throw new Error("Error creating new task");
     }
-    // revalidate
-    // XXX - more
+
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
@@ -79,17 +108,30 @@ export async function createNewTask(
 }
 
 export async function createNewTodoList(familyId: number, formData: FormData) {
-  // XXX TODO XXX
-  // input validation & rate limiting
   try {
     const userId = await getUserId();
+
     // title required
-    const title = formData.get("title");
-    if (!title) {
-      throw new Error("Cannot create todo list - missing title");
+    let title = formData.get("title");
+    if (!title || typeof title !== "string") {
+      throw new Error("Misisng or invalid title");
     }
+    title = trim(title);
+    if (isEmpty(title) || !isLength(title, { min: 1, max: 255 })) {
+      throw new Error("Title required - 255 characters max");
+    }
+
     // description optional
-    const description = formData.get("description");
+    let description = formData.get("description");
+    if (description) {
+      if (typeof description !== "string") {
+        throw new Error("Invalid description");
+      }
+      description = trim(description);
+      if (!isLength(title, { min: 0, max: 255 })) {
+        throw new Error("Description 255 characters max");
+      }
+    }
 
     const query = `
       WITH member_check AS (
@@ -115,7 +157,6 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
       // rowCount will be 1 if successfully created, 0 if not
       throw new Error("Error creating todo list");
     }
-    // XXX which paths?
     revalidatePath(`/families/${familyId}/`);
     return +result.rows[0].id;
   } catch (err) {

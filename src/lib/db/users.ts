@@ -1,6 +1,7 @@
 "use server";
-
 import { cache } from "react";
+import { isEmpty, isLength, trim } from "validator";
+
 import pool from "./pool";
 
 import getUserId from "../auth/user";
@@ -124,12 +125,21 @@ export async function deleteUser() {
 
 export async function editUserName(formData: FormData) {
   try {
-    // XXX TODO XXX
-    // input validation & rate limiting
-    const newName = formData.get("name");
-    if (!newName) {
-      throw new Error("Error editing user name: name required");
+    let newName = formData.get("name");
+    if (!newName || typeof newName !== "string") {
+      throw new Error("Missing or invalid name");
     }
+
+    newName = trim(newName);
+
+    if (isEmpty(newName)) {
+      throw new Error("Name required");
+    }
+
+    if (!isLength(newName, { min: 1, max: 255 })) {
+      throw new Error("255 characters max");
+    }
+
     const userId = await getUserId();
     const query = `
       UPDATE users
