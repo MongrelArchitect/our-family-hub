@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { checkIfUserIsFamilyMember, getFamilyInfo } from "@/lib/db/families";
-import getUserId from "@/lib/auth/user";
 
 export async function generateMetadata({
   params,
@@ -35,12 +34,10 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { familyId: string };
 }>) {
-  const userId = await getUserId();
-
   const familyId = +params.familyId;
 
   // this will also return false if no such family exists with the given id
-  const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId, userId);
+  const userIsFamilyMember = await checkIfUserIsFamilyMember(familyId);
 
   if (!userIsFamilyMember) {
     // don't divulge family existence - just 404

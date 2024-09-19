@@ -19,7 +19,9 @@ export default async function AllFamilies() {
     families = await getAllUsersFamilies(userId);
   } catch (err) {
     console.error("Error getting user's families: ", err);
-    return <div className="text-red-700">Error getting user's families</div>;
+    return (
+      <div className="text-red-700">Error getting user&apos;s families</div>
+    );
   }
 
   if (families.length) {

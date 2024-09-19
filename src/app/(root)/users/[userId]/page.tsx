@@ -21,14 +21,12 @@ export async function generateMetadata({
 }: {
   params: { userId: string };
 }): Promise<Metadata> {
-  let memberName = "User Profile";
+  let memberName: string;
   try {
     const { name } = await getOtherUsersInfo(+params.userId);
     memberName = name;
-  } catch (err) {
-    // XXX TODO XXX
-    // log this
-    console.error("Error getting user name for page title: ", err);
+  } catch {
+    memberName = "User Profile";
   }
 
   return {

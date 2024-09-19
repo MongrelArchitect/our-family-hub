@@ -5,15 +5,14 @@ import { cache } from "react";
 import { isDate, isEmpty, isInt, isLength, isTime, trim } from "validator";
 
 import getUserId from "@/lib/auth/user";
+import generateError from "@/lib/errors/errors";
 import pool from "./pool";
 import EventInterface, { CalendarEventsData } from "@/types/Events";
 
 export async function createNewEvent(formData: FormData, familyId: number) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     /* SANITIZE & VALIDATE */
-
     let title = formData.get("event-title");
     if (!title || typeof title !== "string") {
       throw new Error("Missing or invalid title");
@@ -103,15 +102,23 @@ export async function createNewEvent(formData: FormData, familyId: number) {
     }
     revalidatePath(`/families/${familyId}/`);
   } catch (err) {
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewEvent",
+          "Error creating new calendar event",
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   }
 }
 
 export async function deleteEvent(eventId: number, familyId: number) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     const query = `
       WITH admin_check AS (
         SELECT 1
@@ -136,17 +143,25 @@ export async function deleteEvent(eventId: number, familyId: number) {
     }
     revalidatePath(`/families/${familyId}/`);
   } catch (err) {
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deleteEvent",
+          "Error deleting calendar event",
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   }
 }
 
 export const getCalendarEvents = cache(
   async (familyId: number, month: number, offset: number) => {
+    const userId = await getUserId();
     try {
       // get events for the month and it's neighbors
-      const userId = await getUserId();
       const prevMonth = month === 1 ? 12 : month - 1;
       const nextMonth = month === 12 ? 1 : month + 1;
 
@@ -213,9 +228,17 @@ export const getCalendarEvents = cache(
       });
       return events;
     } catch (err) {
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "getCalendarEvents",
+            "Error getting calendar events for a month and its neighbors",
+            userId,
+          ),
+        ),
+      );
       throw err;
-      // XXX TODO XXX
-      // log this
     }
   },
 );

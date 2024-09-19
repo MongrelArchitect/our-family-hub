@@ -5,6 +5,7 @@ import { isEmpty, isLength, trim } from "validator";
 import pool from "./pool";
 
 import getUserId from "../auth/user";
+import generateError from "../errors/errors";
 
 import InviteInterface from "@/types/Invites";
 import UserInterface from "@/types/Users";
@@ -22,17 +23,25 @@ export async function addUserToDatabase(user: {
     );
     return result.rows[0].id;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "addUserToDatabase",
+          `Error adding user with email ${user.email} to database`,
+          0,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export async function deleteUser() {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const userId = await getUserId();
 
     // first check if user is admin of any family, if so they can't be deleted
     const adminQuery = `
@@ -115,8 +124,11 @@ export async function deleteUser() {
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(err, "deleteUser", "Error deleting user", userId),
+      ),
+    );
     throw err;
   } finally {
     client.release();
@@ -124,6 +136,7 @@ export async function deleteUser() {
 }
 
 export async function editUserName(formData: FormData) {
+  const userId = await getUserId();
   try {
     let newName = formData.get("name");
     if (!newName || typeof newName !== "string") {
@@ -140,7 +153,6 @@ export async function editUserName(formData: FormData) {
       throw new Error("255 characters max");
     }
 
-    const userId = await getUserId();
     const query = `
       UPDATE users
       SET name = $2
@@ -153,8 +165,11 @@ export async function editUserName(formData: FormData) {
     revalidatePath("/users/me");
     revalidatePath(`/users/${userId}`);
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(err, "editUserName", "Error editing user name", userId),
+      ),
+    );
     throw err;
   }
 }
@@ -170,13 +185,22 @@ export async function getUserIdFromEmail(email: string): Promise<number> {
     }
     return 0;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getUserIdFromEmail",
+          `Error getting id of user with email ${email}`,
+          0,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
-export const getUsersInvites = cache(async (userId: number) => {
+export const getUsersInvites = cache(async () => {
+  const userId = await getUserId();
   try {
     const result = await pool.query(
       "SELECT family_id, created_at FROM invites WHERE user_id = $1 ORDER BY created_at DESC",
@@ -191,15 +215,18 @@ export const getUsersInvites = cache(async (userId: number) => {
     });
     return invites;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(err, "getUsersInvites", "Error getting invites", userId),
+      ),
+    );
     throw err;
   }
 });
 
 export const checkIfSameFamily = cache(async (userId: number) => {
+  const authUserId = await getUserId();
   try {
-    const authUserId = await getUserId();
     const query = `
         SELECT 1
         FROM family_members fm1
@@ -214,16 +241,23 @@ export const checkIfSameFamily = cache(async (userId: number) => {
     }
     return true;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "checkIfSameFamily",
+          `Error checking if any families shared with user having id ${userId}`,
+          authUserId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const getOtherUsersInfo = cache(async (userId: number) => {
+  const authUserId = await getUserId();
   try {
-    const authUserId = await getUserId();
-
     // only get other user's info if they share a family in common or
     // if they're querying for the "Former Member" use with id of 1
     const query = `
@@ -260,15 +294,23 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
 
     return user;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getOtherUsersInfo",
+          `Error getting info about user with id ${userId}`,
+          authUserId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const getUsersOwnInfo = cache(async () => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     const query = `
       SELECT email, name, created_at, last_login_at
       FROM users
@@ -289,8 +331,16 @@ export const getUsersOwnInfo = cache(async () => {
     };
     return userInfo;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getUsersOwnInfo",
+          "Error getting users own info",
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
@@ -303,8 +353,16 @@ export async function updateUserLoginTimestamp(userId: number) {
     );
     return result;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "updateUserLoginTimestamp",
+          "Error updating users last_login_at timestamp",
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }

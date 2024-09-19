@@ -6,6 +6,7 @@ import { isEmail, isEmpty, isLength, trim } from "validator";
 
 import { addNewFamilyImage } from "../images/images";
 import getUserId from "@/lib/auth/user";
+import generateError from "../errors/errors";
 import pool from "./pool";
 
 import FamilyInterface from "@/types/Families";
@@ -16,9 +17,8 @@ export async function createNewFamily(
   formData: FormData,
 ): Promise<number> {
   const client = await pool.connect();
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     let surname = formData.get("surname");
     if (!surname || typeof surname !== "string") {
       throw new Error("Missing or invalid surname");
@@ -44,7 +44,7 @@ export async function createNewFamily(
     const familyResult = await client.query(familyQuery, [userId, surname]);
     const familyId: number = familyResult.rows[0].id;
     // now that we have the id, handle the family image
-    await addNewFamilyImage(imageName, familyId, formData, surname);
+    await addNewFamilyImage(imageName, familyId, formData, surname, userId);
     // also add them to the junction table tracking family members
     const memberQuery = `
       INSERT INTO family_members (family_id, member_id) 
@@ -57,8 +57,16 @@ export async function createNewFamily(
     // return the id of the newly created family, for redirecting to its page
     return familyId;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewFamily",
+          "Error creating new family",
+          userId,
+        ),
+      ),
+    );
     await client.query("ROLLBACK");
     throw err;
   } finally {
@@ -67,9 +75,8 @@ export async function createNewFamily(
 }
 
 export const checkIfUserIsAdmin = cache(async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
       SELECT 1
       FROM families
@@ -79,14 +86,23 @@ export const checkIfUserIsAdmin = cache(async (familyId: number) => {
     const result = await pool.query(query, [userId, familyId]);
     return result.rowCount ? true : false;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "checkIfUserIsAdmin",
+          `Error checking if user is admin of familiy with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const checkIfUserIsFamilyMember = cache(
-  async (familyId: number, userId: number): Promise<boolean> => {
+  async (familyId: number): Promise<boolean> => {
+    const userId = await getUserId();
     try {
       const query = `
         SELECT EXISTS(
@@ -99,17 +115,24 @@ export const checkIfUserIsFamilyMember = cache(
       const exists: boolean = res.rows[0].exists;
       return exists;
     } catch (err) {
-      // XXX TODO XXX
-      // log this
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "checkIfUserIsFamilyMember",
+            `Error checking if user is member of familiy with id ${familyId}`,
+            userId,
+          ),
+        ),
+      );
       throw err;
     }
   },
 );
 
 export const checkIfUserCanViewImage = cache(async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
         WITH member_check AS (
           SELECT 1
@@ -130,16 +153,24 @@ export const checkIfUserCanViewImage = cache(async (familyId: number) => {
     const result = await pool.query(query, [userId, familyId]);
     return result.rowCount ? true : false;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "checkIfUserCanViewImage",
+          `Error checking if user can view image of familiy with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export async function deleteFamily(familyId: number) {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
-    const userId = await getUserId();
     await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
     // first check if the user making this request is the family admin
     const adminCheck = `
@@ -224,8 +255,16 @@ export async function deleteFamily(familyId: number) {
     revalidatePath(`/families/${familyId}`);
   } catch (err) {
     await client.query("ROLLBACK");
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deleteFamily",
+          `Error deleting familiy with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   } finally {
     client.release();
@@ -233,9 +272,8 @@ export async function deleteFamily(familyId: number) {
 }
 
 export async function editFamilySurname(familyId: number, formData: FormData) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     let surname = formData.get("surname");
     if (!surname || typeof surname !== "string") {
       throw new Error("Missing or invalid surname");
@@ -276,16 +314,23 @@ export async function editFamilySurname(familyId: number, formData: FormData) {
       throw new Error("Error editing family - enure admin status");
     }
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "editFamilySurname",
+          `Error editing surname of familiy with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export const getAllAdminFamilies = cache(async () => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
       SELECT 
         f.id AS family_id, 
@@ -323,8 +368,16 @@ export const getAllAdminFamilies = cache(async () => {
 
     return families;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getAllAdminFamilies",
+          "Error getting all families that user is admin of",
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
@@ -376,16 +429,23 @@ export const getAllUsersFamilies = cache(async (userId: number) => {
 
     return response;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getAllUsersFamilies",
+          "Error getting all families that user is member of",
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const getFamilyMembers = cache(async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     // query is restricted to family members only - hence the AND EXISTS...
     const query = `
       SELECT 
@@ -420,8 +480,16 @@ export const getFamilyMembers = cache(async (familyId: number) => {
     });
     return members;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getFamilyMembers",
+          `Error getting members of family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
@@ -430,23 +498,47 @@ export const getFamilySurname = cache(async (familyId: number) => {
   // XXX TODO XXX
   // 1) do we need this? getFamilyInfo gets surname & we can rely on cache...
   // 2) if so, protect this so only family members can get the info
+  const userId = await getUserId();
   try {
-    const res = await pool.query("SELECT surname FROM families WHERE id = $1", [
-      familyId,
-    ]);
+    const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
+      SELECT surname
+      FROM families
+      WHERE id = $2
+      AND EXISTS(SELECT 1 FROM member_check)
+    `;
+    const res = await pool.query(query, [userId, familyId]);
     return res.rows[0].surname as string;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getFamilySurname",
+          `Error getting surname of family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const getFamilyInfo = cache(async (familyId: number) => {
-  // XXX TODO XXX
-  // need to protect this so only family members can get the info
+  const userId = await getUserId();
   try {
     const query = `
+      WITH member_check AS (
+        SELECT 1
+        FROM family_members
+        WHERE member_id = $1
+        AND family_id = $2
+      )
       SELECT 
         f.surname, 
         COUNT(fm.member_id) AS member_count, 
@@ -457,10 +549,11 @@ export const getFamilyInfo = cache(async (familyId: number) => {
       ON f.id = fm.family_id 
       LEFT JOIN users AS u 
       ON f.admin_id = u.id 
-      WHERE f.id = $1 
+      WHERE f.id = $2 
+      AND EXISTS(SELECT 1 FROM member_check)
       GROUP BY f.id, u.name
     `;
-    const res = await pool.query(query, [familyId]);
+    const res = await pool.query(query, [userId, familyId]);
 
     const response: FamilyInterface = {
       adminId: +res.rows[0].admin_id,
@@ -472,18 +565,25 @@ export const getFamilyInfo = cache(async (familyId: number) => {
 
     return response;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getFamilyInfo",
+          `Error getting info of family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const inviteNewMember = cache(
   async (familyId: number, formData: FormData) => {
+    const authUserId = await getUserId();
+    let email = formData.get("email");
     try {
-      const authUserId = await getUserId();
-
-      let email = formData.get("email");
       if (!email || typeof email !== "string") {
         throw new Error("Missing or invalid email");
       }
@@ -540,18 +640,25 @@ export const inviteNewMember = cache(
       }
       return;
     } catch (err) {
-      // XXX TODO XXX
-      // log this
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "inviteNewMember",
+            `Error inviting user with email ${email} to family with id ${familyId}`,
+            authUserId,
+          ),
+        ),
+      );
       throw err;
     }
   },
 );
 
 export const joinFamily = cache(async (familyId: number) => {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
-    const userId = await getUserId();
-
     const invitedQuery = await pool.query(
       "SELECT EXISTS(SELECT 1 FROM invites WHERE user_id = $1 AND family_id = $2)",
       [userId, familyId],
@@ -577,33 +684,49 @@ export const joinFamily = cache(async (familyId: number) => {
     }
   } catch (err) {
     await client.query("ROLLBACK");
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "joinFamily",
+          `Error joining family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   } finally {
     client.release();
   }
 });
 
 export const removeInvite = async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     await pool.query(
       "DELETE FROM invites WHERE user_id = $1 AND family_id = $2",
       [userId, familyId],
     );
     revalidatePath("/");
   } catch (err) {
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "removeInvite",
+          `Error removing invite from family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   }
 };
 
 export async function removeMember(familyId: number, memberId: number) {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
-    const userId = await getUserId();
     await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE");
     // first check if the user making this request is the family admin
     const adminCheck = `
@@ -695,17 +818,25 @@ export async function removeMember(familyId: number, memberId: number) {
     revalidatePath(`/families/${familyId}/remove`);
   } catch (err) {
     await client.query("ROLLBACK");
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "removeMember",
+          `Error removing member with id ${memberId} from family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   } finally {
     client.release();
   }
 }
 
 export async function transferAdminStatus(familyId: number, memberId: number) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     const query = `
       WITH admin_check AS (
         SELECT 1
@@ -729,8 +860,16 @@ export async function transferAdminStatus(familyId: number, memberId: number) {
     revalidatePath(`/families/${familyId}/promote`);
     revalidatePath(`/families/${familyId}/remove`);
   } catch (err) {
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "transferAdminStatus",
+          `Error promoting member with id ${memberId} to admin of family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
-    // XXX TODO XXX
-    // log this
   }
 }

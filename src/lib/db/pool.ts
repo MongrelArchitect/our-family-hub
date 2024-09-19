@@ -1,4 +1,5 @@
 import pg from "pg";
+import generateError from "../errors/errors";
 
 const { Pool } = pg;
 
@@ -19,7 +20,20 @@ const pool = new Pool({
 });
 
 process.on("exit", () => {
-  pool.end().catch((err) => console.error("Disconnection error", err.stack));
+  pool
+    .end()
+    .catch((err) =>
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "pool",
+            "Error disconnecting from database pool",
+            0,
+          ),
+        ),
+      ),
+    );
 });
 
 export default pool;

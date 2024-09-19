@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { isEmpty, isLength, trim } from "validator";
 
+import generateError from "../errors/errors";
 import pool from "./pool";
 
 import { PostInterface, ThreadInterface } from "@/types/Threads";
@@ -14,15 +15,14 @@ export async function createNewPost(
   familyId: number,
   formData: FormData,
 ) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     let content = formData.get("content");
     if (!content || typeof content !== "string") {
       throw new Error("Missing or invalid content");
     }
     content = trim(content);
-    if (isEmpty(content) || !isLength(content, {min: 1, max: 20000})) {
+    if (isEmpty(content) || !isLength(content, { min: 1, max: 20000 })) {
       throw new Error("Content required - 20,000 characters max");
     }
 
@@ -50,22 +50,29 @@ export async function createNewPost(
     revalidatePath(`/families/${familyId}/`);
     revalidatePath(`/families/${familyId}/threads/${threadId}/`);
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewPost",
+          `Error creating new post to thread with id ${threadId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export async function createNewThread(familyId: number, formData: FormData) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     let title = formData.get("title");
     if (!title || typeof title !== "string") {
       throw new Error("Missing or invalid title");
     }
     title = trim(title);
-    if (isEmpty(title) || !isLength(title, {min: 1, max: 255})) {
+    if (isEmpty(title) || !isLength(title, { min: 1, max: 255 })) {
       throw new Error("Title required - 255 characters max");
     }
 
@@ -74,7 +81,7 @@ export async function createNewThread(familyId: number, formData: FormData) {
       throw new Error("Missing or invalid content");
     }
     content = trim(content);
-    if (isEmpty(content) || !isLength(content, {min: 1, max: 20000})) {
+    if (isEmpty(content) || !isLength(content, { min: 1, max: 20000 })) {
       throw new Error("Content required - 20,000 characters max");
     }
 
@@ -100,8 +107,16 @@ export async function createNewThread(familyId: number, formData: FormData) {
     revalidatePath(`/families/${familyId}/`);
     return +result.rows[0].id;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewThread",
+          `Error creating new thread in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
@@ -111,8 +126,8 @@ export async function deletePost(
   familyId: number,
   threadId: number,
 ) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     // first delete all the posts for this thread
     const query = `
       WITH member_check AS (
@@ -146,17 +161,25 @@ export async function deletePost(
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/threads/${threadId}`);
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deletePost",
+          `Error deleting post from thread with id ${threadId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export async function deleteThread(threadId: number, familyId: number) {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const userId = await getUserId();
     // first delete all the posts for this thread
     const postsQuery = `
       WITH member_check AS (
@@ -218,8 +241,16 @@ export async function deleteThread(threadId: number, familyId: number) {
     revalidatePath(`/families/${familyId}/threads/${threadId}`);
   } catch (err) {
     await client.query("ROLLBACK");
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deleteThread",
+          `Error deleting thread with id ${threadId} from family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   } finally {
     client.release();
@@ -228,8 +259,8 @@ export async function deleteThread(threadId: number, familyId: number) {
 
 export const getThreadInfo = cache(
   async (threadId: number, familyId: number) => {
+    const userId = await getUserId();
     try {
-      const userId = await getUserId();
       const query = `
       WITH member_check AS (
         SELECT 1
@@ -264,8 +295,16 @@ export const getThreadInfo = cache(
 
       return threadInfo;
     } catch (err) {
-      // XXX TODO XXX
-      // log this
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "getThreadInfo",
+            `Error getting info from thread with id ${threadId} in family with id ${familyId}`,
+            userId,
+          ),
+        ),
+      );
       throw err;
     }
   },
@@ -273,8 +312,8 @@ export const getThreadInfo = cache(
 
 export const getThreadPosts = cache(
   async (familyId: number, threadId: number) => {
+    const userId = await getUserId();
     try {
-      const userId = await getUserId();
       const query = `
       WITH member_check AS (
         SELECT 1
@@ -302,16 +341,24 @@ export const getThreadPosts = cache(
       });
       return posts;
     } catch (err) {
-      // XXX TODO XXX
-      // log this
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "getThreadPosts",
+            `Error getting posts from thread with id ${threadId} in family with id ${familyId}`,
+            userId,
+          ),
+        ),
+      );
       throw err;
     }
   },
 );
 
 export const getThreadSummaries = cache(async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     // XXX TODO XXX
     // sort by latest post...or what?
     const query = `
@@ -347,8 +394,16 @@ export const getThreadSummaries = cache(async (familyId: number) => {
     });
     return threads;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getThreadSummaries",
+          `Error getting info about threads for family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });

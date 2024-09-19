@@ -27,7 +27,7 @@ export default async function Home() {
     return null;
   }
 
-  const invites = await getUsersInvites(user.id);
+  const invites = await getUsersInvites();
 
   const showInvites = () => {
     if (invites.length) {

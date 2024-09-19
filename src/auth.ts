@@ -2,6 +2,7 @@ import Google from "next-auth/providers/google";
 import NextAuth from "next-auth";
 
 import { addNewProfileImage } from "./lib/images/images";
+import generateError from "./lib/errors/errors";
 
 import {
   addUserToDatabase,
@@ -34,10 +35,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         user.id = userId.toString();
         return true;
       } catch (err) {
-        // XXX TODO XXX
-        // log this
-        console.error("Error signing in: ", err);
         // some error in database calls
+        console.error(
+          JSON.stringify(
+            generateError(
+              err,
+              "signIn",
+              "Error signing in within next-auth callback",
+              0,
+            ),
+          ),
+        );
         return false;
       }
     },

@@ -6,10 +6,14 @@ export default async function getUserId() {
   // there is no user with id 0
   let userId = 0;
 
-  const session = await auth();
+  try {
+    const session = await auth();
 
-  if (session && session.user && session.user.id) {
-    userId = +session.user.id;
+    if (session && session.user && session.user.id) {
+      userId = +session.user.id;
+    }
+  } catch {
+    userId = 0;
   }
 
   return userId;

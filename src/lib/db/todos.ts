@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { isDate, isEmpty, isInt, isLength, trim } from "validator";
 
+import generateError from "../errors/errors";
 import pool from "./pool";
 
 import getUserId from "../auth/user";
@@ -19,9 +20,8 @@ export async function createNewTask(
   offset: number | null,
   formData: FormData,
 ) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     // title required
     let title = formData.get("title");
     if (!title || typeof title !== "string") {
@@ -101,16 +101,23 @@ export async function createNewTask(
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewTask",
+          `Error creating new task in todo list with id ${todoId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export async function createNewTodoList(familyId: number, formData: FormData) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     // title required
     let title = formData.get("title");
     if (!title || typeof title !== "string") {
@@ -160,8 +167,16 @@ export async function createNewTodoList(familyId: number, formData: FormData) {
     revalidatePath(`/families/${familyId}/`);
     return +result.rows[0].id;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "createNewTodoList",
+          `Error creating new todo list in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
@@ -171,8 +186,8 @@ export async function deleteTask(
   todoId: number,
   taskId: number,
 ) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
     const query = `
       WITH member_check AS (
         SELECT 1
@@ -206,17 +221,25 @@ export async function deleteTask(
       revalidatePath(`/families/${familyId}/todos/${todoId}`);
     }
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deleteTask",
+          `Error deleting task with id ${taskId} from todo list with id ${todoId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
 
 export async function deleteTodoList(familyId: number, todoId: number) {
+  const userId = await getUserId();
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const userId = await getUserId();
     // first delete all the tasks for this todo list
     const tasksQuery = `
       WITH member_check AS (
@@ -277,9 +300,17 @@ export async function deleteTodoList(familyId: number, todoId: number) {
     revalidatePath(`/families/${familyId}`);
     revalidatePath(`/families/${familyId}/todos/${todoId}`);
   } catch (err) {
-    // XXX TODO XXX
-    // log this
     await client.query("ROLLBACK");
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "deleteTodoList",
+          `Error deleting todo list with id ${todoId} from family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   } finally {
     client.release();
@@ -287,9 +318,8 @@ export async function deleteTodoList(familyId: number, todoId: number) {
 }
 
 export const getTasks = cache(async (familyId: number, todoId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
       WITH member_check AS (
         SELECT 1
@@ -331,17 +361,24 @@ export const getTasks = cache(async (familyId: number, todoId: number) => {
     });
     return tasks;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getTasks",
+          `Error getting tasks from todo list with id ${todoId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
 
 export const getTodoListInfo = cache(
   async (familyId: number, todoId: number) => {
+    const userId = await getUserId();
     try {
-      const userId = await getUserId();
-
       const query = `
       WITH member_check AS (
         SELECT 1
@@ -373,17 +410,24 @@ export const getTodoListInfo = cache(
       }
       return notFound();
     } catch (err) {
-      // XXX TODO XXX
-      // log this
+      console.error(
+        JSON.stringify(
+          generateError(
+            err,
+            "getTodoListInfo",
+            `Error getting info about todo list with id ${todoId} in family with id ${familyId}`,
+            userId,
+          ),
+        ),
+      );
       throw err;
     }
   },
 );
 
 export const getTodoListSummaries = cache(async (familyId: number) => {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
       WITH member_check AS (
         SELECT 1
@@ -417,8 +461,16 @@ export const getTodoListSummaries = cache(async (familyId: number) => {
 
     return todoListSummaries;
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "getTodoListSummaries",
+          `Error getting todo list summaries from family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 });
@@ -428,9 +480,8 @@ export async function toggleTaskDone(
   todoId: number,
   taskId: number,
 ) {
+  const userId = await getUserId();
   try {
-    const userId = await getUserId();
-
     const query = `
       WITH member_check AS (
         SELECT 1
@@ -463,8 +514,16 @@ export async function toggleTaskDone(
       revalidatePath(`/families/${familyId}/todos/${todoId}`);
     }
   } catch (err) {
-    // XXX TODO XXX
-    // log this
+    console.error(
+      JSON.stringify(
+        generateError(
+          err,
+          "toggleTaskDone",
+          `Error toggling completion of task with id ${taskId} in todo list with id ${todoId} in family with id ${familyId}`,
+          userId,
+        ),
+      ),
+    );
     throw err;
   }
 }
