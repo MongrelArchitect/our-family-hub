@@ -13,7 +13,7 @@ import EventInterface from "@/types/Events";
 
 interface Props {
   dayNumber: number;
-  daysEvents: null | { [key: number]: EventInterface };
+  daysEvents: Record<number, EventInterface> | null;
   inNextMonth: boolean;
   inPrevMonth: boolean;
   isSaturday: boolean;

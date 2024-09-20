@@ -179,7 +179,7 @@ export default function Calendar({ userId, userIsAdmin }: Props) {
           new Date().getDate() === day &&
           new Date().getMonth() === date?.getMonth() &&
           new Date().getFullYear() === date?.getFullYear();
-        let daysEvents: { [key: number]: EventInterface } | null = null;
+        let daysEvents: Record<number, EventInterface> | null = null;
         if (events) {
           if (!inNextMonth && !inPrevMonth) {
             if (events.current[day]) {
