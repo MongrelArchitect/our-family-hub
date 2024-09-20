@@ -26,7 +26,7 @@ interface Props {
 
 interface TaskMembers {
   assignedTo: UserInterface | null;
-  createdBy: UserInterface;
+  createdBy: UserInterface | null;
 }
 
 export default function Task({
@@ -210,7 +210,7 @@ export default function Task({
             >
               <h3 className="font-bold">Created by:</h3>
               <div>
-                {memberInfo ? (
+                {memberInfo && memberInfo.createdBy ? (
                   <div className="flex flex-wrap items-center gap-2">
                     {memberInfo.createdBy.id === 1 ? (
                       memberInfo.createdBy.name

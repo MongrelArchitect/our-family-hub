@@ -6,6 +6,7 @@ import threadIcon from "@/assets/icons/chat.svg";
 
 import Card from "@/components/Card";
 import DeleteThread from "./DeleteThread";
+import Loading from "@/components/Loading";
 import LocalTime from "@/components/LocalTime";
 import ProfileImage from "@/components/ProfileImage";
 
@@ -71,23 +72,29 @@ export default async function Thread({ params }: Params) {
             {threadInfo.content}
           </pre>
           <div className="flex flex-wrap items-center gap-2">
-            <ProfileImage size={40} userId={authorInfo.id} />
-            <div className="flex flex-col font-mono text-sm">
-              {authorInfo.id === 1 ? (
-                authorInfo.name
-              ) : (
-                <Link
-                  className="font-bold text-violet-800 hover:underline focus:underline"
-                  href={`/users/${threadInfo.authorId}`}
-                  title={`View ${authorInfo.name}'s profile`}
-                >
-                  {authorInfo.name}
-                </Link>
-              )}
-              <span>
-                <LocalTime timestampFromServer={threadInfo.createdAt} />
-              </span>
-            </div>
+            {authorInfo ? (
+              <>
+                <ProfileImage size={40} userId={authorInfo.id} />
+                <div className="flex flex-col font-mono text-sm">
+                  {authorInfo.id === 1 ? (
+                    authorInfo.name
+                  ) : (
+                    <Link
+                      className="font-bold text-violet-800 hover:underline focus:underline"
+                      href={`/users/${threadInfo.authorId}`}
+                      title={`View ${authorInfo.name}'s profile`}
+                    >
+                      {authorInfo.name}
+                    </Link>
+                  )}
+                  <span>
+                    <LocalTime timestampFromServer={threadInfo.createdAt} />
+                  </span>
+                </div>
+              </>
+            ) : (
+              <Loading />
+            )}
           </div>
           <NewPostForm familyId={familyId} threadId={threadId} />
           {userIsAdmin || userIsThreadAuthor ? (

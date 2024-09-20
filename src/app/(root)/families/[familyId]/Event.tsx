@@ -42,7 +42,9 @@ export default function Event({
   useEffect(() => {
     const getInfo = async () => {
       const userInfo = await getOtherUsersInfo(event.createdBy);
-      setCreatorName(userInfo.name);
+      if (userInfo) {
+        setCreatorName(userInfo.name);
+      }
     };
     getInfo();
   }, []);

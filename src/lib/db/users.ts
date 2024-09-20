@@ -281,7 +281,7 @@ export const getOtherUsersInfo = cache(async (userId: number) => {
     const result = await pool.query(query, [authUserId, userId]);
 
     if (!result.rowCount) {
-      throw new Error("No user found");
+      return null;
     }
 
     const user: UserInterface = {

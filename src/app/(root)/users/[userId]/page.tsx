@@ -3,11 +3,15 @@ import Image from "next/image";
 import { redirect, notFound } from "next/navigation";
 
 import profileIcon from "@/assets/icons/account-circle.svg";
+
 import Card from "@/components/Card";
+import Loading from "@/components/Loading";
 import LocalTime from "@/components/LocalTime";
 import ProfileImage from "@/components/ProfileImage";
+
 import getUserId from "@/lib/auth/user";
 import { getOtherUsersInfo } from "@/lib/db/users";
+
 import UserInterface from "@/types/Users";
 
 interface Props {
@@ -21,10 +25,12 @@ export async function generateMetadata({
 }: {
   params: { userId: string };
 }): Promise<Metadata> {
-  let memberName: string;
+  let memberName = "User Profile";
   try {
-    const { name } = await getOtherUsersInfo(+params.userId);
-    memberName = name;
+    const userInfo = await getOtherUsersInfo(+params.userId);
+    if (userInfo) {
+      memberName = userInfo.name;
+    }
   } catch {
     memberName = "User Profile";
   }
@@ -60,19 +66,28 @@ export default async function UserProfile({ params }: Props) {
       headingColor="bg-green-200"
     >
       <div className="flex flex-wrap items-center gap-4">
-        <ProfileImage size={96} userId={userInfo.id} />
-        <div>
-          <p>{userInfo.name}</p>
-          <p className="break-all text-base">{userInfo.email}</p>
-          <div className="flex flex-wrap text-base">
-            Joined:{" "}
-            <LocalTime dateOnly timestampFromServer={userInfo.createdAt} />
-          </div>
-          <div className="flex flex-wrap text-base">
-            Last login:{" "}
-            <LocalTime dateOnly timestampFromServer={userInfo.lastLoginAt} />
-          </div>
-        </div>
+        {userInfo ? (
+          <>
+            <ProfileImage size={96} userId={userInfo.id} />
+            <div>
+              <p>{userInfo.name}</p>
+              <p className="break-all text-base">{userInfo.email}</p>
+              <div className="flex flex-wrap text-base">
+                Joined:{" "}
+                <LocalTime dateOnly timestampFromServer={userInfo.createdAt} />
+              </div>
+              <div className="flex flex-wrap text-base">
+                Last login:{" "}
+                <LocalTime
+                  dateOnly
+                  timestampFromServer={userInfo.lastLoginAt}
+                />
+              </div>
+            </div>
+          </>
+        ) : (
+          <Loading />
+        )}
       </div>
     </Card>
   );
