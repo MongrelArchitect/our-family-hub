@@ -4,7 +4,7 @@ WORKDIR /our-family-hub
 
 COPY package*.json .
 
-RUN npm install yarn && yarn
+RUN yarn
 
 COPY . .
 
