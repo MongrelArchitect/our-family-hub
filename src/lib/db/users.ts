@@ -319,7 +319,7 @@ export const getUsersOwnInfo = cache(async () => {
     `;
     const result = await pool.query(query, [userId]);
     if (!result.rowCount) {
-      throw new Error("Error getting user's own info");
+      return null;
     }
     const row = result.rows[0];
     const userInfo: UserInterface = {

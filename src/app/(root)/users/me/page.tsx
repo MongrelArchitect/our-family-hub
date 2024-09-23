@@ -18,6 +18,10 @@ export const metadata: Metadata = {
 export default async function MyProfile() {
   const userInfo = await getUsersOwnInfo();
 
+  if (!userInfo) {
+    return null;
+  }
+
   return (
     <Card
       borderColor="border-green-400"
