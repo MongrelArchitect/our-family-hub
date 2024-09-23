@@ -680,6 +680,7 @@ export const joinFamily = cache(async (familyId: number) => {
       revalidatePath("/families/all");
       revalidatePath(`/families/${familyId}`);
       revalidatePath(`/families/${familyId}/members`);
+      revalidatePath(`/families/${familyId}/promote`);
       revalidatePath(`/families/${familyId}/remove`);
     }
   } catch (err) {
@@ -815,6 +816,8 @@ export async function removeMember(familyId: number, memberId: number) {
     await client.query("COMMIT");
     revalidatePath("/families/all");
     revalidatePath(`/families/${familyId}`);
+    revalidatePath(`/families/${familyId}/members`);
+    revalidatePath(`/families/${familyId}/promote`);
     revalidatePath(`/families/${familyId}/remove`);
   } catch (err) {
     await client.query("ROLLBACK");
