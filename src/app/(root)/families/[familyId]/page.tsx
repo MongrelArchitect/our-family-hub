@@ -20,6 +20,11 @@ export default async function FamilyPage({
 }) {
   const familyId = +params.familyId;
   const family = await getFamilyInfo(familyId);
+
+  if (!family) {
+    return null;
+  }
+
   const userId = await getUserId();
   const userIsAdmin = userId === family.adminId;
   const todoLists = await getTodoListSummaries(familyId);
