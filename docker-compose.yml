@@ -3,6 +3,8 @@ services:
     image: seanzie/our-family-hub:latest
     build:
       context: .
+    volumes:
+      - ./src:/our-family-hub/src
     ports: 
       - 3000:3000
     environment:
