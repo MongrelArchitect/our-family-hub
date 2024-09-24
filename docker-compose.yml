@@ -15,6 +15,8 @@ services:
       - DATABASE_NAME=${POSTGRES_DB}
       - DATABASE_USER=${POSTGRES_USER}
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - NODE_ENV=${NODE_ENV}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
     depends_on:
       - database
     restart: on-failure:3
