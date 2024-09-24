@@ -25,7 +25,7 @@ export default function ErrorPage({ error }: Props) {
             Please{" "}
             <a
               className="font-bold text-violet-700 hover:underline focus:underline"
-              href="mailto:set@seanericthomas.com?subject=Our Family Hub - Bug Report"
+              href="mailto:sean@ourfamilyhub.net?subject=Our Family Hub - Bug Report"
             >
               email us
             </a>{" "}
