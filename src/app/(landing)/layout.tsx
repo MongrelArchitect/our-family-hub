@@ -34,7 +34,7 @@ export default async function LandingLayout({
       className={`${inter.className} flex flex-col items-center bg-[url('/background.webp')] bg-cover bg-center text-lg`}
       lang="en"
     >
-      <body className="flex h-screen w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
+      <body className="flex h-svh w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
         <header className="flex w-full select-none items-center justify-between gap-2 border-b-2 border-violet-400 bg-violet-200 p-2">
           <div className="flex items-center gap-2">
             <Image alt="" src={logoIcon} width="40" />

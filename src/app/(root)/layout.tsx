@@ -42,7 +42,7 @@ export default async function RootLayout({
         className={`${inter.className} flex flex-col items-center bg-[url('/background.webp')] bg-cover bg-center text-lg`}
         lang="en"
       >
-        <body className="flex h-screen w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
+        <body className="flex h-svh w-full max-w-[1024px] flex-col overflow-hidden bg-[url('/texture.webp')] shadow-lg shadow-slate-800">
           {/* HEADER */}
           <div className="relative flex items-center bg-violet-200">
             {/* sidebar for smaller screens */}
