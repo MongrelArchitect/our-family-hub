@@ -46,6 +46,11 @@ export default async function Thread({ params }: Params) {
   const familyId = +params.familyId;
   const threadId = +params.threadId;
   const familyInfo = await getFamilyInfo(familyId);
+
+  if (!familyInfo) {
+    return null;
+  }
+
   const threadInfo = await getThreadInfo(threadId, familyId);
   const authorInfo = await getAuthorInfo(threadInfo.authorId);
   const posts = await getThreadPosts(familyId, threadId);

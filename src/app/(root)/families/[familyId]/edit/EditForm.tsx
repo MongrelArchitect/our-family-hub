@@ -47,8 +47,7 @@ export default function EditForm({ familyId }: Props) {
       return (
         <>
           <p>
-            Surname edited successfully. Your family is now{" "}
-            <b>{`The ${surname} Family`}.</b>
+            Family edited successfully.
           </p>
           <button
             className="self-start font-bold text-violet-900 hover:underline focus:underline"

@@ -29,13 +29,16 @@ export default async function Home() {
         <ul className="flex flex-col gap-4">
           {invites.map(async (invite) => {
             const familyInfo = await getFamilyInfo(invite.familyId);
-            return (
-              <Invite
-                familyInfo={familyInfo}
-                invite={invite}
-                key={invite.familyId}
-              />
-            );
+            if (familyInfo) {
+              return (
+                <Invite
+                  familyInfo={familyInfo}
+                  invite={invite}
+                  key={invite.familyId}
+                />
+              );
+            }
+            return null;
           })}
         </ul>
       );

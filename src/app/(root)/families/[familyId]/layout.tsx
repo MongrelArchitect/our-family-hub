@@ -11,8 +11,10 @@ export async function generateMetadata({
   const familyId = +params.familyId;
   let familyName = "My Family";
   try {
-    const { surname } = await getFamilyInfo(familyId);
-    familyName = `The ${surname} Family`;
+    const familyInfo = await getFamilyInfo(familyId);
+    if (familyInfo) {
+      familyName = `The ${familyInfo.surname} Family`;
+    }
   } catch (err) {
     // XXX TODO XXX
     // log this

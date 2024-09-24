@@ -26,6 +26,10 @@ export default async function FamilyMembers({ params }: Props) {
   const familyInfo = await getFamilyInfo(familyId);
   const familyMembers = await getFamilyMembers(familyId);
 
+  if (!familyInfo) {
+    return null;
+  }
+
   return (
     <Card
       borderColor="border-green-400"

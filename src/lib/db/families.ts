@@ -538,6 +538,12 @@ export const getFamilyInfo = cache(async (familyId: number) => {
         FROM family_members
         WHERE member_id = $1
         AND family_id = $2
+      ),
+      invite_check AS (
+        SELECT 1
+        FROM invites
+        WHERE user_id = $1
+        AND family_id = $2
       )
       SELECT 
         f.surname, 
@@ -551,9 +557,14 @@ export const getFamilyInfo = cache(async (familyId: number) => {
       ON f.admin_id = u.id 
       WHERE f.id = $2 
       AND EXISTS(SELECT 1 FROM member_check)
+      OR EXISTS (SELECT 1 FROM invite_check)
       GROUP BY f.id, u.name
     `;
     const res = await pool.query(query, [userId, familyId]);
+
+    if (!res.rowCount) {
+      return null;
+    }
 
     const response: FamilyInterface = {
       adminId: +res.rows[0].admin_id,

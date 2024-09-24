@@ -43,6 +43,11 @@ export default async function TodoList({ params }: Params) {
   const todoListInfo = await getTodoListInfo(familyId, todoId);
   const tasks = await getTasks(familyId, todoId);
   const familyInfo = await getFamilyInfo(familyId);
+
+  if (!familyInfo) {
+    return null;
+  }
+
   const userIsAdmin = userId === familyInfo.adminId;
   const userIsCreator = userId === todoListInfo.createdBy;
 
